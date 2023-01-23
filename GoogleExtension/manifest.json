@@ -1,0 +1,31 @@
+{
+    "manifest_version": 3,
+    "name": "GrammatikTAK",
+    "version": "1.0",
+    "description": "Improve your danish writing with GrammatikTAK's grammar, punctuation and spelling checker",
+    "permissions": [
+        "contextMenus",
+        "scripting",
+        "activeTab",
+        "storage"
+      ],
+    "icons": {
+        "16": "images/BlueCheckmark_16.png",
+        "32": "images/BlueCheckmark_32.png",
+        "48": "images/BlueCheckmark_48.png",
+        "128": "images/BlueCheckmark_128.png"
+    },
+    "action": {
+        "default_popup": "scripts/popup.html"
+    },
+    "background": { 
+        "service_worker": "scripts/background.js"
+    },
+    "content_scripts": [
+        {
+          "matches": ["<all_urls>"],
+          "js": ["handle_errors.js"]
+        }
+    ]
+
+}

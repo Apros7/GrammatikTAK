@@ -1,0 +1,94 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+body {
+  background: white;
+  margin: 0;
+  font-family: "Poppins";
+}
+
+.navbar {
+  background: white;
+  padding: 1em;
+  text-align: center;
+}
+.navbar .LogoText {
+  color: black;
+  font-size: 1.25em;
+  font-weight: bold;
+}
+.navbar .LogoText span {
+  color: #007AF3;
+}
+
+.hero {
+  background: #007AF3;
+  text-align: center;
+  font-size: 1em;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  line-height: 1.7em;
+  color: white;
+}
+
+.text-and-recommendations {
+  background: white;
+  margin: 3em 4% 1em 4%;
+}
+.text-and-recommendations .left-column {
+  float: left;
+  background: #f2f2f2;
+  padding: 2em 1em;
+  width: 60%;
+  border-radius: 1em;
+}
+.text-and-recommendations .left-column .information-text {
+  font-weight: bold;
+  font-size: 1.3;
+  text-align: center;
+  color: #007AF3;
+  margin-top: -4em;
+  margin-bottom: 1em;
+}
+.text-and-recommendations .right-column {
+  width: 30%;
+  float: right;
+}
+.text-and-recommendations .right-column .allClearText {
+  padding: 1em 0em 1em 1em;
+  background: #f2f2f2;
+  border-radius: 1em;
+}
+.text-and-recommendations .right-column .error-message {
+  margin-top: 0;
+  margin-bottom: 1em;
+  padding: 0.5em 0.8em;
+  background: #f2f2f2;
+  border-radius: 1em;
+}
+.text-and-recommendations .right-column .error-message .close-button {
+  float: right;
+  cursor: pointer;
+  color: red;
+  font-weight: bold;
+}
+.text-and-recommendations .right-column .error-message .arrow {
+  content: "→";
+}
+.text-and-recommendations .right-column .error-message .wrongWord {
+  color: red;
+}
+.text-and-recommendations .right-column .error-message .correctWord {
+  background: #007AF3;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 1em;
+  cursor: pointer;
+}
+.text-and-recommendations .right-column .error-message .wrongWord, .text-and-recommendations .right-column .error-message .arrow, .text-and-recommendations .right-column .error-message .correctWord {
+  display: inline-block;
+  margin-right: 0.5em;
+}
+.text-and-recommendations .right-column .error-message .description {
+  padding-top: 10px;
+  font-size: 0.9em;
+}/*# sourceMappingURL=main.css.map */

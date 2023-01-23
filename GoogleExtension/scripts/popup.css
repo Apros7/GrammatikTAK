@@ -1,0 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+head {
+  background: white;
+  margin: 0;
+  font-family: "Poppins";
+}
+
+.navbar {
+  background: white;
+  padding: 1em;
+  text-align: center;
+}
+.navbar .LogoText {
+  color: black;
+  font-size: 1.25em;
+  font-weight: bold;
+}
+.navbar .LogoText span {
+  color: #007AF3;
+}/*# sourceMappingURL=popup.css.map */
