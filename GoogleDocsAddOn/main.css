@@ -1,43 +1,31 @@
 /* This is added to html when in use */
 
-@charset "UTF-8";
 .error-message {
-  margin-top: 0;
-  margin-bottom: 1em;
-  padding: 0.5em 0.8em;
-  background: #f2f2f2;
-  border-radius: 1em;
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  color: #a94442;
+  padding: 15px;
+  margin-bottom: 20px;
 }
 
-.error-message .close-button {
+.close-button {
   float: right;
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 20px;
   cursor: pointer;
-  color: red;
+}
+
+.wrongWord {
   font-weight: bold;
 }
 
-.arrow {
-  content: "→";
+.correctWord {
+  color: #3c763d;
 }
 
-.error-message .wrongWord {
-  color: red;
+.description {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
 }
-
-.error-message .correctWord {
-  background: #007AF3;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 1em;
-  cursor: pointer;
-}
-
-.error-message .wrongWord, .text-and-recommendations .right-column .error-message .arrow, .text-and-recommendations .right-column .error-message .correctWord {
-  display: inline-block;
-  margin-right: 0.5em;
-}
-
-.error-message .description {
-  padding-top: 10px;
-  font-size: 0.9em;
-}/*# sourceMappingURL=main.css.map */
