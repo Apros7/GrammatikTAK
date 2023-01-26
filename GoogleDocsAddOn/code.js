@@ -1,9 +1,21 @@
 let errors = [["he", "hej", 0, "beskrivelse"], ["heder", "hedder", 2, "beskrivelse"], ["lucas", "Lucas", 3, "beskrivelse"]]
 //let errors = []
+let service_url = "http://127.0.0.1:5000/";
 
-function getErrors(){
-  // should get errors via fetch and then update errors
-  pass
+async function fetchData() {
+  var activeDoc = DocumentApp.getActiveDocument();
+  var originalText = activeDoc.getBody().getText();
+  let object = {"sentence": originalText};
+  const response = await fetch(service_url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(object)
+  });
+  const data = await response.text();
+  errors = JSON.parse(data.replace(/\\u([a-f0-9]{4})/gi, (match, group) => String.fromCharCode(parseInt(group, 16))));;
+  return errors
 }
 
 function replaceWord(i){
@@ -23,7 +35,9 @@ function onOpen(e) {
 }
 
 // This function will be called when the script is run
-function showErrors() {
+async function showErrors() {
+  errors = await fetchData();
+  Logger.log(errors)
   // Check if there are any errors
   if (errors.length == 0) {
     // Show a message indicating that the text is error-free
