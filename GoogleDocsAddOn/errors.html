@@ -1,9 +1,60 @@
 <!DOCTYPE html>
 
-<link href="https://ssl.gstatic.com/docs/script/css/add-ons.css" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+        @charset "UTF-8";
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
+        body {
+            background: white;
+            margin: 0;
+            font-family: "Poppins";
+            margin: .5em 2% .5em 2%;
+            font-size: 0.8em
+        }
 
-<!-- The sidebar will have a input box and the search button -->
-<div class="sidebar">
-  <!-- The search box for Google Maps -->
-  <div class="currentText"></div>
-</div>
+        .error-message {
+            margin-top: 0;
+            margin-bottom: 1em;
+            padding: 0.5em 0.8em;
+            background: #f2f2f2;
+            border-radius: 1em;
+        }
+
+        .close-button {
+            float: right;
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+        }
+
+        .wrongWord {
+            color: red;
+            padding-right: .2em;
+        }
+
+        .arrow {
+            padding-right: .2em;
+        }
+
+        .correctWord {
+            background: #007AF3;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 1em;
+            cursor: pointer;
+        }
+
+        .description {
+            padding-top: 10px;
+            font-size: 0.9em;
+            display: block;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="errors"></div>
+  </body>
+</html>
