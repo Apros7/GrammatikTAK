@@ -6,6 +6,15 @@ function getErrors(){
   pass
 }
 
+function replaceWord(i){
+  var activeDoc = DocumentApp.getActiveDocument();
+  var text = activeDoc.getBody().getText();
+  var words = text.split(" ");
+  words[errors[i][2]] = errors[i][1];
+  var newText = words.join(" ");
+  activeDoc.getBody().setText(newText);
+}
+
 // Create a menu item
 function onOpen(e) {
   DocumentApp.getUi().createAddonMenu()
@@ -15,13 +24,6 @@ function onOpen(e) {
 
 // This function will be called when the script is run
 function showErrors() {
-  // Get the text of the current document
-  var text = DocumentApp.getActiveDocument().getBody().getText();
-  
-  // Show the text in the sidebar
-  // var html = HtmlService.createHtmlOutput("<p>" + text + "</p>");
-  // DocumentApp.getUi().showSidebar(html);
-
   // Check if there are any errors
   if (errors.length == 0) {
     // Show a message indicating that the text is error-free
@@ -31,7 +33,6 @@ function showErrors() {
   } else {
     var errorTemplate = HtmlService.createTemplateFromFile('errors');
     var errorOutput = errorTemplate.evaluate().setTitle('Errors');
-    DocumentApp.getUi().showSidebar(errorOutput);
     var errorContainer = errorOutput.getContent();
     // Show the errors in the sidebar
     var errorHtml = "<div>";
@@ -40,11 +41,14 @@ function showErrors() {
                       "<span class='close-button'>X</span>" + 
                       "<span class='wrongWord'>" + errors[i][0] + "</span>" + 
                       "<span class='arrow'>&#8594;</span>" + 
-                      "<span class='correctWord'>" + errors[i][1] + "</span>" + 
+                      `<span class='correctWord' data-index='${i}'>` + errors[i][1] + "</span>" + 
                       "<span class='description'>" + errors[i][3] + "</span>" + 
-                    "</div>";;
-    }
+                    "</div>";
+  }
+    errorHtml += "<script>$('.correctWord').click(function(){const index = $(this).data('index'); google.script.run.replaceWord(index)});</script>"
+    errorHtml += "<script>$('.correctWord').click(function(){$(this).parent().remove();});</script>"
     errorHtml += "<script>$('.close-button').click(function(){$(this).parent().remove();});</script>"
+
     errorHtml += "</div>";
     errorContainer += errorHtml
     errorOutput.setContent(errorContainer);
