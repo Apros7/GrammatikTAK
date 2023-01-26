@@ -1,3 +1,5 @@
+// named as code.gs in the google script editor
+
 let errors = [["he", "hej", 0, "beskrivelse"], ["heder", "hedder", 2, "beskrivelse"], ["lucas", "Lucas", 3, "beskrivelse"]]
 //let errors = []
 
