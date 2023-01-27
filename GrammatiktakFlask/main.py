@@ -226,8 +226,7 @@ def fix_pos_dict(word, old_word, pos_dict):
     return pos_dict
 
 def is_word_number(word):
-    try: int(word); return True
-    except: return False
+    return word.isalpha()
 
 def correct_spelling_mistakes(sentence, named_entities, pos_dict):
     words = sentence.split()
