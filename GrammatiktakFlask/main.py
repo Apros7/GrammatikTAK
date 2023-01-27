@@ -28,7 +28,7 @@ pos_model = stanza.Pipeline("da")
 
 # Load comma and period model
 tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
-punctuation_model = torch.load("GrammatiktakFlask/modelCombined2")
+punctuation_model = torch.load("modelCombined2")
 punctuation_model.eval()
 punctuation_trainer = Trainer(punctuation_model)
 
