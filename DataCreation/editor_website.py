@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import time
 
 app = Flask(__name__)
+app.secret_key = 'jegharensupersværkodeatgætte123'
 
 text = ""
 
@@ -13,27 +14,46 @@ def get_wikitext():
     wikitext = ""
     for paragraph in soup.find_all('p'):
         wikitext += paragraph.text
+    wikitext = wikitext.replace("Sider for redaktører som er logget ud lær mere", "")
+    wikitext = wikitext.replace("\n", "").replace("\t", "")
+    print(wikitext)
     return wikitext
 
 @app.route('/')
 def index():
     wikitext = get_wikitext()
-    return f'''
+    return (f'''
         <div style="text-align:center">
-            <form method="POST" action="/submit">
+            <form method="POST" action="/submit" id="submit-form">
                 <textarea name="editor" style="width:50%;margin:auto;height:600px">{wikitext}</textarea>
                 <br>
                 <input type="submit" value="Submit">
             </form>
+            <form method="POST" action="/skip" id="skip-form"> <input type="submit" value="Skip"> </form>
         </div>
+    ''' +
     '''
+        <script>
+        document.addEventListener("keydown", function(event) {
+            if (event.code === "KeyA") {
+            document.getElementById("submit-form").submit();
+            } else if (event.code === "KeyS") {
+            document.getElementById("skip-form").submit();
+            }
+        });
+        </script>
+    ''')
 
 @app.route('/submit', methods=['POST'])
 def submit():
     global text
-    flash('Text successfully added!')
-    time.sleep(1)
+    time.sleep(0.5)
     text += request.form['editor']
+    print(request.form['editor'])
+    return redirect("/")
+
+@app.route('/skip', methods=['POST'])
+def skip():
     return redirect("/")
 
 if __name__ == '__main__':
