@@ -11,6 +11,7 @@ import string
 import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import os
 
 # Time for loading phase:
 load_time = time.time()
@@ -28,7 +29,7 @@ pos_model = stanza.Pipeline("da")
 
 # Load comma and period model
 tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
-punctuation_model = torch.load("modelCombined2")
+punctuation_model = torch.load("GrammatiktakFlask/modelCombined8", map_location=torch.device("cpu"))
 punctuation_model.eval()
 punctuation_trainer = Trainer(punctuation_model)
 
@@ -85,8 +86,13 @@ def split_sentence(sentence):
     sentences = []
     test_data = []
     words = sentence.split()
-    for i in range(len(words)-3):
-        test_data.append(" ".join(words[i:i+4]))
+    padding = "<PAD>"
+    context = [padding] * 3
+    for i in range(len(words) + 3):
+        test_data.append(context)
+        next_word = padding if i > len(words)-1 else words[i]
+        context = context[1:] + [next_word] # crop context and append next character
+    print(test_data)
     tokenized = tokenizer(test_data, padding=True, truncation=True, max_length=512)
     test_dataset = Dataset(tokenized)
     raw_pred_period, _, _ = punctuation_trainer.predict(test_dataset)
