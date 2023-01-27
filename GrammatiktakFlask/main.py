@@ -28,8 +28,9 @@ ner_model = pipeline(task='ner',
 pos_model = stanza.Pipeline("da")
 
 # Load comma and period model
-tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
-punctuation_model = torch.load("GrammatiktakFlask/modelCombined8", map_location=torch.device("cpu"))
+tokenizer = BertTokenizer.from_pretrained('Maltehb/danish-bert-botxo')
+punctuation_model = torch.load("GrammatiktakFlask/modelCombined2")
+#punctuation_model = torch.load("GrammatiktakFlask/modelCombined8", map_location=torch.device("cpu"))
 punctuation_model.eval()
 punctuation_trainer = Trainer(punctuation_model)
 
@@ -86,14 +87,24 @@ def split_sentence(sentence):
     sentences = []
     test_data = []
     words = sentence.split()
-    padding = "<PAD>"
-    context = [padding] * 3
-    for i in range(len(words) + 3):
-        test_data.append(context)
-        next_word = padding if i > len(words)-1 else words[i]
-        context = context[1:] + [next_word] # crop context and append next character
+
+    # Script for using model with 8 block size and padding
+
+    #padding = "<PAD>"
+    #context = [padding] * 3 + words[:5]
+    #while len(context) < 8:
+    #    context += [padding]
+    #for i in range(len(words)):
+    #    test_data.append(context)
+    #    next_word = padding if i+5 > len(words)-1 else words[i]
+    #    context = context[1:] + [next_word] # crop context and append next character
+    #test_data = [" ".join(lst) for lst in test_data]
+
+    for i in range(len(words)-3):
+        test_data.append(" ".join(words[i:i+4]))
+
     print(test_data)
-    tokenized = tokenizer(test_data, padding=True, truncation=True, max_length=512)
+    tokenized = tokenizer(test_data, padding=True, truncation=True, max_length=340)
     test_dataset = Dataset(tokenized)
     raw_pred_period, _, _ = punctuation_trainer.predict(test_dataset)
     y_pred_period = np.argmax(raw_pred_period, axis=1)
@@ -169,7 +180,7 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
             first_word = True
         else:
             first_word = False
-        if is_word_number(word):
+        if not is_word_number(word):
             counter_capitalize += 1
             continue
         if word in alphabet:
