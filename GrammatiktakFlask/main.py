@@ -11,7 +11,6 @@ import string
 import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os
 
 # Time for loading phase:
 load_time = time.time()
@@ -28,9 +27,8 @@ ner_model = pipeline(task='ner',
 pos_model = stanza.Pipeline("da")
 
 # Load comma and period model
-tokenizer = BertTokenizer.from_pretrained('Maltehb/danish-bert-botxo')
+tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
 punctuation_model = torch.load("GrammatiktakFlask/modelCombined2")
-#punctuation_model = torch.load("GrammatiktakFlask/modelCombined8", map_location=torch.device("cpu"))
 punctuation_model.eval()
 punctuation_trainer = Trainer(punctuation_model)
 
@@ -87,24 +85,9 @@ def split_sentence(sentence):
     sentences = []
     test_data = []
     words = sentence.split()
-
-    # Script for using model with 8 block size and padding
-
-    #padding = "<PAD>"
-    #context = [padding] * 3 + words[:5]
-    #while len(context) < 8:
-    #    context += [padding]
-    #for i in range(len(words)):
-    #    test_data.append(context)
-    #    next_word = padding if i+5 > len(words)-1 else words[i]
-    #    context = context[1:] + [next_word] # crop context and append next character
-    #test_data = [" ".join(lst) for lst in test_data]
-
     for i in range(len(words)-3):
         test_data.append(" ".join(words[i:i+4]))
-
-    print(test_data)
-    tokenized = tokenizer(test_data, padding=True, truncation=True, max_length=340)
+    tokenized = tokenizer(test_data, padding=True, truncation=True, max_length=512)
     test_dataset = Dataset(tokenized)
     raw_pred_period, _, _ = punctuation_trainer.predict(test_dataset)
     y_pred_period = np.argmax(raw_pred_period, axis=1)
@@ -180,7 +163,7 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
             first_word = True
         else:
             first_word = False
-        if not is_word_number(word):
+        if is_word_number(word):
             counter_capitalize += 1
             continue
         if word in alphabet:
@@ -243,7 +226,8 @@ def fix_pos_dict(word, old_word, pos_dict):
     return pos_dict
 
 def is_word_number(word):
-    return word.isalpha()
+    try: int(word); return True
+    except: return False
 
 def correct_spelling_mistakes(sentence, named_entities, pos_dict):
     words = sentence.split()
