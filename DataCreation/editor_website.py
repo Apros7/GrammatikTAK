@@ -41,24 +41,11 @@ def index():
             <form method="POST" action="/submit" id="submit-form">
                 <textarea name="editor" style="width:50%;margin:auto;height:600px">{wikitext}</textarea>
                 <br>
-                <input type="submit" value="Submit [A]">
+                <input type="submit" value="Submit">
             </form>
-            <form method="POST" action="/skip" id="skip-form"> <input type="submit" value="Skip [S]"> </form>
-            <form method="POST" action="/go-back" id="go-back-form"> <input type="submit" value="Back [B]"> </form>
+            <form method="POST" action="/skip" id="skip-form"> <input type="submit" value="Skip"> </form>
+            <form method="POST" action="/go-back" id="go-back-form"> <input type="submit" value="Back"> </form>
         </div>
-    ''' +
-    '''
-        <script>
-        document.addEventListener("keydown", function(event) {
-            if (event.code === "KeyA") {
-            document.getElementById("submit-form").submit();
-            } else if (event.code === "KeyS") {
-            document.getElementById("skip-form").submit();
-            } else if (event.code === "KeyB") {
-            document.getElementById("go-back-form").submit();
-            }
-        });
-        </script>
     ''')
 
 @app.route('/submit', methods=['POST'])
