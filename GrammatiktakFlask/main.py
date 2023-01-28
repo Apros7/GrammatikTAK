@@ -235,7 +235,14 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict):
     for i in range(0, len(words) - 2):
         current_word = words[i+2]
         if (current_word not in dictionary.values) and (current_word not in named_entities) and (not is_word_number(current_word)):
-            word = find_correct_word(words[i], words[i+1], current_word)
+            # Not the best way to fix i dag and i morgen
+            if current_word == "idag" or current_word == "imorgen":
+                word = "i dag" if current_word == "idag" else "i morgen"
+                error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
+                errors.append([current_word, word, i+2, error])
+                continue
+            else: 
+                word = find_correct_word(words[i], words[i+1], current_word)
             if word == current_word:
                 continue
             error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
@@ -354,5 +361,3 @@ def index():
     input = data["sentence"]
     output = complete_correction(input)
     return jsonify(output)
-
-print(complete_correction("hej jeg hedder per"))
