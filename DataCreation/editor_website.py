@@ -13,10 +13,6 @@ prev_text = None
 
 text = []
 
-def remove_pattern(input_string):
-    pattern = r"\[\*\s\d+\]"
-    return re.sub(pattern, "", input_string)
-
 def get_wikitext():
     url = requests.get("https://da.wikipedia.org/wiki/Special:Random")
     soup = BeautifulSoup(url.content, "html.parser")
@@ -25,7 +21,8 @@ def get_wikitext():
         wikitext += paragraph.text
     wikitext = wikitext.replace("Sider for redaktører som er logget ud lær mere", "")
     wikitext = wikitext.replace("\n", "").replace("\t", "")
-    return remove_pattern(wikitext)
+    wikitext = re.sub(r"\[[0-9]+\]", "", wikitext)
+    return re.sub(r"(?<=\.)(?=[^\s])", " ", wikitext)
 
 def update_progress(text):
     df = pd.DataFrame(text)
@@ -65,7 +62,7 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     global text
-    text.append(request.form['editor'])
+    text.append(str(request.form['editor']))
     update_progress(text)
     print(request.form['editor'])
     return redirect("/")
@@ -78,7 +75,6 @@ def skip():
 def go_back():
     global text, prev_text
     prev_text = text[-1]
-    print(prev_text)
     text = text[:-1]
     update_progress(text)
     return redirect("/")
