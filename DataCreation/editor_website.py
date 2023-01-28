@@ -3,13 +3,19 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
+import re
 import os
 
 app = Flask(__name__)
 app.secret_key = 'jegharensupersværkodeatgætte123'
 start_time = time.time()
+prev_text = None
 
 text = []
+
+def remove_pattern(input_string):
+    pattern = r"\[\*\s\d+\]"
+    return re.sub(pattern, "", input_string)
 
 def get_wikitext():
     url = requests.get("https://da.wikipedia.org/wiki/Special:Random")
@@ -19,25 +25,27 @@ def get_wikitext():
         wikitext += paragraph.text
     wikitext = wikitext.replace("Sider for redaktører som er logget ud lær mere", "")
     wikitext = wikitext.replace("\n", "").replace("\t", "")
-    return wikitext
+    return remove_pattern(wikitext)
 
 def update_progress(text):
     df = pd.DataFrame(text)
-    print(os.curdir)
     df.to_csv('../DataCreationDatasets/Dataset_' + str(start_time), header=None, index=False)
 
 
 @app.route('/')
 def index():
-    wikitext = get_wikitext()
+    global prev_text
+    wikitext = get_wikitext() if prev_text is None else prev_text
+    prev_text = None
     return (f'''
         <div style="text-align:center">
             <form method="POST" action="/submit" id="submit-form">
                 <textarea name="editor" style="width:50%;margin:auto;height:600px">{wikitext}</textarea>
                 <br>
-                <input type="submit" value="Submit">
+                <input type="submit" value="Submit [A]">
             </form>
-            <form method="POST" action="/skip" id="skip-form"> <input type="submit" value="Skip"> </form>
+            <form method="POST" action="/skip" id="skip-form"> <input type="submit" value="Skip [S]"> </form>
+            <form method="POST" action="/go-back" id="go-back-form"> <input type="submit" value="Back [B]"> </form>
         </div>
     ''' +
     '''
@@ -47,6 +55,8 @@ def index():
             document.getElementById("submit-form").submit();
             } else if (event.code === "KeyS") {
             document.getElementById("skip-form").submit();
+            } else if (event.code === "KeyB") {
+            document.getElementById("go-back-form").submit();
             }
         });
         </script>
@@ -62,6 +72,15 @@ def submit():
 
 @app.route('/skip', methods=['POST'])
 def skip():
+    return redirect("/")
+
+@app.route('/go-back', methods=['POST'])
+def go_back():
+    global text, prev_text
+    prev_text = text[-1]
+    print(prev_text)
+    text = text[:-1]
+    update_progress(text)
     return redirect("/")
 
 if __name__ == '__main__':
