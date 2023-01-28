@@ -5,6 +5,7 @@ import time
 
 app = Flask(__name__)
 app.secret_key = 'jegharensupersværkodeatgætte123'
+start_time = time.time()
 
 text = ""
 
@@ -18,6 +19,11 @@ def get_wikitext():
     wikitext = wikitext.replace("\n", "").replace("\t", "")
     print(wikitext)
     return wikitext
+
+def update_progress(text):
+    with open('document.csv','a') as fd:
+        fd.write(text)
+
 
 @app.route('/')
 def index():
@@ -47,8 +53,9 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     global text
-    time.sleep(0.5)
+    time.sleep(0.2)
     text += request.form['editor']
+    update_progress(request.form['editor'])
     print(request.form['editor'])
     return redirect("/")
 
