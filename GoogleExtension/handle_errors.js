@@ -12,6 +12,19 @@ async function get_text() {
   });
 }
 
+const copyButton = document.querySelector(".copy-button");
+
+copyButton.addEventListener("click", () => {
+  navigator.clipboard.writeText(document.querySelector(".text").innerText).then(() => {
+    copyButton.innerText = "Kopieret";
+    setTimeout(() => {
+      copyButton.innerText = "Kopier tekst";
+    }, 2000);
+  }, (err) => {
+    console.log('Failed to copy text: ', err);
+  });
+});
+
 let service_url = "http://127.0.0.1:5000/";
 
 async function fetchData() {
