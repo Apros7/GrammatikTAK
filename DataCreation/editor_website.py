@@ -22,7 +22,9 @@ def get_wikitext():
     wikitext = wikitext.replace("Sider for redaktører som er logget ud lær mere", "")
     wikitext = wikitext.replace("\n", "").replace("\t", "")
     wikitext = re.sub(r"\[[0-9]+\]", "", wikitext)
-    return re.sub(r"(?<=\.)(?=[^\s])", " ", wikitext)
+    wikitext = re.sub(r"(?<=\.)(?=[^\s])", " ", wikitext)
+    wikitext = wikitext.replace(" [kilde mangler]", "")
+    return wikitext
 
 def update_progress(text):
     df = pd.DataFrame(text)
