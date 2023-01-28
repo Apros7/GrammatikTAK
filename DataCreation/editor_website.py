@@ -2,12 +2,14 @@ from flask import Flask, request, redirect, flash
 import requests
 from bs4 import BeautifulSoup
 import time
+import pandas as pd
+import os
 
 app = Flask(__name__)
 app.secret_key = 'jegharensupersværkodeatgætte123'
 start_time = time.time()
 
-text = ""
+text = []
 
 def get_wikitext():
     url = requests.get("https://da.wikipedia.org/wiki/Special:Random")
@@ -17,12 +19,12 @@ def get_wikitext():
         wikitext += paragraph.text
     wikitext = wikitext.replace("Sider for redaktører som er logget ud lær mere", "")
     wikitext = wikitext.replace("\n", "").replace("\t", "")
-    print(wikitext)
     return wikitext
 
 def update_progress(text):
-    with open('document.csv','a') as fd:
-        fd.write(text)
+    df = pd.DataFrame(text)
+    print(os.curdir)
+    df.to_csv('../DataCreationDatasets/Dataset_' + str(start_time), header=None, index=False)
 
 
 @app.route('/')
@@ -53,9 +55,8 @@ def index():
 @app.route('/submit', methods=['POST'])
 def submit():
     global text
-    time.sleep(0.2)
-    text += request.form['editor']
-    update_progress(request.form['editor'])
+    text.append(request.form['editor'])
+    update_progress(text)
     print(request.form['editor'])
     return redirect("/")
 
