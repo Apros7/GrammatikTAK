@@ -18,7 +18,7 @@ load_time = time.time()
 # Create / load dictionary and ngram:
 dictionary = pd.read_csv("Datasets/ordlisteFuldform2021rettet.csv")
 alphabet = string.ascii_letters
-check_word_word2 = pd.read_csv("Datasets/4GramFrom5Gram-ThirdWordSorted.csv")
+check_word_word2 = pd.read_csv("Datasets/3GramFrom4Gram-SecondWordSorted.csv")
 
 # Load models
 ner_model = pipeline(task='ner',
@@ -194,7 +194,7 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
 def complete_correction(input_sentence):
     global errors
     errors = []
-    counter_capitalize, counter_punc, last_word_last_sentence = 0,0, "test"
+    counter_capitalize, counter_punc, len_prev_sentences, last_word_last_sentence = 0,0,0,"test"
     correct_sentences = []
     sentence, prev_punctuation, prev_big_letters = clean_up_sentence(input_sentence)
     sentences, predicted_punctuation = split_sentence(sentence, prev_punctuation)
@@ -212,7 +212,7 @@ def complete_correction(input_sentence):
             named_entities += named_entities_partly
         named_entities = set(named_entities)
         pos_dict = pos_tagging(sentence)
-        no_spell_error, pos_dict = correct_spelling_mistakes(sentence, named_entities, pos_dict)
+        no_spell_error, pos_dict, len_prev_sentences = correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences)
         capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, predicted_punctuation)
         complete_sentence, counter_punc = correct_punctuation(capitalized_sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence)
         correct_sentences.append(complete_sentence)
@@ -224,11 +224,12 @@ def is_word_number(word):
     try: int(word); return True
     except: return False
 
-def correct_spelling_mistakes(sentence, named_entities, pos_dict):
+def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences):
     words = sentence.split()
+    det_dict = {"en": "et", "et": "en", "den": "det", "det": "den"}
     # Correct misspelled words
     for i in range(0, len(words) - 2):
-        current_word = words[i+2]
+        current_word = words[i+1]
         if (current_word not in dictionary.values) and (current_word not in named_entities) and (not is_word_number(current_word)):
             # Not the best way to fix i dag and i morgen
             if current_word == "idag" or current_word == "imorgen":
@@ -237,41 +238,46 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict):
                 errors.append([current_word, word, i+2, error])
                 continue
             else: 
-                word = find_correct_word(words[i], words[i+1], current_word)
+                word = find_correct_word(words[i], current_word, words[i+2])
             if word == current_word:
                 continue
             error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
-            print(error)
-            errors.append([current_word, word, i+2, error])
+            errors.append([current_word, word, i+1, error])
             # pos_dict = fix_pos_dict(word, current_word, pos_dict)
-            words[i+2] = word
+            words[i+1] = word
     #sentence_without_spelling_mistakes = " ".join(words)
-    
+
     # Suggest better words:
-    for i in range(0, len(words) - 3):
+    for i in range(0, len(words) - 2):
         current_pos = pos_dict[i+1]
         if is_word_number(words[i+1]):
             continue
-        # words[i+1] is target_word
+        # words[i+2] is target_word
         if current_pos != "VERB" and current_pos != "DET":
             continue 
-        suggestion = find_suggestions(words[i], words[i+1], words[i+2], words[i+3])
-        if suggestion == words[i+2]:
+        suggestion = find_suggestions(words[i], words[i+1], words[i+2])
+        if suggestion == words[i+1]:
             continue
-        error = f"\"{suggestion}\" passer bedre ind end: \"{words[i+2]}\"."
-        errors.append([words[i+2], suggestion, i+2, error])
+        # hard code / not great but makes things work - should be changed quickly
+        if current_pos == "DET":
+            if words[i+1] not in det_dict:
+                continue
+            elif suggestion != det_dict[words[i+1]]:
+                continue
+        error = f"\"{suggestion}\" passer bedre ind end: \"{words[i+1]}\"."
+        errors.append([words[i+1], suggestion, i+1+len_prev_sentences, error])
         words[i+1] = suggestion
     final_sentence = " ".join(words)
-    return final_sentence, pos_dict
+    return final_sentence, pos_dict, len_prev_sentences + len(words)
 
 # print statements
 # f"Den rettede sætning bliver dermed: \n {final_sentence}.\n\n" \
 # f"Uden vores anbefalinger ser sætningen sådan ud:\n{sentence_without_spelling_mistakes}"
 
 
-def find_correct_word(word1, word2, target_word):
+def find_correct_word(word1, target_word, word3):
     start = time.time()
-    candidates = find_candidate_words(word1, word2, target_word, None)
+    candidates = find_candidate_words(word1, target_word, word3)
     candidates_time.append(time.time() - start)
 
     start = time.time()
@@ -304,7 +310,7 @@ def find_best_words_of_candidates(data, target_word):
     # Could comment on not being able to find error
 
     levDist = [(probability, word, levenshtein(word, target_word, 2)) for (word, probability) in data
-               if levenshtein(word, target_word, 2) < 3]
+               if levenshtein(word, target_word, 2) < 2]
     # Returning the correct word without errors:
     if len(levDist) == 0:
         return target_word
@@ -314,34 +320,18 @@ def find_best_words_of_candidates(data, target_word):
     return max(minDist)
 
 
-def find_candidate_words(word1, word2, word3, word4, method="correct"):
-    if method == "correct":
-        rowFound = (check_word_word2.loc[((check_word_word2["key2"].values == word1) 
-        & (check_word_word2["key3"].values == word2))])["value"].values
-    else:
-        rowFound = check_word_word2.loc[((check_word_word2["key1"].values == word1) 
-        & (check_word_word2["key2"].values == word2) & (check_word_word2["key3"].values == word4))].values
-
+def find_candidate_words(word1, word2, word3, method="correct"):
+    rowFound = (check_word_word2.loc[((check_word_word2["key1"].values == word1) 
+            & (check_word_word2["key2"].values == word3))])["value"].values
     if len(rowFound) == 0:
         return [(word2, 0)]
-    if method == "correct":
-        full_list = []
-        items = []
-        for list in rowFound:
-            new_list = literal_eval(list)
-            for element in new_list:
-                if element[0] not in items:
-                    full_list.append(element)
-                    items.append(element[0])
-        return full_list
-    else:
-        lst = literal_eval(rowFound[0][3])
+    lst = literal_eval(rowFound[0])
     return lst
 
 
-def find_suggestions(word1, word2, target_word, word4):
+def find_suggestions(word1, target_word, word3):
     start = time.time()
-    candidates = find_candidate_words(word1, word2, target_word, word4, method="suggest")
+    candidates = find_candidate_words(word1, target_word, word3, method="suggest")
     candidates_time.append(time.time() - start)
 
     start = time.time()
@@ -358,12 +348,3 @@ def index():
     input = data["sentence"]
     output = complete_correction(input)
     return jsonify(output)
-
-message = """
-Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl, og andre grammatiske fejl .
-
-Vi retter også egenavne som københavn og erik.
-så er du sikker på at din tekst fremstår grammatisk korrekt og at du dermed giver det bedste indtryk på din læser.
-"""
-
-print(*complete_correction(message), sep="\n")
