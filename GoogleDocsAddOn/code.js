@@ -1,29 +1,31 @@
-let errors = [["he", "hej", 0, "beskrivelse"], ["heder", "hedder", 2, "beskrivelse"], ["lucas", "Lucas", 3, "beskrivelse"]]
+let errors = [["he", "Hej", 0, "beskrivelse"], ["heder", "hedder", 2, "beskrivelse"], ["lucas", "Lucas.", 3, "beskrivelse"]]
 //let errors = []
-let service_url = "http://127.0.0.1:5000/";
+let service_url = "https://backend1-2f53ohkurq-ey.a.run.app";
 
 async function fetchData() {
   var activeDoc = DocumentApp.getActiveDocument();
   var originalText = activeDoc.getBody().getText();
-  let object = {"sentence": originalText};
-  const response = await fetch(service_url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(object)
-  });
-  const data = await response.text();
-  errors = JSON.parse(data.replace(/\\u([a-f0-9]{4})/gi, (match, group) => String.fromCharCode(parseInt(group, 16))));;
-  return errors
+  var object = {"sentence": originalText};
+  var options = {
+    'method': 'post',
+    'contentType': 'application/json',
+    'payload': JSON.stringify(object)
+  };
+  var response = UrlFetchApp.fetch(service_url, options);
+  var data = response.getContentText();
+  var errors = JSON.parse(data.replace(/\\u([a-f0-9]{4})/gi, (match, group) => String.fromCharCode(parseInt(group, 16))));
+  return errors;
 }
 
 function replaceWord(i){
+  var errors = JSON.parse(PropertiesService.getScriptProperties().getProperty('errors'));
   var activeDoc = DocumentApp.getActiveDocument();
   var text = activeDoc.getBody().getText();
   var words = text.split(" ");
+  Logger.log(errors)
   words[errors[i][2]] = errors[i][1];
   var newText = words.join(" ");
+  Logger.log(newText)
   activeDoc.getBody().setText(newText);
 }
 
@@ -36,8 +38,12 @@ function onOpen(e) {
 
 // This function will be called when the script is run
 async function showErrors() {
+
+  // Get correct errors:
   errors = await fetchData();
-  Logger.log(errors)
+  PropertiesService.getScriptProperties().setProperty('errors', JSON.stringify(errors));
+  // Logger.log(errors)
+
   // Check if there are any errors
   if (errors.length == 0) {
     // Show a message indicating that the text is error-free
