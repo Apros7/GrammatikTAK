@@ -1,20 +1,69 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap");
-head {
-  background: white;
-  margin: 0;
-  font-family: "Poppins";
-}
 
 .navbar {
   background: white;
-  padding: 1em;
   text-align: center;
 }
-.navbar .LogoText {
+.navbar .logoText {
   color: black;
   font-size: 1.25em;
   font-weight: bold;
 }
-.navbar .LogoText span {
+.navbar .logoText span {
   color: #007AF3;
 }/*# sourceMappingURL=popup.css.map */
+
+.navbar .chromeText {
+  padding-top: 0;
+  font-size: .85em;
+}
+
+body {
+  background: white;
+  margin: 0;
+  font-family: "Poppins";
+  font-size: .9em;
+  width: 300px;
+  padding: 1em;
+}
+
+.demo {
+  display:inline-block;
+  padding: 15px 5px;
+  margin-left: 8px;
+}
+
+.howToUse {
+  padding: 15px 5px;
+  display:inline-block;
+  margin-left: 8px;
+}
+
+.howToUse .header {
+  font-weight: bold;
+}
+
+.howToUse .numberedList {
+  padding-left: 15px;
+  margin-bottom: 0;
+}
+
+.linkToDocsExtension {
+  padding: 15px 5px;
+  display:inline-block;
+  margin-left: 8px;
+}
+
+.linkToDocsExtension .google_docs_logo {
+  float: left; 
+  height: 40px; 
+  padding-right: 15px;
+}
+
+.contact {
+  padding: 15px 15px;
+  display:inline-block;
+  margin-left: 8px;
+  text-align: center;
+  font-size: .9em;
+}
