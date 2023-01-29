@@ -60,11 +60,11 @@ def ner_tagging(sentence):
 
 def pos_tagging(sentence):
     result = pos_model(sentence)
-    dictionary = {}
+    lst = []
     for sent in result.sentences:
-        for word in sent.words:
-            dictionary[word.text] = word.upos
-    return dictionary
+        for i in range(len(sent.words)):
+            lst.append(sent.words[i].upos)
+    return lst
 
 def find_errors(new_sentence, old_sentence):
     new_words = [word for word in new_sentence.split()]
@@ -158,6 +158,7 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
     # missing capitalizing after full stop
     for i in range(len(words)):
         word = words[i]
+        print(word, counter_capitalize, len(prev_big_letters))
         prev_big_letter = prev_big_letters[counter_capitalize]
         if i == 0:
             first_word = True
@@ -166,7 +167,7 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
         if is_word_number(word):
             counter_capitalize += 1
             continue
-        if word in alphabet:
+        if word in alphabet and word != "i" and word != "I":
             if prev_big_letter:
                 words[i] = str.capitalize(word)
             counter_capitalize += 1
@@ -175,14 +176,14 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
             word_capitalized = str.capitalize(word)
             words[i] = word_capitalized
             if not prev_big_letter and not is_word_number(last_word_last_sentence):
-                error = f"\"{word}\" skal begynde med stort bogstav: \"{word_capitalized}\""
+                error = f"\"{word}\" skal begynde med stort bogstav"
                 if first_word:
                     error += f", da \"{word}\" er det første ord i en ny sætning."
                 else:
                     error += f", da \"{word_capitalized}\" er et egenavn."
                 errors.append([word, word_capitalized,counter_capitalize, error])
-        elif word == "i":
-            try: next_pos = pos_dict[words[i+1]]
+        elif word == "i" and prev_big_letter == False:
+            try: next_pos = pos_dict[i]
             except: continue
             if next_pos == "VERB" or next_pos == "AUX":
                 words[i] = str.capitalize(word)
@@ -205,25 +206,21 @@ def complete_correction(input_sentence):
     sentences, predicted_punctuation = split_sentence(sentence)
     for i in range(len(sentences)):
         sentence = sentences[i]
+        print("tjekker denne sætning: ", sentence)
         if i == len(sentences)-1:
             last_sentence = True
         else:
             last_sentence = False
         named_entities = ner_tagging(sentence)
+        print(named_entities)
         pos_dict = pos_tagging(sentence)
         no_spell_error, pos_dict = correct_spelling_mistakes(sentence, named_entities, pos_dict)
         capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence)
         complete_sentence, counter_punc = correct_punctuation(capitalized_sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence)
         correct_sentences.append(complete_sentence)
-    correct_sentence = " ".join(correct_sentences)
+    # correct_sentence = " ".join(correct_sentences)
     concat_errors = concat_duplicates(errors)
     return concat_errors
-
-def fix_pos_dict(word, old_word, pos_dict):
-    value = pos_dict[old_word]
-    del pos_dict[old_word]
-    pos_dict[word] = value
-    return pos_dict
 
 def is_word_number(word):
     try: int(word); return True
@@ -247,13 +244,13 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict):
                 continue
             error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
             errors.append([current_word, word, i+2, error])
-            pos_dict = fix_pos_dict(word, current_word, pos_dict)
+            # pos_dict = fix_pos_dict(word, current_word, pos_dict)
             words[i+2] = word
     #sentence_without_spelling_mistakes = " ".join(words)
     
     # Suggest better words:
     for i in range(0, len(words) - 3):
-        current_pos = pos_dict[words[i+1]]
+        current_pos = pos_dict[i+1]
         if is_word_number(words[i+1]):
             continue
         # words[i+1] is target_word
@@ -264,7 +261,6 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict):
             continue
         error = f"\"{suggestion}\" passer bedre ind end: \"{words[i+2]}\"."
         errors.append([words[i+2], suggestion, i+2, error])
-        pos_dict = fix_pos_dict(suggestion, words[i+1], pos_dict)
         words[i+1] = suggestion
     final_sentence = " ".join(words)
     return final_sentence, pos_dict
@@ -287,6 +283,8 @@ def find_correct_word(word1, word2, target_word):
 def clean_up_sentence(sentence):
     words = sentence.split()
     punctuation = []
+    print(words)
+    words = [word for word in words if word != "."]
     big_letters = [True if word[0].isupper() else False for word in words]
     for word in words:
         if word[-1] == ",":
@@ -299,7 +297,8 @@ def clean_up_sentence(sentence):
             punctuation.append(4)
         else:
             punctuation.append(0)
-    return " ".join([word.strip(".,!?\";:").lower() for word in words]), punctuation, big_letters
+    new_words = " ".join([word.strip(".,!?\";:").lower() for word in words])
+    return new_words, punctuation, big_letters
 
 
 def find_best_words_of_candidates(data, target_word):
@@ -361,3 +360,11 @@ def index():
     input = data["sentence"]
     output = complete_correction(input)
     return jsonify(output)
+
+message = """
+Stavefejl og andre grammatiske fejl kan påvirk din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl og den finder også andre grammatiske fejl .
+Vi sikrer os, at navne som danmark og jens er stavet med stort, og at dine ord er bøje korrekt.
+Så er du sikker på at din tekst fremstå grammatisk korrekt og at du dermed giver den bedste indtryk.
+"""
+
+print(*complete_correction(message), sep="\n")
