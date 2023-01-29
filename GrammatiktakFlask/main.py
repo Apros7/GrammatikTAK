@@ -81,7 +81,7 @@ def concat_duplicates(lst):
             elements[sublist[2]] = sublist
     return list(elements.values())
 
-def split_sentence(sentence):
+def split_sentence(sentence, prev_punc):
     sentences = []
     test_data = []
     words = sentence.split()
@@ -94,7 +94,8 @@ def split_sentence(sentence):
     last_sentence = 0
     for i in range(len(y_pred_period)):
         if y_pred_period[i] == 1:
-            sentences.append(" ".join(words[last_sentence:i+2]))
+            new_sentence = " ".join(words[last_sentence:i+2])
+            sentences.append(new_sentence)
             last_sentence = i+2
     sentences.append(" ".join(words[last_sentence:]))
     return sentences, y_pred_period
@@ -115,20 +116,15 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
         if current_pred_punc == 2:
             if current_prev_punc != 2:
                 error = f"Der skal være komma efter \"{words[i+1]}\""
-                if current_prev_punc == 1:
-                    error += " i stedet for et punktum."
-                elif current_prev_punc == 3:
-                    error += " i stedet for et spørgsmålstegn."
-                elif current_prev_punc == 4:
-                    error += " i stedet for et udråbstegn."
-                errors.append([words[i+1], words[i+1] + ",", counter_punc+1, error])
+                if current_prev_punc == 0:
+                    errors.append([words[i+1], words[i+1] + ",", counter_punc+1, error])
             words[i+1] = words[i+1] + ","
         elif current_prev_punc == 1:
             error_message = f"Der skal ikke være punktum efter {words[i+1]}"
-            errors.append([words[i+1], (words[i+1])[:-1], counter_punc+1, error_message])
+            errors.append([words[i+1] + ".", words[i+1], counter_punc+1, error_message])
         elif current_prev_punc == 2:
             error_message = f"Der skal ikke være komma efter {words[i+1]}"
-            errors.append([words[i+1], (words[i+1])[:-1], counter_punc+1, error_message])
+            errors.append([words[i+1] + ",", words[i+1], counter_punc+1, error_message])
         counter_punc += 1
     counter_punc = len(words) + prev_punc
     if last_sentence:
@@ -153,12 +149,10 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
 
     
 
-def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence):
+def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, predicted_punctuation):
     words = sentence.split()
-    # missing capitalizing after full stop
     for i in range(len(words)):
         word = words[i]
-        print(word, counter_capitalize, len(prev_big_letters))
         prev_big_letter = prev_big_letters[counter_capitalize]
         if i == 0:
             first_word = True
@@ -203,22 +197,26 @@ def complete_correction(input_sentence):
     counter_capitalize, counter_punc, last_word_last_sentence = 0,0, "test"
     correct_sentences = []
     sentence, prev_punctuation, prev_big_letters = clean_up_sentence(input_sentence)
-    sentences, predicted_punctuation = split_sentence(sentence)
+    sentences, predicted_punctuation = split_sentence(sentence, prev_punctuation)
     for i in range(len(sentences)):
         sentence = sentences[i]
-        print("tjekker denne sætning: ", sentence)
         if i == len(sentences)-1:
             last_sentence = True
         else:
             last_sentence = False
-        named_entities = ner_tagging(sentence)
-        print(named_entities)
+        named_entities = []
+        words = sentence.split()
+        num_words = 5
+        for smaller_sentence in [" ".join(sublist) for sublist in [words[i:i+num_words] for i in range(0, len(words), num_words)]]:
+            named_entities_partly = ner_tagging(smaller_sentence)
+            named_entities += named_entities_partly
+        named_entities = set(named_entities)
         pos_dict = pos_tagging(sentence)
         no_spell_error, pos_dict = correct_spelling_mistakes(sentence, named_entities, pos_dict)
-        capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence)
+        capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, predicted_punctuation)
         complete_sentence, counter_punc = correct_punctuation(capitalized_sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence)
         correct_sentences.append(complete_sentence)
-    # correct_sentence = " ".join(correct_sentences)
+    correct_sentence = " ".join(correct_sentences)
     concat_errors = concat_duplicates(errors)
     return concat_errors
 
@@ -243,6 +241,7 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict):
             if word == current_word:
                 continue
             error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
+            print(error)
             errors.append([current_word, word, i+2, error])
             # pos_dict = fix_pos_dict(word, current_word, pos_dict)
             words[i+2] = word
@@ -283,7 +282,6 @@ def find_correct_word(word1, word2, target_word):
 def clean_up_sentence(sentence):
     words = sentence.split()
     punctuation = []
-    print(words)
     words = [word for word in words if word != "."]
     big_letters = [True if word[0].isupper() else False for word in words]
     for word in words:
@@ -362,9 +360,10 @@ def index():
     return jsonify(output)
 
 message = """
-Stavefejl og andre grammatiske fejl kan påvirk din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl og den finder også andre grammatiske fejl .
-Vi sikrer os, at navne som danmark og jens er stavet med stort, og at dine ord er bøje korrekt.
-Så er du sikker på at din tekst fremstå grammatisk korrekt og at du dermed giver den bedste indtryk.
+Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl, og andre grammatiske fejl .
+
+Vi retter også egenavne som københavn og erik.
+så er du sikker på at din tekst fremstår grammatisk korrekt og at du dermed giver det bedste indtryk på din læser.
 """
 
 print(*complete_correction(message), sep="\n")
