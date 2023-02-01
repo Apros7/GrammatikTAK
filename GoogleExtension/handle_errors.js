@@ -84,12 +84,19 @@ currentText.innerHTML = newSentence
 const rightColumn = document.querySelector(".right-column")
 
 function checkClearMessage() {
-    if (rightColumn.childElementCount === 0 || errors.length === 0) {
+    if (rightColumn.childElementCount === 0) {
         allClearText = document.createElement("div")
         allClearText.classList.add("allClearText")
         allClearText.textContent = "Det ser ud til, at din tekst er fejlfri 😊."
         rightColumn.appendChild(allClearText)
       }
+}
+
+if (errors.length === 0) {
+    allClearText = document.createElement("div")
+    allClearText.classList.add("allClearText")
+    allClearText.textContent = "Det ser ud til, at din tekst er fejlfri 😊."
+    rightColumn.appendChild(allClearText)
 }
 
 for (let i = 0; i < errors.length; i++) {
