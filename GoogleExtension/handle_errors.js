@@ -10,7 +10,6 @@ let originalText = "dette er din tekst"
 
 async function get_text() {
   var text = await chrome.storage.local.get(["word"]).then((result) => {
-    console.log("Value currently is " + result.word);
     originalText = result.word;
   });
 }
@@ -51,6 +50,14 @@ async function main() {
   let corrected_errors = []
 
 const words = originalText.split(" ");
+const newLineIndices = [];
+for (let i = 0; i < words.length - 1; i++) {
+  if (words[i] === "" && words[i + 1] === "") {
+    newLineIndices.push(i);
+    words.splice(i, 2);
+    i--;
+  }
+}
 
 for (let i = 0; i < errors.length; i++) {
     const error = errors[i];
@@ -58,8 +65,19 @@ for (let i = 0; i < errors.length; i++) {
     words[index] = `<span style="color: red">${words[index]}</span>`;
   }
 
-const newSentence = words.join(" ");
 
+console.log(newLineIndices)
+function add_new_lines(words) {
+  words_with_new_lines = words
+  for (let i = newLineIndices.length - 1; i >= 0; i--) {
+    const index = newLineIndices[i];
+    words_with_new_lines.splice(index, 0, "<br>");
+  }
+  return words_with_new_lines.join(" ");
+}
+
+
+const newSentence = add_new_lines(words);
 const currentText = document.querySelector(".text")
 currentText.innerHTML = newSentence
 
@@ -88,7 +106,6 @@ for (let i = 0; i < errors.length; i++) {
     closeButton.addEventListener("click", function() {
         const index = errors[i][2];
         const words = currentText.textContent.split(" ");
-        words[index] = errors[i][0]
         corrected_errors.push(i)
         for (let j = 0; j < errors.length; j++) {
             if (j !== i && !corrected_errors.includes(j)) {
@@ -96,7 +113,7 @@ for (let i = 0; i < errors.length; i++) {
               words[errorIndex] = `<span style="color: red">${words[errorIndex]}</span>`;
             }
           }
-        const newSentence = words.join(" ");
+        const newSentence = add_new_lines(words);
         currentText.innerHTML = newSentence;
         errorMessage.remove();
         checkClearMessage();
@@ -119,8 +136,12 @@ for (let i = 0; i < errors.length; i++) {
 
     correctWord.addEventListener("click", function() {
         const index = errors[i][2];
-        const words = currentText.textContent.split(" ");
+        const words = currentText.textContent.split(" ").filter(str => str !== "");
+        // console.log(words)
+        // console.log(words.filter(str => str !== ""))
+        // words = words.filter(str => str !== "")
         words[index] = errors[i][1];
+        console.log(words)
         corrected_errors.push(i)
         for (let j = 0; j < errors.length; j++) {
             if (j !== i && !corrected_errors.includes(j)) {
@@ -128,7 +149,8 @@ for (let i = 0; i < errors.length; i++) {
               words[errorIndex] = `<span style="color: red">${words[errorIndex]}</span>`;
             }
           }
-        const newSentence = words.join(" ");
+        const newSentence = add_new_lines(words);
+        console.log(newSentence)
         currentText.innerHTML = newSentence;
         errorMessage.remove();
         checkClearMessage();
