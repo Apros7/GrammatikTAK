@@ -362,14 +362,13 @@ def index():
     data = request.get_json()
     input = data["sentence"]
     output = complete_correction(input)
-    print(*output, sep="\n")
+    print(output)
     return jsonify(output)
 
 message = """
-Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. 
-GrammatikTAK hjælper dig med at finde din stavefejl, og andre grammatiske fejl . 
+Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde din stavefejl og andre grammatiske fejl.
 
-Vi retter også egenavne som københavn og erik. Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser.
+Vi retter også egenavne som københavn og Erik, så er du sikker på, at din tekst er grammatisk korrekt, og at du dermed giver det bedste indtryk på din læser.
 """
 current_errors = complete_correction(message)
 print(current_errors)
