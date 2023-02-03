@@ -76,7 +76,7 @@ function add_new_lines(words) {
   return words_with_new_lines.join(" ");
 }
 
-
+console.log(words)
 const newSentence = add_new_lines(words);
 const currentText = document.querySelector(".text")
 currentText.innerHTML = newSentence
