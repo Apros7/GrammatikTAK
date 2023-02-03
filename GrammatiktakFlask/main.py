@@ -191,6 +191,8 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
     capitalized = " ".join(words)
     return capitalized, counter_capitalize, words[-1]
 
+# This function does not work properly, but the intention should still be implemented
+
 def correct_punctuation_space_error(sentence):
     words = sentence.split()
     for i in range(len(words)-1):
@@ -372,3 +374,5 @@ Vi retter også egenavne som københavn og Erik, så er du sikker på, at din te
 """
 current_errors = complete_correction(message)
 print(current_errors)
+print(message.split()[26])
+print(message.split())
