@@ -375,4 +375,4 @@ Vi retter også egenavne som københavn og Erik, så er du sikker på, at din te
 current_errors = complete_correction(message)
 print(current_errors)
 print(message.split()[26])
-print(message.split())
+print(len(message.split()))
