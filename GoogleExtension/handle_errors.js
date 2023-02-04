@@ -144,9 +144,6 @@ for (let i = 0; i < errors.length; i++) {
     correctWord.addEventListener("click", function() {
         const index = errors[i][2];
         const words = currentText.textContent.split(" ").filter(str => str !== "");
-        // console.log(words)
-        // console.log(words.filter(str => str !== ""))
-        // words = words.filter(str => str !== "")
         words[index] = errors[i][1];
         console.log(words)
         corrected_errors.push(i)
