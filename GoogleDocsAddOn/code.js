@@ -3,8 +3,7 @@ let errors = [["he", "Hej", 0, "beskrivelse"], ["heder", "hedder", 2, "beskrivel
 let service_url = "https://backend1-2f53ohkurq-ey.a.run.app";
 
 async function fetchData() {
-  var activeDoc = DocumentApp.getActiveDocument();
-  var originalText = activeDoc.getBody().getText();
+  var originalText = DocumentApp.getActiveDocument().getBody().getText();
   var object = {"sentence": originalText};
   var options = {
     'method': 'post',
@@ -17,16 +16,77 @@ async function fetchData() {
   return errors;
 }
 
+function addNewLines(strings, newLinesIndex) {
+  let result = [];
+  for (let i = 0; i < strings.length; i++) {
+    let newLines = '';
+    if (newLinesIndex[i] !== undefined) {
+      for (let j = 0; j < newLinesIndex[i]; j++) {
+        newLines += '\n';
+      }
+    }
+    result.push(strings[i] + newLines);
+  }
+  return result;
+}
+
+function addOneToMaxKey(obj) {
+  let maxKey = Math.max(...Object.keys(obj).map(Number));
+  let maxValue = obj[maxKey];
+  delete obj[maxKey];
+  obj[maxKey + 1] = maxValue;
+  return obj;
+}
+
+function joinWords(words) {
+  let result = "";
+  for (let i = 0; i < words.length; i++) {
+    let word = words[i];
+    if (result[result.length - 1] !== "\n") {
+      result += (i !== 0 ? " " : "") + word;
+    } else {
+      result += word;
+    }
+  }
+  return result;
+}
+
+function splitNewLines(new_lines) {
+  let words = [];
+  let new_lines_index = {}
+  let length_index = 0
+
+  for (let i = 0; i < new_lines.length; i++) {
+    length_index += new_lines[i].split(" ").length
+    length_index -= 1
+    if (new_lines_index[length_index] === undefined) {
+      new_lines_index[length_index] = 1;
+    } else {
+      new_lines_index[length_index] += 1;
+    }
+    if (new_lines[i] !== "") {
+      words.push(...new_lines[i].split(" "));
+    }
+  }
+
+  return [words, new_lines_index]
+}
+
 function replaceWord(i){
   var errors = JSON.parse(PropertiesService.getScriptProperties().getProperty('errors'));
   var activeDoc = DocumentApp.getActiveDocument();
   var text = activeDoc.getBody().getText();
-  var words = text.split(" ");
-  Logger.log(errors)
+
+  let new_lines = text.split("\n");
+  let [words, new_lines_index] = splitNewLines(new_lines);
+  Logger.log(words);
+
+  new_lines_index = addOneToMaxKey(new_lines_index)
+  words.filter(string => string !== '');
   words[errors[i][2]] = errors[i][1];
-  var newText = words.join(" ");
-  Logger.log(newText)
-  activeDoc.getBody().setText(newText);
+  const new_text = joinWords(addNewLines(words, new_lines_index));
+  Logger.log(new_text);
+  activeDoc.getBody().setText(new_text);
 }
 
 // Create a menu item
