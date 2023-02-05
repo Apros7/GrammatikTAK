@@ -81,11 +81,24 @@ def concat_duplicates(lst):
             elements[sublist[2]] = sublist
     return list(elements.values())
 
-def checkPunctuationErrors(words):
-    for i in range(len(words)):
+def checkPunctuationErrors(sentence):
+    words = sentence.split()
+    joined_words = []
+    i = 0
+    while i < len(words):
         word = words[i]
-        if word in ".,!?\";:":
-            errors.append(["", word, i, "Det ser ud til, at dette tegn er sat forkert."])
+        if i < len(words) - 1 and words[i + 1] in ".,!?\";:":
+            errors.append([word + words[i + 1], word + " " + words[i + 1], i, "Det ser ud til, at dette tegn er sat forkert."])
+            word = word + words[i + 1]
+            i += 1
+        joined_words.append(word)
+        i += 1
+    new_words = " ".join(joined_words)
+    print("new words: ")
+    print(new_words)
+    return new_words
+
+
 
 def split_sentence(sentence, prev_punc):
     sentences = []
@@ -146,9 +159,9 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
             set_period = False
         elif prev_punctuation[counter_punc-minus] == 2:
             error += " i stedet for et komma."
-            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error])
+            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error, 0])
         else:
-            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error + "."])
+            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error + ".", 0])
     if set_period:
         words[-1] = words[-1] + "."
     return " ".join(words), counter_punc
@@ -197,12 +210,13 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
     capitalized = " ".join(words)
     return capitalized, counter_capitalize, words[-1]
 
+
 def complete_correction(input_sentence):
     global errors
     errors = []
+    input_sentence = checkPunctuationErrors(input_sentence)
     counter_capitalize, counter_punc, len_prev_sentences, last_word_last_sentence = 0,0,0,"test"
     correct_sentences = []
-    #input_sentence = correct_punctuation_space_error(input_sentence)
     sentence, prev_punctuation, prev_big_letters = clean_up_sentence(input_sentence)
     sentences, predicted_punctuation = split_sentence(sentence, prev_punctuation)
     for i in range(len(sentences)):
@@ -213,7 +227,6 @@ def complete_correction(input_sentence):
             last_sentence = False
         named_entities = []
         words = sentence.split()
-        checkPunctuationErrors(words)
         num_words = 5
         for smaller_sentence in [" ".join(sublist) for sublist in [words[i:i+num_words] for i in range(0, len(words), num_words)]]:
             named_entities_partly = ner_tagging(smaller_sentence)
@@ -243,14 +256,14 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
             if current_word == "idag" or current_word == "imorgen":
                 word = "i dag" if current_word == "idag" else "i morgen"
                 error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
-                errors.append([current_word, word, i+2, error])
+                errors.append([current_word, word, i+2, error, 0])
                 continue
             else: 
                 word = find_correct_word(words[i], current_word, words[i+2])
             if word == current_word:
                 continue
             error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
-            errors.append([current_word, word, i+1, error])
+            errors.append([current_word, word, i+1, error, 0])
             # pos_dict = fix_pos_dict(word, current_word, pos_dict)
             words[i+1] = word
     #sentence_without_spelling_mistakes = " ".join(words)
@@ -273,7 +286,7 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
             elif suggestion != det_dict[words[i+1]]:
                 continue
         error = f"\"{suggestion}\" passer bedre ind end: \"{words[i+1]}\"."
-        errors.append([words[i+1], suggestion, i+1+len_prev_sentences, error])
+        errors.append([words[i+1], suggestion, i+1+len_prev_sentences, error, 0])
         words[i+1] = suggestion
     final_sentence = " ".join(words)
     return final_sentence, pos_dict, len_prev_sentences + len(words)
@@ -309,7 +322,7 @@ def clean_up_sentence(sentence):
             punctuation.append(4)
         else:
             punctuation.append(0)
-    new_words = " ".join([word.strip(".,!?\";:").lower() if word not in ".,!?\";:" else word.lower for word in words])
+    new_words = " ".join([word.strip(".,!?\";:").lower() for word in words])
     return new_words, punctuation, big_letters
 
 
