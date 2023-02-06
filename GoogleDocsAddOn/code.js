@@ -2,9 +2,20 @@ let errors = [["he", "Hej", 0, "beskrivelse"], ["heder", "hedder", 2, "beskrivel
 //let errors = []
 let service_url = "https://backend1-2f53ohkurq-ey.a.run.app";
 
+function init() {
+  var text = JSON.parse(PropertiesService.getScriptProperties().getProperty('text'));
+  let new_lines = text.split("\n");
+  let [words, new_lines_index] = splitNewLines(new_lines);
+  [words, new_lines_index] = checkForPuncError(words, new_lines_index);
+
+  new_lines_index = addOneToMaxKey(new_lines_index)
+  words.filter(string => string !== '');
+  return [words, new_lines_index]
+}
+
 async function fetchData() {
-  var originalText = DocumentApp.getActiveDocument().getBody().getText();
-  var object = {"sentence": originalText};
+  var text = JSON.parse(PropertiesService.getScriptProperties().getProperty('text'));
+  var object = {"sentence": text};
   var options = {
     'method': 'post',
     'contentType': 'application/json',
@@ -51,6 +62,12 @@ function joinWords(words) {
   return result;
 }
 
+function decrementKeys(obj, minKey) {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [key >= minKey ? key - 1 : key, value])
+  );
+}
+
 function splitNewLines(new_lines) {
   let words = [];
   let new_lines_index = {}
@@ -64,28 +81,38 @@ function splitNewLines(new_lines) {
     } else {
       new_lines_index[length_index] += 1;
     }
-    if (new_lines[i] !== "") {
+    if (new_lines[i] !== "" || new_lines[i] !== " ") {
       words.push(...new_lines[i].split(" "));
     }
   }
+  words = words.filter(string => string.trim().length > 0);
+  return [words, decrementKeys(new_lines_index, 0)]
+}
 
-  return [words, new_lines_index]
+function checkForPuncError(words, indices) {
+  let concatWords = [];
+  for (let i = 0; i < words.length; i++) {
+    if ([".", ",", "?", "!", "\""].includes(words[i + 1])) {
+      concatWords.push(words[i] + " " + words[i + 1]);
+      i++;
+      indices = decrementKeys(indices, i)
+    } else {
+      concatWords.push(words[i]);
+    }
+  }
+  return [concatWords, indices];
 }
 
 function replaceWord(i){
   var errors = JSON.parse(PropertiesService.getScriptProperties().getProperty('errors'));
+
+  // Making this call every time an error should be corrected significantly decreases time
   var activeDoc = DocumentApp.getActiveDocument();
-  var text = activeDoc.getBody().getText();
-
-  let new_lines = text.split("\n");
-  let [words, new_lines_index] = splitNewLines(new_lines);
-  Logger.log(words);
-
-  new_lines_index = addOneToMaxKey(new_lines_index)
-  words.filter(string => string !== '');
+  var new_lines_index = JSON.parse(PropertiesService.getScriptProperties().getProperty('new_lines_index'));
+  var words = JSON.parse(PropertiesService.getScriptProperties().getProperty('words'));
   words[errors[i][2]] = errors[i][1];
+  PropertiesService.getScriptProperties().setProperty('words', JSON.stringify(words));
   const new_text = joinWords(addNewLines(words, new_lines_index));
-  Logger.log(new_text);
   activeDoc.getBody().setText(new_text);
 }
 
@@ -98,6 +125,16 @@ function onOpen(e) {
 
 // This function will be called when the script is run
 async function showErrors() {
+
+  // Only do google docs API call once and save result for later
+  var activeDoc = DocumentApp.getActiveDocument();
+  var text = activeDoc.getBody().getText();
+  PropertiesService.getScriptProperties().setProperty('text', JSON.stringify(text));
+
+  // set words and new_lines_index (when to set new lines)
+  let [words, new_lines_index] = init()
+  PropertiesService.getScriptProperties().setProperty('words', JSON.stringify(words));
+  PropertiesService.getScriptProperties().setProperty('new_lines_index', JSON.stringify(new_lines_index));
 
   // Get correct errors:
   errors = await fetchData();
