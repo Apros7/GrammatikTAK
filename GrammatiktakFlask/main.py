@@ -66,10 +66,6 @@ def pos_tagging(sentence):
             lst.append(sent.words[i].upos)
     return lst
 
-def find_errors(new_sentence, old_sentence):
-    new_words = [word for word in new_sentence.split()]
-    old_words = [word for word in old_sentence.split()] 
-
 def concat_duplicates(lst):
     elements = {}
     unique_lst = []
@@ -94,8 +90,6 @@ def checkPunctuationErrors(sentence):
         joined_words.append(word)
         i += 1
     new_words = " ".join(joined_words)
-    print("new words: ")
-    print(new_words)
     return new_words
 
 
@@ -168,7 +162,7 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
 
     
 
-def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, predicted_punctuation):
+def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, prev_punctuation):
     words = sentence.split()
     for i in range(len(words)):
         word = words[i]
@@ -203,7 +197,7 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
                 if not prev_big_letter:
                     error = f"\"{word}\" skal begynde med stort bogstav: \"{word_capitalized}\""
                     errors.append([word, word_capitalized, counter_capitalize, error])
-        elif prev_big_letter:
+        elif prev_big_letter and prev_punctuation[counter_capitalize-1] in [0, 2]:
             error = f"\"{str.capitalize(word)}\" skal ikke begynde med stort bogstav: \"{word}\""
             errors.append([word, word.lower(), counter_capitalize, error])
         counter_capitalize += 1
@@ -234,7 +228,7 @@ def complete_correction(input_sentence):
         named_entities = set(named_entities)
         pos_dict = pos_tagging(sentence)
         no_spell_error, pos_dict, len_prev_sentences = correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences)
-        capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, predicted_punctuation)
+        capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, prev_punctuation)
         complete_sentence, counter_punc = correct_punctuation(capitalized_sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence)
         correct_sentences.append(complete_sentence)
     correct_sentence = " ".join(correct_sentences)
@@ -372,12 +366,9 @@ def index():
     return jsonify(output)
 
 message = """
-Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl og andre grammatiske fejl .
+Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde din stavefejl og andre grammatiske fejl . 
 
-Vi retter også egenavne som københavn og Erik, så er du sikker på, at din tekst er grammatisk korrekt, og at du dermed giver det bedste indtryk på din læser.
+Vi retter også København som københavn og erik. Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser.
 """
 current_errors = complete_correction(message)
 print(current_errors)
-print(message.split())
-print(message.split()[27])
-print(len(message.split()))
