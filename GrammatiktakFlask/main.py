@@ -188,7 +188,10 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
                     error += f", da \"{word}\" er det første ord i en ny sætning."
                 else:
                     error += f", da \"{word_capitalized}\" er et egenavn."
-                errors.append([word, word_capitalized, counter_capitalize, error])
+                if prev_punctuation[counter_capitalize] == 1:
+                    errors.append([word + ".", word_capitalized + ".", counter_capitalize, error])
+                else: 
+                    errors.append([word, word_capitalized, counter_capitalize, error])
         elif word == "i" and prev_big_letter == False:
             try: next_pos = pos_dict[i]
             except: continue
