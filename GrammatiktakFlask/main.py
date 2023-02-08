@@ -12,6 +12,35 @@ import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
+# Track time class
+# Used to analyze time used by functions
+
+class TimeTracker():
+    def __init__(self):
+        self.time = time.time()
+        self.time_dict = {}
+        self.excess_time = {}
+        self.excess_index = 1
+    
+    def track(self, key):
+        if key in self.time_dict.keys():
+            self.time_dict[key] += time.time()-self.time
+        else:
+            self.time_dict[key] = time.time()-self.time
+
+    def __call__(self):
+        print(*[item for item in self.time_dict.items()], sep="\n")
+        print("Excess time: ")
+        print(*[item for item in self.excess_time.items()], sep="\n")
+    
+    def complete_reset(self):
+        self.time = time.time()
+
+    def reset(self, string=None):
+        self.excess_time[f"reset{self.excess_index}({string})"] = time.time()-self.time
+        self.excess_index += 1
+        self.time = time.time()
+
 # Time for loading phase:
 load_time = time.time()
 
@@ -38,6 +67,9 @@ candidates_time = []
 
 # Display errors:
 errors = []
+
+# Iniatiate Time Tracker
+timeTracker = TimeTracker()
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels=None):
@@ -211,12 +243,17 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
 def complete_correction(input_sentence):
     global errors
     errors = []
+    timeTracker.reset("Function starts")
     input_sentence = checkPunctuationErrors(input_sentence)
+    timeTracker.track("checkPunctuationErrors")
     counter_capitalize, counter_punc, len_prev_sentences, last_word_last_sentence = 0,0,0,"test"
     correct_sentences = []
     sentence, prev_punctuation, prev_big_letters = clean_up_sentence(input_sentence)
+    timeTracker.track("CleanUp")
     sentences, predicted_punctuation = split_sentence(sentence, prev_punctuation)
+    timeTracker.track("SplitSentence")
     for i in range(len(sentences)):
+        timeTracker.reset("For loop starts")
         sentence = sentences[i]
         if i == len(sentences)-1:
             last_sentence = True
@@ -225,17 +262,25 @@ def complete_correction(input_sentence):
         named_entities = []
         words = sentence.split()
         num_words = 5
+        timeTracker.reset("Variables are set")
         for smaller_sentence in [" ".join(sublist) for sublist in [words[i:i+num_words] for i in range(0, len(words), num_words)]]:
             named_entities_partly = ner_tagging(smaller_sentence)
             named_entities += named_entities_partly
-        named_entities = set(named_entities)
+        timeTracker.track("NER")
         pos_dict = pos_tagging(sentence)
+        named_entities = set(named_entities)
+        timeTracker.track("POS")
         no_spell_error, pos_dict, len_prev_sentences = correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences)
+        timeTracker.track("Spellchecking")
         capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, prev_punctuation)
+        timeTracker.track("Capitalize")
         complete_sentence, counter_punc = correct_punctuation(capitalized_sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence)
+        timeTracker.track("Punctuation")
         correct_sentences.append(complete_sentence)
     correct_sentence = " ".join(correct_sentences)
+    timeTracker.reset("Done with For loop")
     concat_errors = concat_duplicates(errors)
+    timeTracker.track("Concat_duplicates")
     return concat_errors
 
 def is_word_number(word):
@@ -374,4 +419,5 @@ Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK
 Vi retter også København som københavn og erik. Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser.
 """
 current_errors = complete_correction(message)
-print(current_errors)
+#print(current_errors)
+timeTracker()
