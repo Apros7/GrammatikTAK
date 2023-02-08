@@ -13,6 +13,7 @@ function init() {
   return [words, new_lines_index]
 }
 
+// This function is very inefficient and the backend is also pretty slow
 async function fetchData() {
   var text = JSON.parse(PropertiesService.getScriptProperties().getProperty('text'));
   var object = {"sentence": text};
@@ -105,8 +106,6 @@ function checkForPuncError(words, indices) {
 
 function replaceWord(i){
   var errors = JSON.parse(PropertiesService.getScriptProperties().getProperty('errors'));
-
-  // Making this call every time an error should be corrected significantly decreases time
   var activeDoc = DocumentApp.getActiveDocument();
   var new_lines_index = JSON.parse(PropertiesService.getScriptProperties().getProperty('new_lines_index'));
   var words = JSON.parse(PropertiesService.getScriptProperties().getProperty('words'));
@@ -139,7 +138,6 @@ async function showErrors() {
   // Get correct errors:
   errors = await fetchData();
   PropertiesService.getScriptProperties().setProperty('errors', JSON.stringify(errors));
-  // Logger.log(errors)
 
   // Check if there are any errors
   if (errors.length == 0) {
@@ -153,6 +151,7 @@ async function showErrors() {
     var errorContainer = errorOutput.getContent();
     // Show the errors in the sidebar
     var errorHtml = "<div>";
+
     for (var i = 0; i < errors.length; i++) {
       errorHtml +=  "<div class='error-message'>" + 
                       "<span class='close-button'>X</span>" + 
@@ -161,7 +160,8 @@ async function showErrors() {
                       `<span class='correctWord' data-index='${i}'>` + errors[i][1] + "</span>" + 
                       "<span class='description'>" + errors[i][3] + "</span>" + 
                     "</div>";
-  }
+    }
+
     errorHtml += "<script>$('.correctWord').click(function(){const index = $(this).data('index'); google.script.run.replaceWord(index)});</script>"
     errorHtml += "<script>$('.correctWord').click(function(){$(this).parent().remove();});</script>"
     errorHtml += "<script>$('.close-button').click(function(){$(this).parent().remove();});</script>"
