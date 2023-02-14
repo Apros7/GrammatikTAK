@@ -14,7 +14,7 @@ from flask_cors import CORS
 
 # Track time class
 # Used to analyze time used by functions
-from Helper_functions import TimeTracker
+from Helper_functions.TimeTracker import TimeTracker
 
 # Time for loading phase:
 load_time = time.time()
@@ -41,10 +41,12 @@ best_words_time = []
 candidates_time = []
 
 # Display errors:
+all_errors = []
 errors = []
+new_lines = []
 
 # Iniatiate Time Tracker
-timeTracker = TimeTracker.TimeTracker()
+timeTracker = TimeTracker()
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels=None):
@@ -99,14 +101,45 @@ def checkPunctuationErrors(sentence):
     new_words = " ".join(joined_words)
     return new_words
 
+def split_sentences_by_newline(sentence):
+    list_of_words = sentence.replace("</div>", "").split("<div>")
+    sublists = []
+    i = -1
+    for words in list_of_words:
+        sublists.append(" ".join([word.strip() for word in words.split()]))
+        i += len(words.split()) if words.find(" ") >= 0 else 1
+        new_lines.append(i)
+    sublists = [s for s in sublists if s]
+    return sublists
 
+def correct_error_indexes(prev_sentences_len):
+    for error in errors:
+        error[2] += prev_sentences_len
+    all_errors.extend(errors)
 
-def split_sentence(sentence, prev_punc):
+def add_newlines(lst):
+    for sublst in lst:
+        if len(sublst) >= 3 and sublst[2] in new_lines:
+            if new_lines[0] == sublst[2]:
+                add = "<div>"
+            elif new_lines[-1] == sublst[2]:
+                add = "</div>"
+            else:
+                add = "</div><div>"
+            sublst[0] += add
+            sublst[1] += add
+    return lst
+
+def split_sentence(sentence):
     sentences = []
     test_data = []
     words = sentence.split()
+    if sentence.find(" ") < 0:
+        return [sentence], []
     for i in range(len(words)-3):
-        test_data.append(" ".join(words[i:i+4]))
+        test_data.append(" ".join(words[i:i+4]))   
+    if test_data == []:
+        return [sentence], []
     tokenized = tokenizer(test_data, padding=True, truncation=True, max_length=512)
     test_dataset = Dataset(tokenized)
     raw_pred_period, _, _ = punctuation_trainer.predict(test_dataset)
@@ -132,7 +165,8 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
     for i in range(len(words)-minus):
         if words[i+1] == words[-1]:
             continue
-        current_pred_punc, current_prev_punc = predicted_punctuation[counter_punc], prev_punctuation[counter_punc+1]
+        current_pred_punc = predicted_punctuation[counter_punc]
+        current_prev_punc = prev_punctuation[counter_punc+1]
         if current_pred_punc == 2:
             if current_prev_punc != 2:
                 error = f"Der skal være komma efter \"{words[i+1]}\""
@@ -170,7 +204,7 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
     
 
 def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, prev_punctuation):
-    words = sentence.split()
+    words = sentence.split() if sentence.find(" ") >= 0 else [sentence]
     for i in range(len(words)):
         word = words[i]
         prev_big_letter = prev_big_letters[counter_capitalize]
@@ -215,50 +249,55 @@ def capitalize_sentence(sentence, named_entities, pos_dict, prev_big_letters, co
     return capitalized, counter_capitalize, words[-1]
 
 
-def complete_correction(input_sentence):
-    
+def complete_correction(complete_sentence):
     global errors
     errors = []
     timeTracker.complete_reset()
-    input_sentence = checkPunctuationErrors(input_sentence)
-    timeTracker.track("checkPunctuationErrors")
-    counter_capitalize, counter_punc, len_prev_sentences, last_word_last_sentence = 0,0,0,"test"
-    correct_sentences = []
-    sentence, prev_punctuation, prev_big_letters = clean_up_sentence(input_sentence)
-    timeTracker.track("CleanUp")
-    sentences, predicted_punctuation = split_sentence(sentence, prev_punctuation)
-    timeTracker.track("SplitSentence")
-    for i in range(len(sentences)):
-        sentence = sentences[i]
-        if i == len(sentences)-1:
-            last_sentence = True
-        else:
-            last_sentence = False
-        named_entities = []
-        words = sentence.split()
-        num_words = 10
-        timeTracker.track("Variables are set")
-        for smaller_sentence in [" ".join(sublist) for sublist in [words[i:i+num_words] for i in range(0, len(words), num_words)]]:
-            named_entities_partly = ner_tagging(smaller_sentence)
-            named_entities += named_entities_partly
-        timeTracker.track("NER")
-        pos_dict = pos_tagging(sentence)
-        timeTracker.track("POS")
-        named_entities = set(named_entities)
-        timeTracker.track("POS_set")
-        no_spell_error, pos_dict, len_prev_sentences = correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences)
-        timeTracker.track("Spellchecking")
-        capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, prev_punctuation)
-        timeTracker.track("Capitalize")
-        complete_sentence, counter_punc = correct_punctuation(capitalized_sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence)
-        timeTracker.track("Punctuation")
-        correct_sentences.append(complete_sentence)
-    correct_sentence = " ".join(correct_sentences)
-    timeTracker.reset("Done with For loop")
-    concat_errors = concat_duplicates(errors)
+    previous_sentences_len = 0
+    for input_sentence in split_sentences_by_newline(complete_sentence):
+        input_sentence = checkPunctuationErrors(input_sentence)
+        timeTracker.track("checkPunctuationErrors")
+        counter_capitalize, counter_punc, len_prev_sentences, last_word_last_sentence = 0,0,0,"test"
+        correct_sentences = []
+        sentence, prev_punctuation, prev_big_letters = clean_up_sentence(input_sentence)
+        timeTracker.track("CleanUp")
+        sentences, predicted_punctuation = split_sentence(sentence)
+        timeTracker.track("SplitSentence")
+        for i in range(len(sentences)):
+            sentence = sentences[i]
+            if i == len(sentences)-1:
+                last_sentence = True
+            else:
+                last_sentence = False
+            named_entities = []
+            words = sentence.split()
+            num_words = 10
+            timeTracker.track("Variables are set")
+            for smaller_sentence in [" ".join(sublist) for sublist in [words[i:i+num_words] for i in range(0, len(words), num_words)]]:
+                named_entities_partly = ner_tagging(smaller_sentence)
+                named_entities += named_entities_partly
+            timeTracker.track("NER")
+            pos_dict = pos_tagging(sentence)
+            timeTracker.track("POS")
+            named_entities = set(named_entities)
+            timeTracker.track("POS_set")
+            no_spell_error, pos_dict, len_prev_sentences = correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences)
+            timeTracker.track("Spellchecking")
+            capitalized_sentence, counter_capitalize, last_word_last_sentence = capitalize_sentence(no_spell_error, named_entities, pos_dict, prev_big_letters, counter_capitalize, last_word_last_sentence, prev_punctuation)
+            timeTracker.track("Capitalize")
+            complete_sentence, counter_punc = correct_punctuation(capitalized_sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence)
+            timeTracker.track("Punctuation")
+            correct_sentences.append(complete_sentence)
+        correct_sentence = " ".join(correct_sentences)
+        timeTracker.reset("Done with For loop")
+        correct_error_indexes(previous_sentences_len)
+        previous_sentences_len += len(sentence.split()) if sentence.find(" ") >= 0 else 1
+        errors = []
+    concat_errors = concat_duplicates(all_errors)
     timeTracker.track("Concat_duplicates")
+    all_errors_with_newlines = add_newlines(concat_errors)
     timeTracker.track2("Function Complete")
-    return concat_errors
+    return all_errors_with_newlines
 
 def is_word_number(word):
     try: int(word); return True
@@ -384,23 +423,22 @@ CORS(app)
 @app.route("/", methods=["POST"])
 
 def index():
+    global all_errors, errors, new_lines
+    all_errors, errors, new_lines = [], [], []
     data = request.get_json()
     input = data["sentence"]
     output = complete_correction(input)
-    print(output)
+    print(*output, sep="\n")
     return jsonify(output)
 
-message = """
-Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde din stavefejl og andre grammatiske fejl . 
-
-Vi retter også København som københavn og erik. Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser.
-"""
-current_errors = complete_correction(message)
-print(current_errors)
+#message = "hej<div></div><div>jeg hedder lucas</div>"
+#current_errors = complete_correction(message)
+#print(current_errors)
+#print(new_lines)
 
 # Tracking time:
 
-timeTracker()
+#timeTracker()
 
 # Reasons for some functions being slow:
 # SplitSentence: BERT model predicting punctuation
