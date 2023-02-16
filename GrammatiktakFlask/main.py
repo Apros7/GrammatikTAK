@@ -93,7 +93,7 @@ def checkPunctuationErrors(sentence):
     while i < len(words):
         word = words[i]
         if i < len(words) - 1 and words[i + 1] in ".,!?\";:":
-            errors.append([word + words[i + 1], word + " " + words[i + 1], i, "Det ser ud til, at dette tegn er sat forkert."])
+            errors.append([word + " " + words[i + 1], word + words[i + 1], i, "Det ser ud til, at dette tegn er sat forkert."])
             word = word + words[i + 1]
             i += 1
         joined_words.append(word)
