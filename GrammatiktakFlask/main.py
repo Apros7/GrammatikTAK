@@ -102,7 +102,7 @@ def checkPunctuationErrors(sentence):
     return new_words
 
 def split_sentences_by_newline(sentence):
-    list_of_words = sentence.replace("</div>", "").split("<div>")
+    list_of_words = sentence.split("<br>")
     sublists = []
     i = -1
     for words in list_of_words:
@@ -120,14 +120,8 @@ def correct_error_indexes(prev_sentences_len):
 def add_newlines(lst):
     for sublst in lst:
         if len(sublst) >= 3 and sublst[2] in new_lines:
-            if new_lines[0] == sublst[2]:
-                add = "<div>"
-            elif new_lines[-1] == sublst[2]:
-                add = "</div>"
-            else:
-                add = "</div><div>"
-            sublst[0] += add
-            sublst[1] += add
+            sublst[0] += "<br>"
+            sublst[1] += "<br>"
     return lst
 
 def split_sentence(sentence):
