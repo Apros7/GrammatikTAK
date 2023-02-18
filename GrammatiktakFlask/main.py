@@ -425,14 +425,18 @@ def index():
     print(*output, sep="\n")
     return jsonify(output)
 
-#message = "hej<div></div><div>jeg hedder lucas</div>"
-#current_errors = complete_correction(message)
-#print(current_errors)
+message = """
+Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl, og andre grammatiske fejl .
+Vi retter også egenavne som københavn og erik.
+Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser.
+"""
+current_errors = complete_correction(message)
+print(current_errors)
 #print(new_lines)
 
 # Tracking time:
 
-#timeTracker()
+timeTracker()
 
 # Reasons for some functions being slow:
 # SplitSentence: BERT model predicting punctuation
