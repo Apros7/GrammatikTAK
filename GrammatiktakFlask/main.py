@@ -436,10 +436,14 @@ print(current_errors)
 
 # Tracking time:
 
-timeTracker()
+timeTracker(.3)
+print(sum(candidates_time))
+print(sum(best_words_time))
 
 # Reasons for some functions being slow:
 # SplitSentence: BERT model predicting punctuation
-# NER: 
-# POS: 
-# Spellchecking: 
+# POS: Stanza POS model very slow..?? 1/3 of total time spent here.
+# Spellchecking: 1/3 of total time spent here.
+    # Candidates seems extra slow: 1/2 of spellchecking time is spent here. Mask model could help.
+
+# Could make one model for finding NER and POS in one to save time. Maybe also smaller then Stanza model (or faster in some other way)
