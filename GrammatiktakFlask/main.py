@@ -402,8 +402,11 @@ def find_candidate_words(word1, word2, word3, method="correct"):
     lst = literal_eval(rowFound[0])
     return lst
 
+mask_model_time = []
 
 def find_suggestions(word1, target_word, word3):
+    print("checking this word: ", target_word)
+
     start = time.time()
     candidates = find_candidate_words(word1, target_word, word3, method="suggest")
     candidates_time.append(time.time() - start)
@@ -411,7 +414,24 @@ def find_suggestions(word1, target_word, word3):
     start = time.time()
     word = find_best_words_of_candidates(candidates, target_word)
     best_words_time.append(time.time() - start)
+
+    start = time.time()
+    word2 = mask_model_word(word1 + " [MASK] " + word3)
+    mask_model_time.append(time.time() - start)
+
+    print("NGRAM: got this word: ", word)
+    print("MASK:  got this word: ", word2)
     return word
+
+model_name = "Maltehb/danish-bert-botxo"
+fill_mask = pipeline("fill-mask", model=model_name)
+
+def mask_model_word(sentence):
+    predictions = fill_mask(sentence)
+    lst = []
+    for pred in predictions[:5]:
+        lst.append(pred["token_str"])
+    return lst
 
 app = Flask(__name__)
 CORS(app)
@@ -427,16 +447,17 @@ def index():
     print(*output, sep="\n")
     return jsonify(output)
 
-message = "Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl, og andre grammatiske fejl . <br><br>Vi retter også egenavne som københavn og erik.<br> Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser."
+message = "Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælpe dig med at finde dine stavefejl, og andre grammatiske fejl . <br><br>Vi retter også egenavne som københavn og erik.<br> Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser."
 current_errors = complete_correction(message)
-print(current_errors)
+print(*current_errors, sep="\n")
 # print(new_lines)
 
 # Tracking time:
 
-#timeTracker(.3)
-#print(sum(candidates_time))
-#print(sum(best_words_time))
+# timeTracker(.3)
+print(sum(candidates_time))
+print(sum(best_words_time))
+print(sum(mask_model_time))
 
 # Reasons for some functions being slow:
 # SplitSentence: BERT model predicting punctuation
