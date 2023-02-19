@@ -445,3 +445,4 @@ print(current_errors)
     # Candidates seems extra slow: 1/2 of spellchecking time is spent here. Mask model could help.
 
 # Could make one model for finding NER and POS in one to save time. Maybe also smaller then Stanza model (or faster in some other way)
+# Could also maybe use dacy? https://github.com/centre-for-humanities-computing/DaCy
