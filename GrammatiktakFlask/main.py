@@ -248,10 +248,11 @@ def complete_correction(complete_sentence):
     errors = []
     timeTracker.complete_reset()
     previous_sentences_len = 0
+    split_sentences_by_newline(complete_sentence)
     for input_sentence in split_sentences_by_newline(complete_sentence):
         input_sentence = checkPunctuationErrors(input_sentence)
         timeTracker.track("checkPunctuationErrors")
-        counter_capitalize, counter_punc, len_prev_sentences, last_word_last_sentence = 0,0,0,"test"
+        counter_capitalize, len_prev_sentences, counter_punc, last_word_last_sentence = 0,0,0,"test"
         correct_sentences = []
         sentence, prev_punctuation, prev_big_letters = clean_up_sentence(input_sentence)
         timeTracker.track("CleanUp")
@@ -285,7 +286,7 @@ def complete_correction(complete_sentence):
         correct_sentence = " ".join(correct_sentences)
         timeTracker.reset("Done with For loop")
         correct_error_indexes(previous_sentences_len)
-        previous_sentences_len += len(sentence.split()) if sentence.find(" ") >= 0 else 1
+        previous_sentences_len += len(input_sentence.split()) if input_sentence.find(" ") >= 0 else 1
         errors = []
     concat_errors = concat_duplicates(all_errors)
     timeTracker.track("Concat_duplicates")
@@ -421,24 +422,21 @@ def index():
     all_errors, errors, new_lines = [], [], []
     data = request.get_json()
     input = data["sentence"]
+    print(input)
     output = complete_correction(input)
     print(*output, sep="\n")
     return jsonify(output)
 
-message = """
-Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl, og andre grammatiske fejl .
-Vi retter også egenavne som københavn og erik.
-Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser.
-"""
+message = "Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl, og andre grammatiske fejl . <br><br>Vi retter også egenavne som københavn og erik.<br> Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser."
 current_errors = complete_correction(message)
 print(current_errors)
-#print(new_lines)
+# print(new_lines)
 
 # Tracking time:
 
-timeTracker(.3)
-print(sum(candidates_time))
-print(sum(best_words_time))
+#timeTracker(.3)
+#print(sum(candidates_time))
+#print(sum(best_words_time))
 
 # Reasons for some functions being slow:
 # SplitSentence: BERT model predicting punctuation
