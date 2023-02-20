@@ -77,7 +77,6 @@ def pos_tagging(sentence):
 
 def concat_duplicates(lst):
     elements = {}
-    unique_lst = []
     for sublist in lst:
         if sublist[2] in elements.keys():
             elements[sublist[2]][1] = sublist[1]
@@ -85,6 +84,9 @@ def concat_duplicates(lst):
         else:
             elements[sublist[2]] = sublist
     return list(elements.values())
+
+def order_errors(error_lst):
+    return sorted(error_lst, key=lambda x: x[2])
 
 def checkPunctuationErrors(sentence):
     words = sentence.split()
@@ -147,9 +149,7 @@ def split_sentence(sentence):
     sentences.append(" ".join(words[last_sentence:]))
     return sentences, y_pred_period
 
-
 def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence):
-    test_data = []
     words = sentence.split()
     prev_punc = counter_punc
     if last_sentence:
@@ -157,13 +157,14 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
     else:
         minus = 1
     for i in range(len(words)-minus):
-        if words[i+1] == words[-1]:
+        if i+1 == len(words):
             continue
         current_pred_punc = predicted_punctuation[counter_punc]
         current_prev_punc = prev_punctuation[counter_punc+1]
         if current_pred_punc == 2:
             if current_prev_punc != 2:
                 error = f"Der skal være komma efter \"{words[i+1]}\""
+                print(error)
                 if current_prev_punc == 0:
                     errors.append([words[i+1], words[i+1] + ",", counter_punc+1, error])
             words[i+1] = words[i+1] + ","
@@ -292,6 +293,7 @@ def complete_correction(complete_sentence):
     timeTracker.track("Concat_duplicates")
     all_errors_with_newlines = add_newlines(concat_errors)
     timeTracker.track2("Function Complete")
+    order_errors(all_errors_with_newlines)
     return all_errors_with_newlines
 
 def is_word_number(word):
@@ -405,7 +407,6 @@ def find_candidate_words(word1, word2, word3, method="correct"):
 mask_model_time = []
 
 def find_suggestions(word1, target_word, word3):
-    print("checking this word: ", target_word)
 
     start = time.time()
     candidates = find_candidate_words(word1, target_word, word3, method="suggest")
@@ -415,23 +416,7 @@ def find_suggestions(word1, target_word, word3):
     word = find_best_words_of_candidates(candidates, target_word)
     best_words_time.append(time.time() - start)
 
-    start = time.time()
-    word2 = mask_model_word(word1 + " [MASK] " + word3)
-    mask_model_time.append(time.time() - start)
-
-    print("NGRAM: got this word: ", word)
-    print("MASK:  got this word: ", word2)
     return word
-
-model_name = "Maltehb/danish-bert-botxo"
-fill_mask = pipeline("fill-mask", model=model_name)
-
-def mask_model_word(sentence):
-    predictions = fill_mask(sentence)
-    lst = []
-    for pred in predictions[:5]:
-        lst.append(pred["token_str"])
-    return lst
 
 app = Flask(__name__)
 CORS(app)
@@ -447,9 +432,9 @@ def index():
     print(*output, sep="\n")
     return jsonify(output)
 
-message = "Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælpe dig med at finde dine stavefejl, og andre grammatiske fejl . <br><br>Vi retter også egenavne som københavn og erik.<br> Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser."
-current_errors = complete_correction(message)
-print(*current_errors, sep="\n")
+#message = "Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælpe dig med at finde dine stavefejl, og andre grammatiske fejl . <br><br>Vi retter også egenavne som københavn og erik.<br> Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser."
+#current_errors = complete_correction(message)
+#print(*current_errors, sep="\n")
 # print(new_lines)
 
 # Tracking time:
