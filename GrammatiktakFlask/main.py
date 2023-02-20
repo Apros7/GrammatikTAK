@@ -164,13 +164,12 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
         if current_pred_punc == 2:
             if current_prev_punc != 2:
                 error = f"Der skal være komma efter \"{words[i+1]}\""
-                print(error)
                 if current_prev_punc == 0:
                     errors.append([words[i+1], words[i+1] + ",", counter_punc+1, error])
             words[i+1] = words[i+1] + ","
-        elif current_prev_punc == 1:
-            error_message = f"Der skal ikke være punktum efter {words[i+1]}"
-            errors.append([words[i+1] + ".", words[i+1], counter_punc+1, error_message])
+        #elif current_prev_punc == 1:
+        #    error_message = f"Der skal ikke være punktum efter {words[i+1]}"
+        #    errors.append([words[i+1] + ".", words[i+1], counter_punc+1, error_message])
         elif current_prev_punc == 2:
             error_message = f"Der skal ikke være komma efter {words[i+1]}"
             errors.append([words[i+1] + ",", words[i+1], counter_punc+1, error_message])
@@ -189,9 +188,9 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
             set_period = False
         elif prev_punctuation[counter_punc-minus] == 2:
             error += " i stedet for et komma."
-            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error, 0])
+            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error])
         else:
-            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error + ".", 0])
+            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error + "."])
     if set_period:
         words[-1] = words[-1] + "."
     return " ".join(words), counter_punc
@@ -293,8 +292,8 @@ def complete_correction(complete_sentence):
     timeTracker.track("Concat_duplicates")
     all_errors_with_newlines = add_newlines(concat_errors)
     timeTracker.track2("Function Complete")
-    order_errors(all_errors_with_newlines)
-    return all_errors_with_newlines
+    ordered_errors = order_errors(all_errors_with_newlines)
+    return ordered_errors
 
 def is_word_number(word):
     try: int(word); return True
@@ -311,14 +310,14 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
             if current_word == "idag" or current_word == "imorgen":
                 word = "i dag" if current_word == "idag" else "i morgen"
                 error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
-                errors.append([current_word, word, i+2, error, 0])
+                errors.append([current_word, word, i+2, error])
                 continue
             else: 
                 word = find_correct_word(words[i], current_word, words[i+2])
             if word == current_word:
                 continue
             error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
-            errors.append([current_word, word, i+1, error, 0])
+            errors.append([current_word, word, i+1, error])
             # pos_dict = fix_pos_dict(word, current_word, pos_dict)
             words[i+1] = word
     #sentence_without_spelling_mistakes = " ".join(words)
@@ -341,7 +340,7 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
             elif suggestion != det_dict[words[i+1]]:
                 continue
         error = f"\"{suggestion}\" passer bedre ind end: \"{words[i+1]}\"."
-        errors.append([words[i+1], suggestion, i+1+len_prev_sentences, error, 0])
+        errors.append([words[i+1], suggestion, i+1+len_prev_sentences, error])
         words[i+1] = suggestion
     final_sentence = " ".join(words)
     return final_sentence, pos_dict, len_prev_sentences + len(words)
