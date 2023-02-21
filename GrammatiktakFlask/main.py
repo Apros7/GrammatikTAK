@@ -20,7 +20,7 @@ from Helper_functions.TimeTracker import TimeTracker
 load_time = time.time()
 
 # Create / load dictionary and ngram:
-dictionary = pd.read_csv("Datasets/ordlisteFuldform2021rettet.csv")
+dictionary = pd.read_csv("Datasets/ordlisteFuldform2021OneRow.csv")
 alphabet = string.ascii_letters
 check_word_word2 = pd.read_csv("Datasets/3GramFrom4Gram-SecondWordSorted.csv")
 
@@ -28,7 +28,7 @@ check_word_word2 = pd.read_csv("Datasets/3GramFrom4Gram-SecondWordSorted.csv")
 ner_model = pipeline(task='ner',
                 model='saattrupdan/nbailab-base-ner-scandi',
                 aggregation_strategy='first')
-pos_model = stanza.Pipeline("da")
+pos_model = stanza.Pipeline("da", processors='tokenize,pos', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
 
 # Load comma and period model
 tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
@@ -47,6 +47,7 @@ new_lines = []
 
 # Iniatiate Time Tracker
 timeTracker = TimeTracker()
+#timeTracker.inactive = True
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels=None):
@@ -67,13 +68,23 @@ def ner_tagging(sentence):
     namedEntities = [row["word"] for row in result]
     return namedEntities
 
-def pos_tagging(sentence):
-    result = pos_model(sentence)
-    lst = []
-    for sent in result.sentences:
-        for i in range(len(sent.words)):
-            lst.append(sent.words[i].upos)
-    return lst
+def pos_tag_sentence(sentence_group):
+    doc = pos_model(sentence_group)
+    results = []
+    for sentence in doc.sentences:
+        sentence_results = []
+        for word in sentence.words:
+            sentence_results.append(word.pos)
+        results.append(sentence_results)
+    return results
+
+def pos_tagging(group_of_sentences):
+    tagged_sentences = []
+    for group in group_of_sentences:
+        results = pos_tag_sentence(group)
+        tagged_sentences.append(results)
+    return tagged_sentences
+
 
 def concat_duplicates(lst):
     elements = {}
@@ -248,16 +259,32 @@ def complete_correction(complete_sentence):
     errors = []
     timeTracker.complete_reset()
     previous_sentences_len = 0
-    split_sentences_by_newline(complete_sentence)
-    for input_sentence in split_sentences_by_newline(complete_sentence):
+    input_sentences = split_sentences_by_newline(complete_sentence)
+    groups_of_sentences, predicted_punctuations, prev_punctuations, group_prev_big_letters = [], [], [], []
+    
+    for i in range(len(input_sentences)):
+        input_sentence = input_sentences[i]
         input_sentence = checkPunctuationErrors(input_sentence)
         timeTracker.track("checkPunctuationErrors")
-        counter_capitalize, len_prev_sentences, counter_punc, last_word_last_sentence = 0,0,0,"test"
-        correct_sentences = []
         sentence, prev_punctuation, prev_big_letters = clean_up_sentence(input_sentence)
+        prev_punctuations.append(prev_punctuation)
+        group_prev_big_letters.append(prev_big_letters)
         timeTracker.track("CleanUp")
         sentences, predicted_punctuation = split_sentence(sentence)
+        groups_of_sentences.append(sentences)
+        predicted_punctuations.append(predicted_punctuation)
         timeTracker.track("SplitSentence")
+
+    pos_dicts = pos_tagging(groups_of_sentences)
+    timeTracker.track("POS")
+
+    for x in range(len(input_sentences)):
+        counter_capitalize, len_prev_sentences, counter_punc, last_word_last_sentence = 0,0,0,"test"
+        sentences = groups_of_sentences[x]
+        predicted_punctuation = predicted_punctuations[x]
+        prev_big_letters = group_prev_big_letters[x]
+        prev_punctuation = prev_punctuations[x]
+
         for i in range(len(sentences)):
             sentence = sentences[i]
             if i == len(sentences)-1:
@@ -272,8 +299,7 @@ def complete_correction(complete_sentence):
                 named_entities_partly = ner_tagging(smaller_sentence)
                 named_entities += named_entities_partly
             timeTracker.track("NER")
-            pos_dict = pos_tagging(sentence)
-            timeTracker.track("POS")
+            pos_dict = pos_dicts[x][i]
             named_entities = set(named_entities)
             timeTracker.track("POS_set")
             no_spell_error, pos_dict, len_prev_sentences = correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences)
@@ -282,8 +308,6 @@ def complete_correction(complete_sentence):
             timeTracker.track("Capitalize")
             complete_sentence, counter_punc = correct_punctuation(capitalized_sentence, prev_punctuation, counter_punc, predicted_punctuation, last_sentence)
             timeTracker.track("Punctuation")
-            correct_sentences.append(complete_sentence)
-        correct_sentence = " ".join(correct_sentences)
         timeTracker.reset("Done with For loop")
         correct_error_indexes(previous_sentences_len)
         previous_sentences_len += len(input_sentence.split()) if input_sentence.find(" ") >= 0 else 1
@@ -299,6 +323,9 @@ def is_word_number(word):
     try: int(word); return True
     except: return False
 
+correct_time = []
+suggest_time = []
+
 def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences):
     words = sentence.split()
     det_dict = {"en": "et", "et": "en", "den": "det", "det": "den"}
@@ -306,6 +333,7 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
     for i in range(0, len(words) - 2):
         current_word = words[i+1]
         if (current_word not in dictionary.values) and (current_word not in named_entities) and (not is_word_number(current_word)):
+            
             # Not the best way to fix i dag and i morgen
             if current_word == "idag" or current_word == "imorgen":
                 word = "i dag" if current_word == "idag" else "i morgen"
@@ -314,13 +342,13 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
                 continue
             else: 
                 word = find_correct_word(words[i], current_word, words[i+2])
+                #word = current_word
             if word == current_word:
                 continue
             error = f"\"{current_word}\" er ikke et gyldigt ord. \"{word}\" passer bedre ind her."
             errors.append([current_word, word, i+1, error])
             # pos_dict = fix_pos_dict(word, current_word, pos_dict)
             words[i+1] = word
-    #sentence_without_spelling_mistakes = " ".join(words)
 
     # Suggest better words:
     for i in range(0, len(words) - 2):
@@ -331,6 +359,7 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
         if current_pos != "VERB" and current_pos != "DET":
             continue 
         suggestion = find_suggestions(words[i], words[i+1], words[i+2])
+        #suggestion = words[i+1]
         if suggestion == words[i+1]:
             continue
         # hard code / not great but makes things work - should be changed quickly
@@ -351,6 +380,7 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
 
 
 def find_correct_word(word1, target_word, word3):
+
     start = time.time()
     candidates = find_candidate_words(word1, target_word, word3)
     candidates_time.append(time.time() - start)
@@ -426,22 +456,18 @@ def index():
     all_errors, errors, new_lines = [], [], []
     data = request.get_json()
     input = data["sentence"]
-    print(input)
     output = complete_correction(input)
-    print(*output, sep="\n")
+    #print(*output, sep="\n")
     return jsonify(output)
 
-#message = "Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælpe dig med at finde dine stavefejl, og andre grammatiske fejl . <br><br>Vi retter også egenavne som københavn og erik.<br> Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser."
-#current_errors = complete_correction(message)
-#print(*current_errors, sep="\n")
+message = "En anden form for bias er confirmation bias, hvor man som forsker vægter undersøgelser som understøtter ens hypotese end undersøgelser som vil modsige ens hypotese. Det omfatter også, at hvis man har en vis forventning af et bestemt præparat virkning, at man i så fald også vil fortolke ens data på en måde som understøtter ens forventning. Confirmation bias kan også påvirke ens testpersoner, hvis man ikke er opmærksom på dette. Fx hvis man giver en testperson et præparat som testpersonen forventer har en effekt, vil dette kunne påvirke testpersonens opfattelse af stoffets virkning, på en måde som igen understøtter ens forventning. I det sidstnævnte eksempel er det placeboeffekten som vil kunne give patienten en fornemmelse af at præparatet virker selvom det ikke nødvendigvis er tilfældet. For at modvirker confirmation bias kan man foretage sig af blinding i tre forskellige grader. Ved almindelig blinding ved selve deltagerne i studiet ikke om de modtager den aktuelle behandling eller om de ikke gør, fx ved at give en kalkpille eller lign. Dette er med til at modvirke patientens egne forventninger til behandlingen. Dertil er der også dobbeltblinding hvor hverken patienten eller personalet ved om den behandling de får/giver er den faktiske behandling eller blot placebo. Dette er med til at modvirke at personalets forventning til behandlingen videregives ubevidst under kommunikation. Til sidst kan man også tripelblinde, der lægges til de to tidligere med at dem som behandlinger og analyser data fra studiet ikke ved hvilken gruppe som har modtaget den faktiske behandling. Disse tre former for blinding bidrager til at mindske mængden af confirmation bias mest muligt."
+current_errors = complete_correction(message)
+print(len(current_errors))
 # print(new_lines)
 
 # Tracking time:
 
-# timeTracker(.3)
-print(sum(candidates_time))
-print(sum(best_words_time))
-print(sum(mask_model_time))
+timeTracker(.5)
 
 # Reasons for some functions being slow:
 # SplitSentence: BERT model predicting punctuation
