@@ -71,7 +71,6 @@ def ner_tagging(sentence):
     return namedEntities
 
 def pos_tag_sentence(sentence_group):
-    print("sentence group", sentence_group[0])
     doc = pos_model(sentence_group[0])
     results = []
     for sentence in doc.sentences:
@@ -265,7 +264,6 @@ def complete_correction(complete_sentence):
     timeTracker.complete_reset()
     previous_sentences_len = 0
     input_sentences = split_sentences_by_newline(complete_sentence)
-    print(*input_sentences, sep="\n")
     groups_of_sentences, predicted_punctuations, prev_punctuations, group_prev_big_letters = [], [], [], []
     
     for i in range(len(input_sentences)):
@@ -333,12 +331,16 @@ def is_word_number(word):
 correct_time = []
 suggest_time = []
 
-def get_mask_model_prediction(masked_sentence):
+def get_mask_model_prediction(masked_sentence, original_word):
     predictions = mask_model(masked_sentence)
     lst = []
-    for pred in predictions[:5]:
-        lst.append((pred["token_str"], pred["score"]))
-    return lst
+    for pred in predictions[:50]:
+        lst.append((pred["token_str"], pred["score"], levenshtein(original_word, pred["token_str"])))
+    prediction = min(lst, key=lambda x: x[2])
+    #print("original word: ", original_word, "prediction: ", prediction[0])
+    if prediction[2] > 2:
+        return original_word
+    return prediction[0]
 
 def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences):
     words = sentence.split()
@@ -355,12 +357,8 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
                 errors.append([current_word, word, i+2, error])
                 continue
             else: 
-                mask_sentence = " ".join(words[i-4:i] + ["[MASK]"] + words[i+1:i+5])
-                word_and_score = get_mask_model_prediction(mask_sentence)[0]
-                if word_and_score[1] > .9:
-                    word = word_and_score[0]
-                else:
-                    word = current_word
+                mask_sentence = " ".join(words[i-2:i+1] + ["[MASK]"] + words[i+2:i+5])
+                word = get_mask_model_prediction(mask_sentence, words[i+1])
                 #word = find_correct_word(words[i], current_word, words[i+2])
                 #word = current_word
             if word == current_word:
@@ -380,15 +378,10 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
         if is_word_number(words[i+1]):
             continue
         # words[i+1] is target_word
-        if current_pos != "VERB" and current_pos != "DET":
+        if current_pos != "VERB" and current_pos != "DET": #and current_pos != "NOUN":
             continue 
-        mask_sentence = " ".join(words[i-1:i+1] + ["[MASK]"] + words[i+2:i+4])
-        suggestion_and_score = get_mask_model_prediction(mask_sentence)[0][0]
-        print("suggestion and score: ", suggestion_and_score)
-        if suggestion_and_score[1] > .9:
-            suggestion = suggestion_and_score[0]
-        else:
-            suggestion = words[i+1]
+        mask_sentence = " ".join(words[i-2:i+1] + ["[MASK]"] + words[i+2:i+5])
+        suggestion = get_mask_model_prediction(mask_sentence, words[i+1])
         #suggestion = find_suggestions(words[i], words[i+1], words[i+2])
         #suggestion = words[i+1]
         if suggestion == words[i+1]:
@@ -403,7 +396,6 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
         errors.append([words[i+1], suggestion, i+1+len_prev_sentences, error])
         words[i+1] = suggestion
     final_sentence = " ".join(words)
-    print("Xs: ", Xs)
     return final_sentence, pos_dict, len_prev_sentences + len(words)
 
 # print statements
