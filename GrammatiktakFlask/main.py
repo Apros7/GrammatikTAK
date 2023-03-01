@@ -28,7 +28,9 @@ check_word_word2 = pd.read_csv("Datasets/3GramFrom4Gram-SecondWordSorted.csv")
 ner_model = pipeline(task='ner',
                 model='saattrupdan/nbailab-base-ner-scandi',
                 aggregation_strategy='first')
+# tokenize_pretokenized=True
 pos_model = stanza.Pipeline("da", processors='tokenize,pos', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
+mask_model = pipeline("fill-mask", model="Maltehb/danish-bert-botxo")
 
 # Load comma and period model
 tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
@@ -69,7 +71,8 @@ def ner_tagging(sentence):
     return namedEntities
 
 def pos_tag_sentence(sentence_group):
-    doc = pos_model(sentence_group)
+    print("sentence group", sentence_group[0])
+    doc = pos_model(sentence_group[0])
     results = []
     for sentence in doc.sentences:
         sentence_results = []
@@ -153,6 +156,7 @@ def split_sentence(sentence):
     y_pred_period = np.argmax(raw_pred_period, axis=1)
     last_sentence = 0
     for i in range(len(y_pred_period)):
+        continue
         if y_pred_period[i] == 1:
             new_sentence = " ".join(words[last_sentence:i+2])
             sentences.append(new_sentence)
@@ -188,22 +192,23 @@ def correct_punctuation(sentence, prev_punctuation, counter_punc, predicted_punc
     counter_punc = len(words) + prev_punc
     if last_sentence:
         minus = 1
-    set_period = True
-    if prev_punctuation[counter_punc-minus] != 1:
-        error = f"Der skal være punktum efter \"{words[-1]}\""
-        if prev_punctuation[counter_punc-minus] == 3:
-            words[-1] = words[-1] + "?"
-            set_period = False
-        elif prev_punctuation[counter_punc-minus] == 4:
-            words[-1] = words[-1] + "!"
-            set_period = False
-        elif prev_punctuation[counter_punc-minus] == 2:
-            error += " i stedet for et komma."
-            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error])
-        else:
-            errors.append([words[-1], words[-1] + ".", counter_punc-minus, error + "."])
-    if set_period:
-        words[-1] = words[-1] + "."
+    # set_period = True
+    #if prev_punctuation[counter_punc-minus] != 1:
+    #    error = f"Der skal være punktum efter \"{words[-1]}\""
+    #    if prev_punctuation[counter_punc-minus] == 3:
+    #        words[-1] = words[-1] + "?"
+    #        set_period = False
+    #    elif prev_punctuation[counter_punc-minus] == 4:
+    #        words[-1] = words[-1] + "!"
+    #        set_period = False
+    #    elif prev_punctuation[counter_punc-minus] == 2:
+    #        error += " i stedet for et komma."
+    #        errors.append([words[-1], words[-1] + ".", counter_punc-minus, error])
+    #    else:
+    #        None
+    #        errors.append([words[-1], words[-1] + ".", counter_punc-minus, error + "."])
+    #if set_period:
+    #    words[-1] = words[-1] + "."
     return " ".join(words), counter_punc
 
     
@@ -260,6 +265,7 @@ def complete_correction(complete_sentence):
     timeTracker.complete_reset()
     previous_sentences_len = 0
     input_sentences = split_sentences_by_newline(complete_sentence)
+    print(*input_sentences, sep="\n")
     groups_of_sentences, predicted_punctuations, prev_punctuations, group_prev_big_letters = [], [], [], []
     
     for i in range(len(input_sentences)):
@@ -312,6 +318,7 @@ def complete_correction(complete_sentence):
         correct_error_indexes(previous_sentences_len)
         previous_sentences_len += len(input_sentence.split()) if input_sentence.find(" ") >= 0 else 1
         errors = []
+
     concat_errors = concat_duplicates(all_errors)
     timeTracker.track("Concat_duplicates")
     all_errors_with_newlines = add_newlines(concat_errors)
@@ -325,6 +332,13 @@ def is_word_number(word):
 
 correct_time = []
 suggest_time = []
+
+def get_mask_model_prediction(masked_sentence):
+    predictions = mask_model(masked_sentence)
+    lst = []
+    for pred in predictions[:5]:
+        lst.append((pred["token_str"], pred["score"]))
+    return lst
 
 def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sentences):
     words = sentence.split()
@@ -341,7 +355,13 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
                 errors.append([current_word, word, i+2, error])
                 continue
             else: 
-                word = find_correct_word(words[i], current_word, words[i+2])
+                mask_sentence = " ".join(words[i-4:i] + ["[MASK]"] + words[i+1:i+5])
+                word_and_score = get_mask_model_prediction(mask_sentence)[0]
+                if word_and_score[1] > .9:
+                    word = word_and_score[0]
+                else:
+                    word = current_word
+                #word = find_correct_word(words[i], current_word, words[i+2])
                 #word = current_word
             if word == current_word:
                 continue
@@ -350,15 +370,26 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
             # pos_dict = fix_pos_dict(word, current_word, pos_dict)
             words[i+1] = word
 
+    Xs = 0
     # Suggest better words:
     for i in range(0, len(words) - 2):
         current_pos = pos_dict[i+1]
+        if current_pos == "X":
+            Xs += 1
+            continue
         if is_word_number(words[i+1]):
             continue
-        # words[i+2] is target_word
+        # words[i+1] is target_word
         if current_pos != "VERB" and current_pos != "DET":
             continue 
-        suggestion = find_suggestions(words[i], words[i+1], words[i+2])
+        mask_sentence = " ".join(words[i-1:i+1] + ["[MASK]"] + words[i+2:i+4])
+        suggestion_and_score = get_mask_model_prediction(mask_sentence)[0][0]
+        print("suggestion and score: ", suggestion_and_score)
+        if suggestion_and_score[1] > .9:
+            suggestion = suggestion_and_score[0]
+        else:
+            suggestion = words[i+1]
+        #suggestion = find_suggestions(words[i], words[i+1], words[i+2])
         #suggestion = words[i+1]
         if suggestion == words[i+1]:
             continue
@@ -372,6 +403,7 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
         errors.append([words[i+1], suggestion, i+1+len_prev_sentences, error])
         words[i+1] = suggestion
     final_sentence = " ".join(words)
+    print("Xs: ", Xs)
     return final_sentence, pos_dict, len_prev_sentences + len(words)
 
 # print statements
@@ -460,10 +492,10 @@ def index():
     #print(*output, sep="\n")
     return jsonify(output)
 
-message = "En anden form for bias er confirmation bias, hvor man som forsker vægter undersøgelser som understøtter ens hypotese end undersøgelser som vil modsige ens hypotese. Det omfatter også, at hvis man har en vis forventning af et bestemt præparat virkning, at man i så fald også vil fortolke ens data på en måde som understøtter ens forventning. Confirmation bias kan også påvirke ens testpersoner, hvis man ikke er opmærksom på dette. Fx hvis man giver en testperson et præparat som testpersonen forventer har en effekt, vil dette kunne påvirke testpersonens opfattelse af stoffets virkning, på en måde som igen understøtter ens forventning. I det sidstnævnte eksempel er det placeboeffekten som vil kunne give patienten en fornemmelse af at præparatet virker selvom det ikke nødvendigvis er tilfældet. For at modvirker confirmation bias kan man foretage sig af blinding i tre forskellige grader. Ved almindelig blinding ved selve deltagerne i studiet ikke om de modtager den aktuelle behandling eller om de ikke gør, fx ved at give en kalkpille eller lign. Dette er med til at modvirke patientens egne forventninger til behandlingen. Dertil er der også dobbeltblinding hvor hverken patienten eller personalet ved om den behandling de får/giver er den faktiske behandling eller blot placebo. Dette er med til at modvirke at personalets forventning til behandlingen videregives ubevidst under kommunikation. Til sidst kan man også tripelblinde, der lægges til de to tidligere med at dem som behandlinger og analyser data fra studiet ikke ved hvilken gruppe som har modtaget den faktiske behandling. Disse tre former for blinding bidrager til at mindske mængden af confirmation bias mest muligt."
+message = "En anden form for bias er confirmation bias, hvor man som forsker vægte undersøgelser som understøtte ens hypotse end undersøgelser som vil modsige ens hypotese. Det omfatter også, at hvis man har en vis forventning af et bestemt præparat virkning, at man i så fald også vil fortolke ens data på en måde som understøtter ens forventning. Confirmation bias kan også påvirke ens testpersoner, hvis man ikke er opmærksom på dette. Fx hvis man giver en testperson et præparat som testpersonen forventer har en effekt, vil dette kunne påvirke testpersonens opfattelse af stoffets virkning, på en måde som igen understøtter ens forventning. I det sidstnævnte eksempel er det placeboeffekten som vil kunne give patienten en fornemmelse af at præparatet virker selvom det ikke nødvendigvis er tilfældet. For at modvirker confirmation bias kan man foretage sig af blinding i tre forskellige grader. Ved almindelig blinding ved selve deltagerne i studiet ikke om de modtager den aktuelle behandling eller om de ikke gør, fx ved at give en kalkpille eller lign. Dette er med til at modvirke patientens egne forventninger til behandlingen. Dertil er der også dobbeltblinding hvor hverken patienten eller personalet ved om den behandling de får/giver er den faktiske behandling eller blot placebo. Dette er med til at modvirke at personalets forventning til behandlingen videregives ubevidst under kommunikation. Til sidst kan man også tripelblinde, der lægges til de to tidligere med at dem som behandlinger og analyser data fra studiet ikke ved hvilken gruppe som har modtaget den faktiske behandling. Disse tre former for blinding bidrager til at mindske mængden af confirmation bias mest muligt."
 current_errors = complete_correction(message)
-print(len(current_errors))
-# print(new_lines)
+#print(len(current_errors))
+#print(new_lines)
 
 # Tracking time:
 
