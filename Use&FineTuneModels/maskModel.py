@@ -7,18 +7,33 @@ from transformers import pipeline
 model_name = "Maltehb/danish-bert-botxo"
 fill_mask = pipeline("fill-mask", model=model_name)
 
-# Input sentence with a mask token
-input_sentence = "Hej mit [MASK] er Lucas"
+def mask_model_words(sentence):
+    words = sentence.split()
+    lst = list()
+    for i in range(len(words)):
+        masked_words = words.copy()
+        masked_words[i] = "[MASK]"
+        masked_sentence = " ".join(masked_words)
+        lst.append(masked_sentence)
+    predictions = fill_mask(lst)
 
-# Use the model to predict the missing word
-predictions = fill_mask(input_sentence)
+    # Extract the predicted tokens for each word
+    lst = []
+    for i, pred in enumerate(predictions):
+        word_preds = []
+        for p in pred[:3]:
+            word_preds.append(p["token_str"])
+        lst.append(word_preds)
+    return lst
 
-# Print the top 5 predictions with their scores
-for pred in predictions[:5]:
-    print(pred["token_str"], pred["score"])
-    # pred["token_str"] is string
+sentence = "hej jeg hedde lucas og jeg er ik seej."
+words = sentence.split()
 
-# add this to bottom of find_suggestions:
+predictions = mask_model_words(sentence)
+
+for i in range(len(words)):
+    print("Word: ", words[i], ". And predictions are: ", predictions[i])
+
 """
     start = time.time()
     word2 = mask_model_word(word1 + " [MASK] " + word3)
