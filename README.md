@@ -14,4 +14,5 @@ Here is a small overview of the most important directories:
 * GoogleAppEngine: (Not used anymore) Google App Engine script to run backend.
 * GoogleDocsAddOn: Scripts for the GrammatikTAK Google Docs Add-on
 * GoogleExtension: Scripts for the GrammatikTAK Google Extension
-* GrammatiktakFlask: main.py is the backend running on Google Cloud Engine
+* GrammatiktakFlask: main.py is the backend currently running on Google Cloud Engine
+* GrammatiktakBackend: development of backend 2.0. main.py is the backend. Not yet released.
