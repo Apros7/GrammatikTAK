@@ -1,6 +1,7 @@
 import torch
 from transformers import pipeline, Trainer, BertTokenizer
 import numpy as np
+from Utilities.utils import prepare_sentence, find_index
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
 
@@ -32,14 +33,9 @@ class PunctuationCorrector():
         self.model = load_model()
         self.tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
     
-    # prepares function for prediction
-    # should be useless after model is retrained
-    def prepare_sentence(self, sentence) -> str:
-        return sentence.replace("<br>", " ").lower().split()
-    
     # prepares dataset and get predictions
     def get_predictions(self, sentence) -> list:
-        words = self.prepare_sentence(sentence)
+        words = prepare_sentence(sentence)
         test_data = [" ".join(words[i:i+4]) for i in range(len(words)-3)]
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=512)
         final_dataset = Dataset(tokenized_data)
@@ -49,9 +45,8 @@ class PunctuationCorrector():
 
     # creates comma error message
     def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> list:
-        index_of_word_to_correct = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence[:index_of_word_in_all_words])-1
         error_description = f"Der skal ikke være komma efter '{word_to_correct[:-1]}'." if remove else f"Der skal være komma efter '{word_to_correct}'."
-        previous_index = [index_of_word_to_correct, index_of_word_to_correct + len(word_to_correct)]
+        previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if remove:
             wrong_word, right_word = word_to_correct, word_to_correct[:-1]
         else:

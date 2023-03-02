@@ -1,15 +1,13 @@
 from transformers import pipeline, Trainer, BertTokenizer
 import stanza
+import time
+from danlp.models import load_bert_ner_model
+from Utilities.utils import prepare_sentence
 
 def load_models():
-    ner_model = pipeline(task='ner', model='saattrupdan/nbailab-base-ner-scandi', aggregation_strategy='first')
+    ner_model = load_bert_ner_model()
     pos_model = stanza.Pipeline("da", processors='tokenize,pos', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
     return ner_model, pos_model
-
-def find_index(all_words_from_sentence, index_of_word_in_all_words, word):
-    start_index = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence[:index_of_word_in_all_words])
-    end_index = start_index + len(word) - 1
-    return [start_index, end_index]
 
 class Tagger():
     def __init__(self) -> None:
@@ -21,10 +19,16 @@ class Tagger():
         return results
     
     def get_ner_tags(self, sentence):
-        result = self.ner_tagger(sentence.split())
-        namedEntities = [(result[i][0]["word"], find_index(sentence.split(), i, result[i][0]["word"])) for i in range(len(result)) if len(result[i]) > 0 ]
+        result = self.ner_tagger.predict(prepare_sentence(sentence), IOBformat=False)
+        namedEntities = [(ent["text"], [ent["start_pos"], ent["end_pos"]]) for ent in result["entities"]]
         return namedEntities
     
     # run this function to get all tags
     def get_tags(self, sentence):
-        return self.get_pos_tags(sentence), self.get_ner_tags(sentence)
+        start_time = time.time()
+        pos = self.get_pos_tags(sentence)
+        print(f"Time to get pos tags: {time.time() - start_time}")
+        start_time = time.time()
+        ner = self.get_ner_tags(sentence)
+        print(f"Time to get ner tags: {time.time() - start_time}")
+        return pos, ner
