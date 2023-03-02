@@ -2,7 +2,7 @@ import torch
 from transformers import pipeline, Trainer, BertTokenizer
 import numpy as np
 
-PUNCTUATIONS = ".,!?\";:"
+PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
 
 # used to create torch dataset for predictions
 class Dataset(torch.utils.data.Dataset):
@@ -48,21 +48,31 @@ class PunctuationCorrector():
         return final_predictions, words
 
     # creates comma error message
-    def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words) -> list:
-        index_of_word_to_correct = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence)-1
-        error_description = f"Der skal være komma efter '{word_to_correct}'."
+    def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> list:
+        index_of_word_to_correct = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence[:index_of_word_in_all_words])-1
+        error_description = f"Der skal ikke være komma efter '{word_to_correct[:-1]}'." if remove else f"Der skal være komma efter '{word_to_correct}'."
         previous_index = [index_of_word_to_correct, index_of_word_to_correct + len(word_to_correct)]
-        new_index = [previous_index[0], previous_index[1] + 1]
-        return [word_to_correct, word_to_correct + ",", previous_index, new_index, error_description]
+        if remove:
+            wrong_word, right_word = word_to_correct, word_to_correct[:-1]
+        else:
+            wrong_word, right_word  = word_to_correct, word_to_correct + ","
+        return [wrong_word, right_word, previous_index, error_description]
 
     # find mistakes and makes errors
     # should be changed after model is retrained to character level
-    def find_mistakes(self, predictions, words) -> str:
+    def find_mistakes(self, predictions, words) -> list:
+        # get relevant lists:
         checked_words = [words[i+1] for i in range(len(words)-3)]
-        predicted_comma = [True if predictions[i] == 2 else False for i in range(len(predictions))]
-        already_punctuated = [True if checked_words[-1] in PUNCTUATIONS else False for i in range(len(checked_words))]
-        error_messages = [True if predicted_comma[i] and not already_punctuated[i] else False for i in range(len(predicted_comma))]
-        return [self.create_comma_error_message(checked_words[i], words, i+1) for i in range(len(checked_words)) if error_messages[i]]
+        predicted_comma = [True if predictions[i] == 2 else False for i in range(len(checked_words))]
+        already_punctuated = [True if checked_words[i][-1] in PUNCTUATIONS_WITHOUT_COMMA else False for i in range(len(checked_words))]
+        already_comma = [True if checked_words[i][-1] == "," else False for i in range(len(checked_words))]
+        # where there should be a comma but isnt
+        error_new_comma = [True if predicted_comma[i] and (not already_punctuated[i]) and (not already_comma[i]) else False for i in range(len(predicted_comma))]
+        error_messages_new_comma = [self.create_comma_error_message(checked_words[i], words, i+1, False) for i in range(len(checked_words)) if error_new_comma[i]]
+        # where there should not be a comma but is
+        error_remove_comma = [True if (not predicted_comma[i]) and (not already_punctuated[i]) and already_comma[i] else False for i in range(len(predicted_comma))]
+        error_messages_remove_comma = [self.create_comma_error_message(checked_words[i], words, i+1, True) for i in range(len(checked_words)) if error_remove_comma[i]]
+        return error_messages_new_comma + error_messages_remove_comma
 
     # this model should be retrained to used character based inputs
     # instead of word based inputs

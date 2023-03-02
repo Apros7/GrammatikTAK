@@ -4,6 +4,7 @@ time_tracker = TimeTracker()
 
 # import internal modules
 from Punctuation.correct_punctuation import PunctuationCorrector
+from Spellchecking.tagger import Tagger
 
 # importing external modules
 import time
@@ -23,11 +24,13 @@ time_tracker.track("import modules")
 
 # initialize correctors:
 punctuation_corrector = PunctuationCorrector()
+tagger = Tagger()
 
 time_tracker.track("initialize correctors")
 
 def correct_input(input):
     punctuation_errors = punctuation_corrector.correct_punctuation(input)
+    pos_tags, ner_tags = tagger.get_tags(input)
     pass
 
 app = Flask(__name__)
@@ -39,7 +42,6 @@ def index():
     all_errors, errors, new_lines = [], [], []
     data = request.get_json()
     input = data["sentence"]
-    print(input)
     output = correct_input(input)
     #print(*output, sep="\n")
     return jsonify(output)
@@ -48,9 +50,8 @@ if __name__ == "__main__":
     pass
 
 time_tracker(.5)
-my_input = "Hey Christian.<br>Tak for det. Jeg er desværre i skole til kl 18, så det har jeg ikke mulighed for.<br>Jeg håber at I får en dejlig aften :smile:."
-my_errors = punctuation_corrector.correct_punctuation(my_input)
-print(my_errors)
+my_input = "Hey Christian.<br>Tak for det. Jeg er desværre i skole til, kl 18, så det har jeg ikke mulighed for.<br>Jeg håber at I får en dejlig aften :smile:."
+tagger.get_tags(my_input)
 
 time_tracker.track("end")
 time_tracker(.5)
