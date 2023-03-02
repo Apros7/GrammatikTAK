@@ -66,8 +66,8 @@ class Dataset(torch.utils.data.Dataset):
         return len(self.encodings["input_ids"])
 
 def ner_tagging(sentence):
-    result = ner_model(sentence)
-    namedEntities = [row["word"] for row in result]
+    result = ner_model(sentence.split())
+    namedEntities = [row[0]["word"] for row in result if len(row) > 0 ]
     return namedEntities
 
 def pos_tag_sentence(sentence_group):
@@ -337,8 +337,13 @@ def get_mask_model_prediction(masked_sentence, original_word):
     for pred in predictions[:50]:
         lst.append((pred["token_str"], pred["score"], levenshtein(original_word, pred["token_str"])))
     prediction = min(lst, key=lambda x: x[2])
-    #print("original word: ", original_word, "prediction: ", prediction[0])
-    if prediction[2] > 2:
+    print(lst)
+    print("original word: ", original_word, "prediction: ", prediction[0])
+    if len(prediction[0]) < 4:
+        distance_limit = 1
+    else:
+        distance_limit = 2
+    if prediction[2] > distance_limit:
         return original_word
     return prediction[0]
 
@@ -358,7 +363,8 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
                 continue
             else: 
                 mask_sentence = " ".join(words[i-2:i+1] + ["[MASK]"] + words[i+2:i+5])
-                word = get_mask_model_prediction(mask_sentence, words[i+1])
+                word = words[i+1]
+                #word = get_mask_model_prediction(mask_sentence, words[i+1])
                 #word = find_correct_word(words[i], current_word, words[i+2])
                 #word = current_word
             if word == current_word:
@@ -381,7 +387,9 @@ def correct_spelling_mistakes(sentence, named_entities, pos_dict, len_prev_sente
         if current_pos != "VERB" and current_pos != "DET": #and current_pos != "NOUN":
             continue 
         mask_sentence = " ".join(words[i-2:i+1] + ["[MASK]"] + words[i+2:i+5])
-        suggestion = get_mask_model_prediction(mask_sentence, words[i+1])
+        # currently disabled
+        suggestion = words[i+1]
+        #suggestion = get_mask_model_prediction(mask_sentence, words[i+1])
         #suggestion = find_suggestions(words[i], words[i+1], words[i+2])
         #suggestion = words[i+1]
         if suggestion == words[i+1]:
@@ -485,7 +493,7 @@ def index():
     return jsonify(output)
 
 message = "En anden form for bias er confirmation bias, hvor man som forsker vægte undersøgelser som understøtte ens hypotse end undersøgelser som vil modsige ens hypotese. Det omfatter også, at hvis man har en vis forventning af et bestemt præparat virkning, at man i så fald også vil fortolke ens data på en måde som understøtter ens forventning. Confirmation bias kan også påvirke ens testpersoner, hvis man ikke er opmærksom på dette. Fx hvis man giver en testperson et præparat som testpersonen forventer har en effekt, vil dette kunne påvirke testpersonens opfattelse af stoffets virkning, på en måde som igen understøtter ens forventning. I det sidstnævnte eksempel er det placeboeffekten som vil kunne give patienten en fornemmelse af at præparatet virker selvom det ikke nødvendigvis er tilfældet. For at modvirker confirmation bias kan man foretage sig af blinding i tre forskellige grader. Ved almindelig blinding ved selve deltagerne i studiet ikke om de modtager den aktuelle behandling eller om de ikke gør, fx ved at give en kalkpille eller lign. Dette er med til at modvirke patientens egne forventninger til behandlingen. Dertil er der også dobbeltblinding hvor hverken patienten eller personalet ved om den behandling de får/giver er den faktiske behandling eller blot placebo. Dette er med til at modvirke at personalets forventning til behandlingen videregives ubevidst under kommunikation. Til sidst kan man også tripelblinde, der lægges til de to tidligere med at dem som behandlinger og analyser data fra studiet ikke ved hvilken gruppe som har modtaget den faktiske behandling. Disse tre former for blinding bidrager til at mindske mængden af confirmation bias mest muligt."
-current_errors = complete_correction(message)
+#current_errors = complete_correction(message)
 #print(len(current_errors))
 #print(new_lines)
 
