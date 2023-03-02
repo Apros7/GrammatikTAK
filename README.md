@@ -3,7 +3,7 @@ This is my danish grammar assistent project.
 
 All datasets and bert models are not included due to space limitations.
 
-This is alle the code for the front- and backend for the google extension and google docs add-on: GrammatikTAK
+This is alle the code for the front- and backend for site: GrammatikTAK.com
 
 ### Structure of the current code:
 Here is a small overview of the most important directories:
