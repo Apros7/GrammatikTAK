@@ -1,6 +1,5 @@
 from transformers import pipeline, Trainer, BertTokenizer
 import stanza
-import time
 from danlp.models import load_bert_ner_model
 from Utilities.utils import prepare_sentence
 
@@ -25,10 +24,6 @@ class Tagger():
     
     # run this function to get all tags
     def get_tags(self, sentence):
-        start_time = time.time()
         pos = self.get_pos_tags(sentence)
-        print(f"Time to get pos tags: {time.time() - start_time}")
-        start_time = time.time()
         ner = self.get_ner_tags(sentence)
-        print(f"Time to get ner tags: {time.time() - start_time}")
         return pos, ner
