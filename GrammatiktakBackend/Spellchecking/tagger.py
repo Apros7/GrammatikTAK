@@ -1,4 +1,3 @@
-from transformers import pipeline, Trainer, BertTokenizer
 import stanza
 from danlp.models import load_bert_ner_model
 from Utilities.utils import prepare_sentence

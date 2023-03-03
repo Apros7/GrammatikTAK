@@ -1,5 +1,5 @@
 import torch
-from transformers import pipeline, Trainer, BertTokenizer
+from transformers import Trainer, BertTokenizer
 import numpy as np
 from Utilities.utils import prepare_sentence, find_index
 
@@ -52,10 +52,17 @@ class PunctuationCorrector():
         else:
             wrong_word, right_word  = word_to_correct, word_to_correct + ","
         return [wrong_word, right_word, previous_index, error_description]
+    
+    # creates full stop error message
+    def create_full_stop_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words) -> list:
+        error_description = f"Der skal ikke være punktum efter '{word_to_correct}', da det er det sidste ord i sætningen."
+        previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        wrong_word, right_word  = word_to_correct, word_to_correct + "."
+        return [wrong_word, right_word, previous_index, error_description]
 
     # find mistakes and makes errors
     # should be changed after model is retrained to character level
-    def find_mistakes(self, predictions, words) -> list:
+    def find_comma_mistakes(self, predictions, words) -> list:
         # get relevant lists:
         checked_words = [words[i+1] for i in range(len(words)-3)]
         predicted_comma = [True if predictions[i] == 2 else False for i in range(len(checked_words))]
@@ -69,10 +76,22 @@ class PunctuationCorrector():
         error_messages_remove_comma = [self.create_comma_error_message(checked_words[i], words, i+1, True) for i in range(len(checked_words)) if error_remove_comma[i]]
         return error_messages_new_comma + error_messages_remove_comma
 
+    # finds full stop mistakes and makes errors
+    # errors are no full stop at end of sentence
+    def find_full_stop_mistakes(self, sentence, prepared_words) -> list:
+        sentences = sentence.split("<br>")
+        words_for_every_sentence = [sent.split() for sent in sentences]
+        full_stop_error = [True if word[-1] != "." and sent[-1] == word else False for sent in words_for_every_sentence for word in sent]
+        print(full_stop_error)
+        error_messages_full_stop = [self.create_full_stop_error_message(prepared_words[i], prepared_words[i], i) for i in range(len(prepared_words)) if full_stop_error[i]]
+        return error_messages_full_stop
+
+
     # this model should be retrained to used character based inputs
     # instead of word based inputs
     # this is the function to call when error messages are needed
     def correct_punctuation(self, sentence):
         predictions, words = self.get_predictions(sentence)
-        mistakes = self.find_mistakes(predictions, words)
-        return mistakes
+        comma_mistakes = self.find_comma_mistakes(predictions, words)
+        full_stop_mistakes = self.find_full_stop_mistakes(sentence, words)
+        return comma_mistakes + full_stop_mistakes

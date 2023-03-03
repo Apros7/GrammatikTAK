@@ -1,3 +1,7 @@
+# collection of frequenctly used functions
+# use as often as possible to avoid code duplication
+
+
 # input all words from sentence, index (in words), word
 # output list of start and end index in sentence
 def find_index(all_words_from_sentence, index_of_word_in_all_words, word):
