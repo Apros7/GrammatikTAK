@@ -79,10 +79,8 @@ class PunctuationCorrector():
     # finds full stop mistakes and makes errors
     # errors are no full stop at end of sentence
     def find_full_stop_mistakes(self, sentence, prepared_words) -> list:
-        sentences = sentence.split("<br>")
-        words_for_every_sentence = [sent.split() for sent in sentences]
+        words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
         full_stop_error = [True if word[-1] != "." and sent[-1] == word else False for sent in words_for_every_sentence for word in sent]
-        print(full_stop_error)
         error_messages_full_stop = [self.create_full_stop_error_message(prepared_words[i], prepared_words[i], i) for i in range(len(prepared_words)) if full_stop_error[i]]
         return error_messages_full_stop
 
