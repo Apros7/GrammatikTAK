@@ -4,7 +4,6 @@ stanza
 transformers
 numpy
 pandas
-polyleven
 setuptools_rust
 gunicorn
 flask_cors

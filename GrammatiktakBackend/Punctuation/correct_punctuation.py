@@ -36,12 +36,12 @@ class PunctuationCorrector():
     # prepares dataset and get predictions
     def get_predictions(self, sentence) -> list:
         words = prepare_sentence(sentence)
-        test_data = [" ".join(words[i:i+4]) for i in range(len(words)-3)]
+        test_data = [" ".join(words[i:i+4]).strip(PUNCTUATIONS_WITHOUT_COMMA).strip(",") for i in range(len(words)-3)]
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=512)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)
         final_predictions = np.argmax(raw_predictions, axis=1)
-        return final_predictions, words
+        return final_predictions
 
     # creates comma error message
     def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> list:
@@ -89,7 +89,8 @@ class PunctuationCorrector():
     # instead of word based inputs
     # this is the function to call when error messages are needed
     def correct_punctuation(self, sentence):
-        predictions, words = self.get_predictions(sentence)
+        predictions = self.get_predictions(sentence)
+        words = prepare_sentence(sentence, lowercase=False)
         comma_mistakes = self.find_comma_mistakes(predictions, words)
         full_stop_mistakes = self.find_full_stop_mistakes(sentence, words)
         return comma_mistakes + full_stop_mistakes
