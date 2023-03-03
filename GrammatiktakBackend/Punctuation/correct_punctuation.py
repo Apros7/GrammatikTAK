@@ -55,7 +55,7 @@ class PunctuationCorrector():
     
     # creates full stop error message
     def create_full_stop_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words) -> list:
-        error_description = f"Der skal ikke være punktum efter '{word_to_correct}', da det er det sidste ord i sætningen."
+        error_description = f"Der skal være punktum efter '{word_to_correct}', da det er det sidste ord i sætningen."
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         wrong_word, right_word  = word_to_correct, word_to_correct + "."
         return [wrong_word, right_word, previous_index, error_description]
