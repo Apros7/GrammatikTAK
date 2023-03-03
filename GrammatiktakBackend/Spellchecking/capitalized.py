@@ -50,7 +50,7 @@ class CapitalizationCorrector:
         words = prepare_sentence(sentence, lowercase=False)
         previous_capitalization = [True if word[0].isupper() else False for word in words]
         ner_indexes = [tag[1] for tag in ner_tags]
-        ner_words = [(True, ner_indexes.index(find_index(words, i, words[i]))) if find_index(words, i, words[i]) in ner_indexes else (False, []) for i in range(len(words))]
+        ner_words = [(True, ner_indexes[ner_indexes.index(find_index(words, i, words[i]))]) if find_index(words, i, words[i]) in ner_indexes else (False, []) for i in range(len(words))]
         error_messages_missing_capitalization = [self.create_ner_error_message(words[i], ner_words[i][1]) for i in range(len(words)) if ner_words[i][0] and not previous_capitalization[i]]
         return error_messages_missing_capitalization
 
