@@ -13,35 +13,62 @@ class CapitalizationCorrector:
         else:
             wrong_word, right_word  = word_to_correct, word_to_correct.lower()
         return [wrong_word, right_word, previous_index, error_description]
+    
+    # creates I/i error message
+    def create_i_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
+        error_description = f"'{word_to_correct.title()}' skal starte med stort, da det står i stedet for nogen." if missing_capitalization else f"'{word_to_correct}' skal ikke starte med stort."
+        previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        if missing_capitalization:
+            wrong_word, right_word = word_to_correct, word_to_correct.title()
+        else:
+            wrong_word, right_word  = word_to_correct, word_to_correct.lower()
+        return [wrong_word, right_word, previous_index, error_description]
 
     # corrects all instances of i
-    def correct_i(self, sentence) -> str:
+    def correct_i(self, sentence, pos_tags) -> str:
+        words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
+        words = prepare_sentence(sentence, lowercase=False)
+        is_capitalized_i = [True if word == "I" else False for sent in words_for_every_sentence for word in sent]
+        is_uncapitalized_i = [True if word == "i" else False for sent in words_for_every_sentence for word in sent]
+        should_be_capitalized = [True if pos_tags[i+1][0] == "VERB" else False for i in range(len(words)-1)]
+        # if i is last, then never capitalize
+        should_be_capitalized.append(False)
+        # get errors that are not capitalized
+        error_messages_missing_capitalization = [self.create_i_error_message(words[i], words, i, True) for i in range(len(words)) if is_uncapitalized_i[i] and should_be_capitalized[i]]
+        # get errors that are capitalized
+        error_messages_wrong_capitalization = [self.create_i_error_message(words[i], words, i, False) for i in range(len(words)) if is_capitalized_i[i] and not should_be_capitalized[i]]
+        return error_messages_missing_capitalization + error_messages_wrong_capitalization
+
+    def find_ner_errors(self, sentence, ner_tags) -> list:
+        return []
         pass
 
-    def find_ner_errors(self, sentence) -> list:
-        pass
-
+    # finds capitalization errors after full stop
+    # does not fix ner og i errors
     def find_basic_errors(self, sentence) -> list:
         words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
         words = prepare_sentence(sentence, lowercase=False)
         full_stop = [True if word[-1] == "." else False for sent in words_for_every_sentence for word in sent]
         previous_capitalization = [True if word[0].isupper() else False for sent in words_for_every_sentence for word in sent]
         first_word_in_sentence = [True if word == sent[0] else False for sent in words_for_every_sentence for word in sent]
+        is_i = [True if word.lower() == "i" else False for sent in words_for_every_sentence for word in sent]
         # if there is a full stop and the word is not capitalized
-        error_missing_capitalization = [True if (full_stop[i] or first_word_in_sentence[i+1]) and not previous_capitalization[i+1] else False for i in range(len(words)-1)]
+        error_missing_capitalization = [True if (full_stop[i] or first_word_in_sentence[i+1]) and not previous_capitalization[i+1] and not is_i[i+1] else False for i in range(len(words)-1)]
         # Needs to take care of first word: correct if not capitalized
         error_missing_capitalization.insert(0, True if not previous_capitalization[0] else False)
         error_messages_missing_capitalization = [self.create_capitalization_error_message(words[i], words, i, True) for i in range(len(words)) if error_missing_capitalization[i]]
         # if there is not a full stop and the word is capitalized
-        error_wrong_capitalization = [True if not full_stop[i] and previous_capitalization[i+1] and not first_word_in_sentence[i+1] else False for i in range(len(words)-1)]
+        error_wrong_capitalization = [True if not full_stop[i] and previous_capitalization[i+1] and not first_word_in_sentence[i+1] and not is_i[i+1] else False for i in range(len(words)-1)]
         # needs to take care of first word. Never correct in this case
         error_wrong_capitalization.insert(0, False)
         error_messages_wrong_capitalization = [self.create_capitalization_error_message(words[i], words, i, False) for i in range(len(words)) if error_wrong_capitalization[i]]
         return error_messages_missing_capitalization + error_messages_wrong_capitalization
 
     # use this function to get errors
-    def correct_capitalization(self, sentence):
-        errors = self.find_basic_errors(sentence)
-        return errors
+    def correct_capitalization(self, sentence, pos_tags, ner_tags) -> list:
+        basic_errors = self.find_basic_errors(sentence)
+        i_errors = self.correct_i(sentence, pos_tags)
+        ner_errors = self.find_ner_errors(sentence, ner_tags)
+        return basic_errors + i_errors + ner_errors
 
         

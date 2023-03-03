@@ -11,6 +11,7 @@ def find_index(all_words_from_sentence, index_of_word_in_all_words, word):
 
 # input sentence
 # output lowercased words with <br> removed
+# if split_sentence then always lowercase = Falses
 def prepare_sentence(sentence, lowercase=True, split_sentences=False) -> str:
     if split_sentences:
         sentences = sentence.split("<br>")

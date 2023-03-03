@@ -12,6 +12,7 @@ class Tagger():
         self.ner_tagger, self.pos_tagger = load_models()
 
     def get_pos_tags(self, sentence):
+        sentence = " ".join(prepare_sentence(sentence, lowercase=False))
         doc = self.pos_tagger(sentence)
         results = [(word.upos, [word.start_char, word.end_char]) for sentence in doc.sentences for word in sentence.words]
         return results
