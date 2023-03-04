@@ -7,7 +7,7 @@ time_tracker = TimeTracker()
 from Punctuation.correct_punctuation import PunctuationCorrector
 from Spellchecking.tagger import Tagger
 from Spellchecking.capitalized import CapitalizationCorrector
-from Utilities.utils import prepare_sentence, concat_errors
+from Utilities.utils import prepare_sentence, concat_errors, move_index_based_on_br
 
 # importing external modules
 # from polyleven import levenshtein # add "polyleven" to requirements.txt if needed

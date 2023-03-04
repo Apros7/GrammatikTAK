@@ -1,7 +1,7 @@
 import torch
 from transformers import Trainer, BertTokenizer
 import numpy as np
-from Utilities.utils import prepare_sentence, find_index
+from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
 
@@ -93,4 +93,4 @@ class PunctuationCorrector():
         words = prepare_sentence(sentence, lowercase=False)
         comma_mistakes = self.find_comma_mistakes(predictions, words)
         full_stop_mistakes = self.find_full_stop_mistakes(sentence, words)
-        return comma_mistakes + full_stop_mistakes
+        return move_index_based_on_br(comma_mistakes + full_stop_mistakes, sentence)

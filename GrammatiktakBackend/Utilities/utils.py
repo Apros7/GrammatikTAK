@@ -1,6 +1,7 @@
 # collection of frequenctly used functions
 # use as often as possible to avoid code duplication
 
+import re
 
 # input all words from sentence, index (in words), word
 # output list of start and end index in sentence
@@ -23,7 +24,19 @@ def prepare_sentence(sentence, lowercase=True, split_sentences=False) -> str:
 # This can be used to move index based on <br> if needed
 # This should be done in the module before returning to the main script
 def move_index_based_on_br(errors, sentence):
-    pass
+    br_indexes = [match.start() for match in re.finditer('<br>', sentence)]
+    for error in errors:
+        (start, end) = error[2][0], error[2][1]
+        # Adjust for <br> tags before the start index
+        for br_index in br_indexes:
+            if br_index < start:
+                start += 3
+                end += 3
+        # Adjust for <br> tags between the start and end indexes
+            elif br_index > start and br_index < end:
+                end += 3
+        error[2][0], error[2][1] = start, end
+    return errors
 
 # sort errors based on beginning index
 def sort_errors(errors):

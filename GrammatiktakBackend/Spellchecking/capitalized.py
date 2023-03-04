@@ -1,4 +1,4 @@
-from Utilities.utils import prepare_sentence, find_index
+from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 
 class CapitalizationCorrector:
     def __init__(self) -> None:
@@ -83,6 +83,6 @@ class CapitalizationCorrector:
         basic_errors = self.find_basic_errors(sentence, ner_tags)
         i_errors = self.correct_i(sentence, pos_tags)
         ner_errors = self.find_ner_errors(sentence, ner_tags)
-        return basic_errors + i_errors + ner_errors
+        return move_index_based_on_br(basic_errors + i_errors + ner_errors, sentence)
 
         
