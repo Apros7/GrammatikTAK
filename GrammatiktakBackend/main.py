@@ -45,7 +45,7 @@ def correct_input(input):
 # flask app:
 
 app = Flask(__name__)
-CORS(app, origins=["https://grammatiktak.com/"])
+CORS(app)
 @app.route("/", methods=["POST"])
 
 def index():
