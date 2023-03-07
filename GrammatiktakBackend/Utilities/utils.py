@@ -51,8 +51,8 @@ def concat_errors(errors):
     for sublist in errors:
         key = (sublist[2][0], sublist[2][1])
         if key in elements.keys():
-            if elements[key][-1] in ".,":
-                punctuation = elements[sublist[2]][-1]
+            if elements[key][1][-1] in ".,":
+                punctuation = elements[key][1][-1]
                 elements[key][1] = sublist[1] + punctuation
                 elements[key][3] += " " + sublist[3]
             else:
