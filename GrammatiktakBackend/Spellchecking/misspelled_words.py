@@ -4,6 +4,9 @@
 # decided to hard code basic spellchecker as levenshtein distance did not work well
 # context based path should be applied later on
 
+# stavefejl_wikipedia is a csv file with spelling mistakes from wikiepedia:
+# https://da.wikipedia.org/wiki/Wikipedia:Almindelige_stavefejl
+
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 #from polyleven import levenshtein # add polyleven to requirements
 
@@ -43,9 +46,6 @@ class MisspelledWordsCorrector():
 
     # test if letter added to word in every position gives good prediction:
     def test_letter_addition(self, word, letter, front_words=None, end_words=None):
-        print(f"Testing letter addition to word: {word}")
-        print(f"Front words: {front_words}")
-        print(f"End words: {end_words}")
         for i in range(len(word)):
             if front_words is not None:
                 if word[i] not in front_words:
