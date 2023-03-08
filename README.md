@@ -25,6 +25,7 @@ The backend is built from the principles of refactoring. It follows the followin
 * All other directories are modules built to solve a specific kind of error.
 
 ### New modules:
+You're a champ for building a new module :sunglasses:!
 When building a module please keep the following in mind:
 
 * As much of the code as possible should be done in the __init__ function to improve the speed of correction.
@@ -36,9 +37,9 @@ When building a module please keep the following in mind:
   * description (str): "Christian skal stå med stort, da det er et egenavn."
   
   
-### Why is my module not work :( ?
+### Why is my module not work :raised_eyebrow:?
 Are you using the utilities functions?
 * Find index based on sentence.split() index with find_index
 * Did you remember to move_index_based_on_br()?
 * Did you remember to update concat_errors?
-If this does not fix it, I honnestly doesn't know. Good luck ;), tihi.
+If this does not fix it, I honnestly doesn't know. Good luck :wink:, tihi.
