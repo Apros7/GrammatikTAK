@@ -32,11 +32,12 @@ When building a module please keep the following in mind:
   * description (str): "Christian skal stå med stort, da det er et egenavn."
   
   
-### Why module no work :raised_eyebrow:!?
+### Commen module errors:
 Are you using the utilities functions?
 * Find index based on sentence.split() index with find_index
 * Did you remember to move_index_based_on_br()?
 * Did you remember to update concat_errors?
 
-If this does not fix it, I honnestly doesn't know.  
+If this does not fix it, I honestly doesn't know.  
+If you find a commen error, please add it above.  
 Good luck :wink:, tihi.
