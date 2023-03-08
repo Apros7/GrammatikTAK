@@ -34,3 +34,11 @@ When building a module please keep the following in mind:
   * right_word (str): "Christian"
   * indexes (list) (Use util function): [4, 13]
   * description (str): "Christian skal stå med stort, da det er et egenavn."
+  
+  
+### Why is my module not work :( ?
+Are you using the utilities functions?
+* Find index based on sentence.split() index with find_index
+* Did you remember to move_index_based_on_br()?
+* Did you remember to update concat_errors?
+If this does not fix it, I honnestly doesn't know. Good luck ;), tihi.
