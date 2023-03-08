@@ -26,6 +26,7 @@ The backend is built from the principles of refactoring. It follows the followin
 
 ### New modules:
 You're a champ for building a new module :sunglasses:!
+
 When building a module please keep the following in mind:
 
 * As much of the code as possible should be done in the __init__ function to improve the speed of correction.
