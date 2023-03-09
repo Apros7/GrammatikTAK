@@ -13,6 +13,8 @@ from Spellchecking.misspelled_words import MisspelledWordsCorrector
 from Spellchecking.wrong_tense import TenseCorrector
 from Utilities.utils import concat_errors
 
+from Storage.Firestore import FirestoreClient
+
 # importing external modules
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -25,6 +27,9 @@ capitalize_corrector = CapitalizationCorrector()
 tagger = Tagger()
 misspellings_corrector = MisspelledWordsCorrector()
 tense_corrector = TenseCorrector()
+
+# initialize firestore client:
+firestore_client = FirestoreClient()
 
 time_tracker.track("initialize correctors")
 
@@ -51,6 +56,7 @@ CORS(app)
 def index():
     data = request.get_json()
     input = data["sentence"]
+    firestore_client.save_input(input)
     output = correct_input(input)
     return jsonify(output)
 
