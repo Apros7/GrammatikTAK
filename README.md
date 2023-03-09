@@ -15,4 +15,4 @@ Here is a small overview of the most important directories:
 * GrammatiktakBackend: development of backend 2.0. main.py is the backend. Currently used.
 
 ### Other:  
-**To read more about the structure of the backend, see the readme in GrammatiktakBackend**
+**To read more about the structure of the backend, see the readme in GrammatiktakBackend.**
