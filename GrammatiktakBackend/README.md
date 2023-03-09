@@ -13,7 +13,8 @@ When building a module please keep the following in mind:
   * wrong_word (str): "christian"
   * right_word (str): "Christian"
   * indexes (list) (Use util function): [4, 13]
-  * description (str): "Christian skal stå med stort, da det er et egenavn."  
+  * description (str): "Christian skal stå med stort, da det er et egenavn." 
+
 **To test a new module:**
 1. Run "flask --app main run" in this directory.  
 2. Open "GrammatiktakWebsite/Handle_errors.js. Change it so that the second line is active, and the third line is commented out.  
