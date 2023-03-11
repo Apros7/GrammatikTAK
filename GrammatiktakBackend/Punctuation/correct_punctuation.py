@@ -36,6 +36,8 @@ class PunctuationCorrector():
     # prepares dataset and get predictions
     def get_predictions(self, sentence) -> list:
         words = prepare_sentence(sentence)
+        if len(words) < 4:
+            return [0]*len(words)
         test_data = [" ".join(words[i:i+4]).strip(PUNCTUATIONS_WITHOUT_COMMA).strip(",") for i in range(len(words)-3)]
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=512)
         final_dataset = Dataset(tokenized_data)
