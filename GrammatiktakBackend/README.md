@@ -16,9 +16,10 @@ When building a module please keep the following in mind:
   * description (str): "Christian skal stå med stort, da det er et egenavn." 
 
 **To test a new module:**
-1. Run "flask --app main run" in this directory.  
-2. Open "GrammatiktakWebsite/Handle_errors.js. Change it so that the second line is active, and the third line is commented out.  
-3. Go live with "GrammatiktakWebsite" in your browser. When you now press "ret min tekst" this will happen on your device.
+1. Implement your module in the main script.  
+2. Run "flask --app main run" in this directory.  
+3. Open "GrammatiktakWebsite/Handle_errors.js. Change it so that the second line is active, and the third line is commented out.  
+4. Go live with "GrammatiktakWebsite" in your browser. When you now press "ret min tekst" this will happen on your device.
   
   
 ### Commen module errors:
