@@ -11,7 +11,7 @@ from Spellchecking.tagger import Tagger
 from Spellchecking.capitalized import CapitalizationCorrector
 from Spellchecking.misspelled_words import MisspelledWordsCorrector
 from Spellchecking.wrong_tense import TenseCorrector
-from Utilities.utils import concat_errors
+from Utilities.utils import concat_errors, check_empty_input_or_feedback
 
 from Storage.Firestore import FirestoreClient
 
@@ -35,7 +35,7 @@ time_tracker.track("initialize correctors")
 
 # corrector function
 
-def correct_input(input):
+def correct_input(input, save=False):
     punctuation_errors = punctuation_corrector.correct_punctuation(input)
     time_tracker.track("correct punctuation")
 
@@ -44,6 +44,10 @@ def correct_input(input):
 
     capitalization_errors = capitalize_corrector.correct_capitalization(input, pos_tags, ner_tags)
     time_tracker.track("correct capitalization")
+
+    if save:
+        firestore_client.save_input(input)
+        time_tracker.track("saving to firestore")
 
     return concat_errors(punctuation_errors + capitalization_errors)
 
@@ -55,9 +59,12 @@ CORS(app)
 
 def index():
     data = request.get_json()
+    empty_or_feedback, feedback, input, output = check_empty_input_or_feedback(data)
+    if empty_or_feedback:
+        firestore_client.save_feedback(feedback, input)
+        return jsonify(output)
     input = data["sentence"]
-    firestore_client.save_input(input)
-    output = correct_input(input)
+    output = correct_input(input, save=True)
     return jsonify(output)
 
 time_tracker.complete_reset()

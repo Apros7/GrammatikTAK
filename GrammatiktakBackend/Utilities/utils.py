@@ -3,6 +3,24 @@
 
 import re
 
+# input json_data
+# returns (is_empty_or_feedback, feedback, input, potential output)
+# used in main to filter incoming traffic
+def check_empty_input_or_feedback(json_data):
+
+    input_string = json_data["sentence"]
+    feedback = json_data["feedback"]
+
+    # check for feedback
+    if feedback != None:
+        return True, feedback, input_string, "Saved"
+
+    # check if empty request
+    if input_string.strip() == "":
+        return True, feedback, input_string, []
+    else:
+        return False, feedback, input_string, None
+
 # input all words from sentence, index (in words), word
 # output list of start and end index in sentence
 def find_index(all_words_from_sentence, index_of_word_in_all_words, word):
