@@ -14,6 +14,7 @@ class Tagger():
     def get_pos_tags(self, sentence):
         sentence = " ".join(prepare_sentence(sentence, lowercase=False))
         doc = self.pos_tagger(sentence)
+        print(doc)
         results = [(word.upos, [word.start_char, word.end_char]) for sentence in doc.sentences for word in sentence.words]
         return results
     
