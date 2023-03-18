@@ -80,3 +80,11 @@ def concat_errors(errors):
             elements[key] = sublist
     concatenated_error = list(elements.values())
     return sort_errors(concatenated_error)
+
+
+# This function is used to check if the index from a module is correct
+def check_if_index_is_correct(errors, sentence):
+    should_be = [errors[i][0] for i in range(len(errors))]
+    actual = [sentence[errors[i][2][0]:errors[i][2][1]] for i in range(len(errors))]
+    for i in range(len(should_be)):
+        print("Should be: ", should_be[i], ". Actual: ", actual[i])
