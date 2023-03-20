@@ -48,6 +48,8 @@ class CapitalizationCorrector:
 
     def check_ner_interval(self, interval_to_check, ner_intervals):
         ner_intervals = np.array(ner_intervals)
+        if np.size(ner_intervals) == 0:
+            return False
         mask = (ner_intervals[:, 0] <= interval_to_check[0]) & (ner_intervals[:, 1] >= interval_to_check[1])
         return np.any(mask)
 
