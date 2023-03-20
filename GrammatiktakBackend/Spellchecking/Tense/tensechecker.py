@@ -9,3 +9,6 @@ class TenseCorrector():
     def correct_tense(self, sentence, pos):
         nutids_r_errors = self.nutids_r_corrector.correct_nutids_r(sentence, pos)
         return nutids_r_errors
+    
+    def test(self, tagger):
+        self.nutids_r_corrector.test(tagger)

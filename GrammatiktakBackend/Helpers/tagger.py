@@ -12,7 +12,6 @@ class Tagger():
         self.ner_tagger, self.pos_tagger = load_models()
 
     def turn_features_to_dicts(self, features):
-        print(*features, sep='\n')
         feature_dicts = []
         current_tense = None
         for feature in features:
@@ -27,7 +26,7 @@ class Tagger():
                     current_tense = value
                 feature_dict[key] = value
             if "Tense" not in feature_dict and "VerbForm" in feature_dict and key is not None:
-                feature_dict["Tense"] = current_tense
+                feature_dict["Tense"] = "Pres" if current_tense is None else current_tense
             feature_dicts.append(feature_dict)
         return feature_dicts
 
