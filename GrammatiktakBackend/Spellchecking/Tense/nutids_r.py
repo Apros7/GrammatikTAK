@@ -58,7 +58,7 @@ class NutidsRCorrector():
         return error_message_missing_nutidsr + error_message_wrong_nutidsr
 
     def test(self, tagger):
-        lines = open("Datasets/nutids_r.csv").readlines()
+        lines = open("Datasets/nutids_r_test.csv").readlines()
         correct = 0
         total = len(lines)
         for line in lines:
