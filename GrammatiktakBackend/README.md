@@ -15,7 +15,12 @@ When building a module please keep the following in mind:
   * indexes (list) (Use util function): [4, 13]
   * description (str): "Christian skal stå med stort, da det er et egenavn." 
 
-**To test a new module:**
+### Before releasing a new module. 
+**To test a relevant csv file (required):**
+1. Collect at least 100 sentences to correct in a csvfile (wrong, correct)
+2. 
+
+**Test your own text (optional):**
 1. Implement your module in the main script.  
 2. Run "flask --app main run" in this directory.  
 3. Open "GrammatiktakWebsite/Handle_errors.js. Change it so that the second line is active, and the third line is commented out.  
