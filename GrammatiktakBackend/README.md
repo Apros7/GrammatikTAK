@@ -18,7 +18,8 @@ When building a module please keep the following in mind:
 ### Before releasing a new module. 
 **To test a relevant csv file (required):**
 1. Collect at least 100 sentences to correct in a csvfile (wrong, correct)
-2. 
+2. Test your file with tester in Utilities.
+3. Log the accuracy and save the dataset in GrammatiktakTestDataset
 
 **Test your own text (optional):**
 1. Implement your module in the main script.  
