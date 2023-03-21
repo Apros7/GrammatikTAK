@@ -31,7 +31,9 @@ def find_index(all_words_from_sentence, index_of_word_in_all_words, word):
 # input sentence
 # output lowercased words with <br> removed
 # if split_sentence then always lowercase = Falses
-def prepare_sentence(sentence, lowercase=True, split_sentences=False) -> str:
+def prepare_sentence(sentence, lowercase=True, split_sentences=False, clean=False) -> str:
+    if clean:
+        sentence = sentence.strip(".,!?;:()[]{}")
     if split_sentences:
         sentences = sentence.split("<br>")
         return [sent.split() for sent in sentences]
@@ -64,22 +66,29 @@ def sort_errors(errors):
 # currently runs the following logic:
     # the first instance of a correction is always punctuation
     # the second instance of a correction is always capitalization
+    # the third instance of a correction is always tense
 def concat_errors(errors):
     elements = {}
     for sublist in errors:
         key = (sublist[2][0], sublist[2][1])
         if key in elements.keys():
-            if elements[key][1][-1] in ".,":
+            if elements[key][1][0].isupper():
+                elements[key][1] = elements[key][1].replace(sublist[0].capitalize(), sublist[1].capitalize())
+                elements[key][3] += " " + sublist[3]
+            elif elements[key][0][0].isupper():
+                elements[key][1] = elements[key][1].replace(sublist[0], sublist[1])
+                elements[key][3] += " " + sublist[3]
+            elif elements[key][1][-1] in ".,":
                 punctuation = elements[key][1][-1]
                 elements[key][1] = sublist[1] + punctuation
                 elements[key][3] += " " + sublist[3]
-            else:
+            elif elements[key][0][-1] in ".,":
                 elements[key][1] = sublist[1][:-1]
                 elements[key][3] += " " + sublist[3]
         else:
             elements[key] = sublist
     concatenated_error = list(elements.values())
-    return sort_errors(concatenated_error)
+    return concatenated_error
 
 
 # This function is used to check if the index from a module is correct
@@ -88,3 +97,7 @@ def check_if_index_is_correct(errors, sentence):
     actual = [sentence[errors[i][2][0]:errors[i][2][1]] for i in range(len(errors))]
     for i in range(len(should_be)):
         print("Should be: ", should_be[i], ". Actual: ", actual[i])
+
+# This function is used to test a new module:
+
+        

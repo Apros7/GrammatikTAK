@@ -4,6 +4,7 @@ import numpy as np
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
+PUNCTUATIONS_WITHOUT_FULL_STOP = "!?"
 
 # used to create torch dataset for predictions
 class Dataset(torch.utils.data.Dataset):
@@ -82,7 +83,7 @@ class PunctuationCorrector():
     # errors are no full stop at end of sentence
     def find_full_stop_mistakes(self, sentence, prepared_words) -> list:
         words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
-        full_stop_error = [True if word[-1] != "." and sent[-1] == word else False for sent in words_for_every_sentence for word in sent]
+        full_stop_error = [True if word[-1] not in PUNCTUATIONS_WITHOUT_FULL_STOP and sent[-1] == word else False for sent in words_for_every_sentence for word in sent]
         error_messages_full_stop = [self.create_full_stop_error_message(prepared_words[i], prepared_words, i) for i in range(len(prepared_words)) if full_stop_error[i]]
         return error_messages_full_stop
 
