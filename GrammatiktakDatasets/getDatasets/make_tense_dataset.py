@@ -4,6 +4,7 @@ import re
 import stanza
 from tqdm import tqdm
 import lemmy
+import time
 
 pos_model = stanza.Pipeline("da", processors='tokenize,pos', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
 lemmatizer = lemmy.load("da")
@@ -21,30 +22,52 @@ def get_pos(sentence):
 def build_dataset():
     sentences = get_sentences()
     dataset = []
+    pos_cache = {}
+    lemmatizer = lemmy.load("da")
     print(len(sentences))
-    for x in tqdm(range(0, len(sentences), 100)):
+    for x in tqdm(range(0, len(sentences), 5)):
         cur_sentences = sentences[x:x+100]
-        for i in range(len(cur_sentences)):
-            cur_sentence = cur_sentences[i]
+        cur_sentence = " ".join(cur_sentences)
+        words = cur_sentence.split()
+        len_cur_sent = len(words)
+        try:
+            pos = pos_cache[cur_sentence]
+        except KeyError:
             pos = get_pos(cur_sentence)
-            words_before = cur_sentence.split()
-            words_after = cur_sentence.split()
-            if len(pos) != len(words_before):
-                continue
-            for i, word in enumerate(words_before):
-                if pos[i] == "VERB":
-                    words_before[i] = lemmatizer.lemmatize(pos[i], word)[0]
-            dataset.append([" ".join(words_before), " ".join(words_after)])
+            pos_cache[cur_sentence] = pos
+        if len(pos) != len(words):
+            continue
+        for i, word in enumerate(words):
+            if pos[i] == "VERB": 
+                if i < 4:
+                    words_after = ["<pad>"]*(4-i) + words[0:i+5]
+                    words_before = ["<pad>"]*(4-i) + words[0:i] + [lemmatizer.lemmatize(pos[i], word)[0]] + words[i+1:i+5]
+                elif i > len_cur_sent-4:
+                    words_after = words[i-4:] + ["<pad>"]*(len_cur_sent-i)
+                    words_before = words[i-4:i] + [lemmatizer.lemmatize(pos[i], word)[0]] + words[i+1:] + ["<pad>"]*(len_cur_sent-i)
+                else:
+                    words_after = words[i-4:i+5]
+                    words_before = words[i-4:i] + [lemmatizer.lemmatize(pos[i], word)[0]] + words[i+1:i+5]
+                dataset.append([(" ".join(words_before)).lower(), (" ".join(words_after)).lower()])
+                if len(words_before) != 9:
+                    continue
     return dataset
 
+
+# to all_files[:100] already converted
+print(len(all_files))
+
 def get_sentences():
-    new_lines = []
+    sentences = []
     for i in range(len(all_files[:100])):
-        lines = open(all_files[i], "r").read().splitlines()
-        for line in lines:
-            sentences = re.split("(?<=[.!?])\s+(?=[A-Z0-9])", line)
-            new_lines += sentences
-    return new_lines
+        filepath = all_files[i]
+        with open(filepath, "r") as f:
+            lines = f.readlines()
+            lines = [line.strip() for line in lines]
+            lines = [line.split(".") for line in lines]
+            lines = [item for sublist in lines for item in sublist if item]
+            sentences += lines
+    return sentences
 
 dataset = build_dataset()
 
@@ -52,7 +75,5 @@ print(len(dataset))
     
 os.chdir(current_dir)
 df = pd.DataFrame(dataset)
-print(df.head())
 os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/GrammatiktakDatasets/")
-df.to_csv("uncheckedDatasets/LemmatizedSentToTenseSent", encoding="UTF-8", index=False, header=False, sep=";")
-print("done")
+df.to_csv(f"otherDatasets/LemmatizedSentToTenseSent/{time.time()}", encoding="UTF-8", index=False, header=False, sep=";")
