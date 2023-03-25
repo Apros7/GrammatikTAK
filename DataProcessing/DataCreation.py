@@ -10,7 +10,7 @@ char = ["*", "@", ";", ":", "!", "\"", "?", "«", "»"]
 symbol = [".", ","]
 big_words = []
 
-for i in range(1,100):
+for i in range(101, 200):
     current_big_words = ["<PAD> "]
     with open(all_files[i], "r", encoding="UTF-8") as file:
         for line in file.readlines():
@@ -35,10 +35,6 @@ for word in old_big_words:
             big_words.append("<PAD>")
     else:
         big_words.append(word)
-
-lsst = ["hej", "<PAD>", "<PAD>", "<PAD>", "lol", "ja"]
-print(sum([1 if x == "<PAD>" else 0 for x in lsst]))
-print(sum([1 if x == "<PAD>" else 0 for x in lsst]) > padding)
 
 for x in range(len(big_words)-4):
     four_words = big_words[x:x+scope]
@@ -72,4 +68,4 @@ df = df[:200000]
 
 
 header = ["comment_text", "label"]
-df.to_csv("Datasets/DanavisDFwithPadding-200.csv", encoding="UTF-8", index=False)
+df.to_csv("Datasets/DanavisDFwithPadding-200:400.csv", encoding="UTF-8", index=False)
