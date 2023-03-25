@@ -13,7 +13,7 @@ torch.device(device)
 
 # Load the dataset
 df = pd.read_csv("Datasets/DanavisDF.csv")
-df = df[:100000]
+df = df[:200000]
 #max_len = max([len(sent) for sent in df["comment_text"]])
 X = list(df["comment_text"])
 y = list(df["label"])
