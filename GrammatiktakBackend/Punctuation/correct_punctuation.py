@@ -4,7 +4,7 @@ import numpy as np
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
-PUNCTUATIONS_WITHOUT_FULL_STOP = "!?"
+PUNCTUATIONS = ".!?"
 
 # used to create torch dataset for predictions
 class Dataset(torch.utils.data.Dataset):
@@ -23,23 +23,36 @@ class Dataset(torch.utils.data.Dataset):
 
 # loads model and returns trainer object
 def load_model():
-    punctuation_model = torch.load("modelCombined2")
+
+    # punctuation model, padding and scope should match model and dataset
+    # should have padding so that every word except the last is checked
+    # else the logic in finding "find_comma_mistakes" needs to be changed
+    punctuation_model = torch.load("commaModel2", map_location=torch.device('mps'))
+    scope = 6
+    padding = int(scope/2-1)
+
     punctuation_model.eval()
     punctuation_trainer = Trainer(punctuation_model)
-    return punctuation_trainer
+    return punctuation_trainer, scope, padding
+
+device = "mps"
+torch.device(device)
 
 # This class will predict punctuation and correct based on sentence
 class PunctuationCorrector():
     def __init__(self) -> None:
-        self.model = load_model()
+        self.model, self.scope, self.padding = load_model()
         self.tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
     
+    def add_padding(self, words):
+        return ["<PAD>"]*self.padding + words + ["<PAD>"]*self.padding
+
     # prepares dataset and get predictions
     def get_predictions(self, sentence) -> list:
-        words = prepare_sentence(sentence)
-        if len(words) < 4:
+        words = self.add_padding(prepare_sentence(sentence))
+        if len(words) < self.scope:
             return [0]*len(words)
-        test_data = [" ".join(words[i:i+4]).strip(PUNCTUATIONS_WITHOUT_COMMA).strip(",") for i in range(len(words)-3)]
+        test_data = [" ".join(words[i:i+self.scope]).strip(PUNCTUATIONS_WITHOUT_COMMA).strip(",") for i in range(len(words)-self.scope-1+self.padding)]
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=512)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)
@@ -67,8 +80,9 @@ class PunctuationCorrector():
     # should be changed after model is retrained to character level
     def find_comma_mistakes(self, predictions, words) -> list:
         # get relevant lists:
-        checked_words = [words[i+1] for i in range(len(words)-3)]
-        predicted_comma = [True if predictions[i] == 2 else False for i in range(len(checked_words))]
+        # every words is checked but the last one
+        checked_words = [words[i] for i in range(len(words)-1)]
+        predicted_comma = [True if predictions[i] == 1 else False for i in range(len(checked_words))]
         already_punctuated = [True if checked_words[i][-1] in PUNCTUATIONS_WITHOUT_COMMA else False for i in range(len(checked_words))]
         already_comma = [True if checked_words[i][-1] == "," else False for i in range(len(checked_words))]
         # where there should be a comma but isnt
@@ -83,7 +97,7 @@ class PunctuationCorrector():
     # errors are no full stop at end of sentence
     def find_full_stop_mistakes(self, sentence, prepared_words) -> list:
         words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
-        full_stop_error = [True if word[-1] not in PUNCTUATIONS_WITHOUT_FULL_STOP and sent[-1] == word else False for sent in words_for_every_sentence for word in sent]
+        full_stop_error = [True if word[-1] not in PUNCTUATIONS and sent[-1] == word else False for sent in words_for_every_sentence for word in sent]
         error_messages_full_stop = [self.create_full_stop_error_message(prepared_words[i], prepared_words, i) for i in range(len(prepared_words)) if full_stop_error[i]]
         return error_messages_full_stop
 
