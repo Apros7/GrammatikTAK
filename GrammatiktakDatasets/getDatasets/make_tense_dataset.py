@@ -3,12 +3,10 @@ import pandas as pd
 import re
 import stanza
 from tqdm import tqdm
-import lemmy
 import time
 import numpy as np
 
-pos_model = stanza.Pipeline("da", processors='tokenize,pos', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
-lemmatizer = lemmy.load("da")
+pos_model = stanza.Pipeline("da", processors='tokenize,pos,lemma', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
 
 current_dir = os.getcwd()
 os.chdir("/Users/lucasvilsen/Downloads/dagw/sektioner/tv2r")
@@ -17,49 +15,56 @@ output1_lst = []
 
 def get_pos(sentence):
     doc = pos_model(sentence)
-    return [word.upos for sentence in doc.sentences for word in sentence.words]
+    return [word.upos for sentence in doc.sentences for word in sentence.words], [word.lemma for sentence in doc.sentences for word in sentence.words]
 
-def build_dataset(lower, upper):
-    sentences = get_sentences(lower, upper)
+def build_dataset(number_of_files, sentences = None):
+    upper = None
+    if sentences is None:
+        sentences, upper = get_sentences(number_of_files)
     dataset = []
-    print(len(sentences))
-    for x in tqdm(range(0, len(sentences), 5)):
-        cur_sentences = sentences[x:x+100]
+    step_rate = 5
+    for x in tqdm(range(0, len(sentences), step_rate)):
+        cur_sentences = sentences[x:x+5]
         cur_sentence = " ".join(cur_sentences)
         words = cur_sentence.split()
-        len_cur_sent = len(words)
-        pos = np.array(get_pos(cur_sentence))
+        pos, lemma = np.array(get_pos(cur_sentence))
         verb_indices = np.where(pos == "VERB")[0]
         if len(pos) != len(words):
             continue
         for i in verb_indices:
+            words_after = words[i].strip(".,!?;:")
             if i < 4:
-                words_after = ["<pad>"]*(4-i) + words[0:i+5]
-                words_before = ["<pad>"]*(4-i) + words[0:i] + [lemmatizer.lemmatize(pos[i], words[i])[0]] + words[i+1:i+5]
-                value = 1
-            elif i >= len_cur_sent-4:
-                words_after = words[i-4:] + ["<pad>"]*(4-(len_cur_sent-i)+1)
-                words_before = words[i-4:i] + [lemmatizer.lemmatize(pos[i], words[i])[0]] + words[i+1:] + ["<pad>"]*(4-(len_cur_sent-i)+1)
-                value = 2
+                words_before = ["<pad>"]*(4-i) + words[0:i] + [lemma[i]]
             else:
-                words_after = words[i-4:i+5]
-                words_before = words[i-4:i] + [lemmatizer.lemmatize(pos[i], words[i])[0]] + words[i+1:i+5]
-                dataset.append([(" ".join(words_before)).lower(), (" ".join(words_after)).lower()])
-                value = 3
-            if len(words_before) != 9:
+                words_before = words[i-4:i] + [lemma[i]]
+            words_before_len = len(words_before)
+            words_before = (" ".join(words_before)).strip(".,!?;:").lower()
+            dataset.append([words_before, (words_after).lower()])
+            if words_before_len != 5:
                 print("Error:")
-                print(words_before, value)
-                print(i, len_cur_sent)
+                print(i)
+                print(words_before)
                 continue
-    return dataset
+    return dataset, upper
 
-
-# to all_files[:300] already converted
 print(len(all_files))
 
-def get_sentences(lower, upper):
+def get_lower():
+    os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/GrammatiktakDatasets/")
+    with open("getDatasets/make_tense_last_interval.txt", "r") as f:
+        lower = int(f.read())
+    return lower
+
+def get_sentences(number_of_files):
+    lower = get_lower()
+    upper = lower + number_of_files
+    print("reading in this interval: ", lower, " - ", upper-1, " (both included)")
+    if upper > len(all_files):
+        upper = len(all_files)
+        print("Vi overskrider mængden af filer. Dermed er det {} filer.".format(len(all_files)-lower))
     sentences = []
-    for i in range(len(all_files[lower:upper])):
+    os.chdir("/Users/lucasvilsen/Downloads/dagw/sektioner/tv2r")
+    for i in range(lower, upper):
         filepath = all_files[i]
         with open(filepath, "r") as f:
             lines = f.readlines()
@@ -67,16 +72,21 @@ def get_sentences(lower, upper):
             lines = [line.split(".") for line in lines]
             lines = [item for sublist in lines for item in sublist if item]
             sentences += lines
-    return sentences
+    return sentences, upper
 
-def save_dataset(dataset):
+def save_dataset(dataset, upper=None):
     print(len(dataset))
     os.chdir(current_dir)
     df = pd.DataFrame(dataset)
     os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/GrammatiktakDatasets/")
+    if upper is not None:
+        with open("getDatasets/make_tense_last_interval.txt", "w") as f:
+            print("gemmer: ", str(upper))
+            f.write(str(upper))
     df.to_csv(f"otherDatasets/LemmatizedSentToTenseSent/{time.time()}", encoding="UTF-8", index=False, header=False, sep=";")
     print("Dataset saved")
 
-dataset = build_dataset(201, 300)
-save_dataset(dataset)
+dataset, upper = build_dataset(3000)
+save_dataset(dataset, upper)
+
     
