@@ -66,12 +66,12 @@ def get_sentences(number_of_files):
     os.chdir("/Users/lucasvilsen/Downloads/dagw/sektioner/tv2r")
     for i in range(lower, upper):
         filepath = all_files[i]
-        with open(filepath, "r") as f:
-            lines = f.readlines()
-            lines = [line.strip() for line in lines]
-            lines = [line.split(".") for line in lines]
-            lines = [item for sublist in lines for item in sublist if item]
-            sentences += lines
+        try: lines = open(filepath, "r").readlines()
+        except: print("Error: ", filepath); continue; #error with .DS_Store
+        lines = [line.strip() for line in lines]
+        lines = [line.split(".") for line in lines]
+        lines = [item for sublist in lines for item in sublist if item]
+        sentences += lines
     return sentences, upper
 
 def save_dataset(dataset, upper=None):
@@ -86,7 +86,12 @@ def save_dataset(dataset, upper=None):
     df.to_csv(f"otherDatasets/LemmatizedSentToTenseSent/{time.time()}", encoding="UTF-8", index=False, header=False, sep=";")
     print("Dataset saved")
 
-dataset, upper = build_dataset(3000)
+# size of dataset:
+size = 3000
+
+# 1000 => about 25000 lines: about 22 minutes
+
+dataset, upper = build_dataset(size)
 save_dataset(dataset, upper)
 
     
