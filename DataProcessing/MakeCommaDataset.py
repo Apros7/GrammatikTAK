@@ -19,7 +19,7 @@ print("3 processes needed: ")
 
 last_upper = 500
 
-lower = 201
+lower = 500
 upper = 500
 if lower < last_upper:
     raise ValueError("lower bound needs to be bigger than the last upper, \n so that no files are used twice")
@@ -85,4 +85,4 @@ df = df[:600000]
 
 
 header = ["comment_text", "label"]
-df.to_csv("Datasets/DanavisDFwithPadding-400:1000.csv", encoding="UTF-8", index=False)
+df.to_csv("Datasets/DanavisDFwithPadding-1000:.csv", encoding="UTF-8", index=False)

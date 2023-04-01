@@ -13,6 +13,7 @@ print(len(big_words))
 
 char = ["*", "@", ";", ":", "!", "\"", "?", "«", "»"]
 symbol = [".", ","]
+symbols = ",."
 big_lst = []
 output1_lst = []
 
@@ -41,29 +42,17 @@ big_words = []
 for lst in padded_big_words:
     big_words += lst.split()
 
-print(len(big_words))
-
 for x in tqdm(range(len(big_words)-4)):
     four_words = big_words[x:x+scope]
     if any([x == y for y in char for x in four_words]):
         continue
-    # could be full stop. Here is none (change output1 to achieve multiclass dataset)
-    if four_words[middle] == symbol[0]:
-        output1 = 0
-        four_words = big_words[x:x+scope+1]
-        four_words.remove(symbol[0])
-    elif any([x == symbol[0] for x in four_words]):
-        continue
-    elif four_words[middle] == symbol[1]:
+    elif four_words[middle][-1] == symbol[1]:
         output1 = 1
-        four_words = big_words[x:x+scope+1]
-        four_words.remove(symbol[1])
-    elif any([x == symbol[1] for x in four_words]):
-            continue
     else:
         output1 = 0
     if (sum([1 if x == "<PAD>" else 0 for x in four_words]) > padding):
         continue
+    four_words = [x.strip(symbols) for x in four_words]
     big_lst.append((" ".join(four_words)).lower())
     output1_lst.append(output1)
 
@@ -74,4 +63,4 @@ df["label"] = output1_lst
 print(len(df))
 
 header = ["comment_text", "label"]
-df.to_csv("GrammatiktakDatasets/checkedDatasets/CommaDevelopmentset.csv", encoding="UTF-8", index=False)
+df.to_csv("GrammatiktakDatasets/checkedDatasets/CommaDevelopmentset.csv", encoding="UTF-8", index=False, sep=";")
