@@ -18,8 +18,8 @@ big_lst = []
 output1_lst = []
 
 # Changing to six words scope
-scope = 6
-middle = int(scope/2)
+scope = 8
+middle = int(scope/2-1)
 padding = int(scope/2-1)
 
 old_big_words = big_words
@@ -63,4 +63,4 @@ df["label"] = output1_lst
 print(len(df))
 
 header = ["comment_text", "label"]
-df.to_csv("GrammatiktakDatasets/checkedDatasets/CommaDevelopmentset.csv", encoding="UTF-8", index=False, sep=";")
+df.to_csv(f"GrammatiktakDatasets/checkedDatasets/CommaDevelopmentset{scope}.csv", encoding="UTF-8", index=False, sep=";")
