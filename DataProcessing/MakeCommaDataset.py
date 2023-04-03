@@ -20,7 +20,7 @@ big_words = []
 last_upper = 0
 
 lower = 0
-upper = 1000
+upper = 5000
 
 
 print(f"3 processes needed: ")
@@ -71,7 +71,7 @@ os.chdir(current_dir)
 df = pd.DataFrame()
 df["comment_text"] = big_lst
 df["label"] = output1_lst
-df = df[:600000]
+df = df
 
 def distribution(df):
     print(df["label"].value_counts())
