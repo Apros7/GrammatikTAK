@@ -3,10 +3,7 @@ import pandas as pd
 from tqdm import tqdm
 
 current_dir = os.getcwd()
-#os.chdir("/Users/lucasvilsen/Downloads/dagw/sektioner/danavis")
-os.chdir("/Users/lucasvilsen/Downloads/dagw/sektioner/tv2r")
-all_files = os.listdir(os.curdir)
-print("Antal filer: ", len(all_files))
+os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/")
 big_lst = []
 output1_lst = []
 char = ["*", "@", ";", ":", "!", "\"", "?", "«", "»"]
@@ -14,36 +11,20 @@ symbol = [".", ","]
 symbols = ",."
 big_words = []
 
-# remember to change the range.
-# up to 500 already used
+filename = "europarl-v7.da-en.da"
+with open(filename, "r", encoding="UTF-8") as file:
+    lines = file.readlines()
 
-last_upper = 0
-
-lower = 0
-upper = 5000
-
-
-print(f"3 processes needed: ")
-
-
-if lower < last_upper:
-    raise ValueError("lower bound needs to be bigger than the last upper, \n so that no files are used twice")
-
-for i in tqdm(range(lower,upper)):
-    current_big_words = []
-    with open(all_files[i], "r", encoding="UTF-8") as file:
-        for line in file.readlines():
-            for word in line.split():
-                current_big_words.append(word)
-    big_words.append(current_big_words)
-
+result = []
+for i in range(0, len(lines), 10):
+    result.append((' '.join(lines[i:i+10])).split())
 
 # Changing to six words scope
 scope = 8
 middle = int(scope/2-1)
 padding = int(scope/2-1)
 
-old_big_words = big_words
+old_big_words = result[:7000]
 
 
 # add padding
@@ -71,12 +52,15 @@ os.chdir(current_dir)
 df = pd.DataFrame()
 df["comment_text"] = big_lst
 df["label"] = output1_lst
-df = df
+
+print(len(df))
+df = df[:1100000]
 
 def distribution(df):
     print(df["label"].value_counts())
 
 
 distribution(df)
+print(len(df))
 header = ["comment_text", "label"]
-df.to_csv("Datasets/TV2withPadding1.csv", encoding="UTF-8", index=False, sep=";")
+df.to_csv("Datasets/EuroparlWithPadding.csv", encoding="UTF-8", index=False, sep=";")
