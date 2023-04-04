@@ -20,11 +20,11 @@ for i in range(0, len(lines), 10):
     result.append((' '.join(lines[i:i+10])).split())
 
 # Changing to six words scope
-scope = 8
+scope = 10
 middle = int(scope/2-1)
 padding = int(scope/2-1)
 
-old_big_words = result[:7000]
+old_big_words = result[:10000]
 
 
 # add padding
@@ -54,7 +54,7 @@ df["comment_text"] = big_lst
 df["label"] = output1_lst
 
 print(len(df))
-df = df[:1100000]
+df = df[:2000000]
 
 def distribution(df):
     print(df["label"].value_counts())
@@ -63,4 +63,4 @@ def distribution(df):
 distribution(df)
 print(len(df))
 header = ["comment_text", "label"]
-df.to_csv("Datasets/EuroparlWithPadding.csv", encoding="UTF-8", index=False, sep=";")
+df.to_csv("Datasets/EuroparlWithPadding10.csv", encoding="UTF-8", index=False, sep=";")
