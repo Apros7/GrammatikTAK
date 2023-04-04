@@ -4,7 +4,7 @@ Collection of notebooks to train and test various models:
 Performance logging of different models.
 ### Comma Models
 Name | Date | Data | Datasize | Epochs | Batch Size | Scope | Test accuracy | Test F1 
---- | --- | --- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | --- | --- | --- | ---
 CommaModel8 | 03-04-2023 | EuroParlwithPadding | 2.000.000 | 2 | 32 | 10-10 | 97.41% | 0.905
 CommaModel7 | 03-04-2023 | EuroParlwithPadding | 2.000.000 | 2 | 32 | 5-5 | **97.64%** | **0.915**
 CommaModel6 | 03-04-2023 | TV2withPadding | 1.080.000 | 2 | 32 | 3-3 | 97,43% | x
