@@ -17,12 +17,12 @@ symbols = ",."
 big_lst = []
 output1_lst = []
 
-# Changing to six words scope
-scope = 8
+# CHANGE SCOPE HERE TO GET A NEW TESTSET
+scope = 6
 middle = int(scope/2-1)
 padding = int(scope/2-1)
 
-old_big_words = big_words
+old_big_words = [word.strip().strip("\"") for word in big_words]
 
 # add padding
 padded_big_words = []
@@ -37,12 +37,12 @@ for i in tqdm(range(len(old_big_words))):
     else:
         padded_big_words.append(word)
 
-print(len(padded_big_words))
+
 big_words = []
 for lst in padded_big_words:
     big_words += lst.split()
 
-for x in tqdm(range(len(big_words)-4)):
+for x in tqdm(range(len(big_words)-scope+1)):
     four_words = big_words[x:x+scope]
     if any([x == y for y in char for x in four_words]):
         continue
@@ -50,8 +50,9 @@ for x in tqdm(range(len(big_words)-4)):
         output1 = 1
     else:
         output1 = 0
-    if (sum([1 if x == "<PAD>" else 0 for x in four_words]) > padding):
-        continue
+    if "<PAD>" in four_words:
+        if (four_words[0] != "<PAD>" and four_words[-1] != "<PAD>"):
+            continue
     four_words = [x.strip(symbols) for x in four_words]
     big_lst.append((" ".join(four_words)).lower())
     output1_lst.append(output1)
