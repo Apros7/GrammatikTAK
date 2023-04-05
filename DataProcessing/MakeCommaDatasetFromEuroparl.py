@@ -26,7 +26,7 @@ middle = int(scope/2-1)
 padding = int(scope/2-1)
 
 print(len(result))
-old_big_words = result[:40000]
+old_big_words = result[:60000]
 
 
 # add padding
@@ -60,11 +60,10 @@ df["comment_text"] = big_lst
 df["label"] = output1_lst
 
 print(len(df))
-df = df[:4000000]
+df = df[:6000000]
 
 def distribution(df):
     print(df["label"].value_counts())
-
 
 distribution(df)
 print(len(df))
