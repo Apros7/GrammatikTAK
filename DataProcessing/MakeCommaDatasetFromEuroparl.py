@@ -15,16 +15,18 @@ filename = "europarl-v7.da-en.da"
 with open(filename, "r", encoding="UTF-8") as file:
     lines = file.readlines()
 
+step_rate = 5
 result = []
-for i in range(0, len(lines), 10):
-    result.append((' '.join(lines[i:i+10])).split())
+for i in range(0, len(lines),step_rate):
+    result.append((' '.join(lines[i:i+step_rate])).split())
 
 # Changing to six words scope
 scope = 10
 middle = int(scope/2-1)
 padding = int(scope/2-1)
 
-old_big_words = result[:10000]
+print(len(result))
+old_big_words = result[:40000]
 
 
 # add padding
@@ -44,6 +46,10 @@ for i in tqdm(range(len(big_words_lsts))):
             output1 = 1
         else:
             output1 = 0
+        if "<PAD>" in four_words:
+            if (four_words[0] != "<PAD>" and four_words[-1] != "<PAD>"):
+                print("x")
+                continue
         four_words = [x.strip(symbols) for x in four_words]
         big_lst.append((" ".join(four_words)).lower())
         output1_lst.append(output1)
@@ -54,7 +60,7 @@ df["comment_text"] = big_lst
 df["label"] = output1_lst
 
 print(len(df))
-df = df[:2000000]
+df = df[:4000000]
 
 def distribution(df):
     print(df["label"].value_counts())
