@@ -32,7 +32,8 @@ class Tagger():
 
 
     def get_pos_tags(self, sentence):
-        sentence = " ".join(prepare_sentence(sentence, lowercase=False, clean=True))
+        words = prepare_sentence(sentence, lowercase=False, clean=True)
+        sentence = " ".join(words)
         doc = self.pos_tagger(sentence)
         features = [word.feats if word.feats else None for sentence in doc.sentences for word in sentence.words]
         feature_dicts = self.turn_features_to_dicts(features)

@@ -1,4 +1,23 @@
 from Utilities.utils import prepare_sentence, find_index
+import pickle
+
+def find_det_noun_pairs(lst):
+    indexes = []
+    for i in range(len(lst)):
+        if lst[i] == "DET":
+            for j in range(i+1, len(lst)):
+                if lst[j] == "NOUN":
+                    if all(x in ["ADV", "ADJ"] for x in lst[i+1:j]):
+                        indexes.append((i, j))
+                    break
+    return indexes
+
+def load_dicts():
+    with open("Datasets/GenderDict.pickle", "rb") as f:
+        genderDict = pickle.load(f)
+    with open("Datasets/SbStemDict.pickle", "rb") as f:
+        sbStemDict = pickle.load(f)
+    return genderDict, sbStemDict
 
 class determinantCorrector():
     """
@@ -8,22 +27,38 @@ class determinantCorrector():
     """
     
     def __init__(self) -> None:
-        self.posible_corrections ={"den": "det", "det": "den", "en": "et", "et": "en"}
-        self.posible_corrections_values = self.posible_corrections.values()
+        self.genderDict, self.sbStemDict = load_dicts()
+        self.posible_corrections = ["en", "et", "den", "det"]
+        self.change_determinant = {"en": "et", "et": "en", "den": "det", "det": "den"}
     
-    def create_determinant_error_message(self, word_to_correct, noun, all_words_from_sentence, index_of_word_in_all_words) -> list:
-        correct_word = self.posible_corrections[word_to_correct]
-        gender = "fælleskøn" if word_to_correct[0] == "n" else "intetkøn"
+    def is_determinant_fælleskøn(self, det):
+        if det in ["en", "den"]:
+            return True
+        elif det in ["et", "det"]: 
+            return False
+        return None
+    
+    def create_determinant_error_message(self, word_to_correct, noun, all_words_from_sentence, index_of_word_in_all_words, fælleskøn) -> list:
+        correct_word = self.change_determinant[word_to_correct]
+        gender = "fælleskøn" if fælleskøn else "intetkøn"
         error_description = f"Der skal skrives '{correct_word}' foran {noun}, da {noun} er {gender}"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         wrong_word = word_to_correct
-        right_word = correct_word.capitalize() if wrong_word[-1].isupper() else correct_word
-        return [wrong_word, right_word, previous_index, error_description]
+        return [wrong_word, correct_word, previous_index, error_description]
 
     def correct_determinants(self, sentence, pos_tag):
         words = prepare_sentence(sentence, lowercase=False, clean=True)
-        nouns = [True if x[0] == "NOUN" else False for x in pos_tag]
-        prev_det = [False] + [True if pos_tag[i-1][0] == "DET" else False for i in range(1, len(pos_tag))]
-        error = [False] + [not (pos_tag[i][2]["Gender"] == pos_tag[i-1][2]["Gender"]) if nouns[i] and prev_det[i] else False for i in range(1, len(nouns))]
-        error_messages = [self.create_determinant_error_message(words[i-1], words[i], words, i-1) for i in range(1, len(words)) if error[i] and words[i-1] in self.posible_corrections_values]
+        pos = [x[0] for x in pos_tag]
+        indexes = find_det_noun_pairs(pos)
+        error_messages = []
+        for pair in indexes:
+            det = words[pair[0]].lower()
+            noun = words[pair[1]].lower()
+            is_fælleskøn = self.is_determinant_fælleskøn(det)
+            if is_fælleskøn is None: continue
+            try: should_be_fælleskøn = self.genderDict[self.sbStemDict[noun]]
+            except: continue
+            if should_be_fælleskøn != is_fælleskøn:
+                error_messages.append(self.create_determinant_error_message(det, noun, words, pair[0], should_be_fælleskøn))
+
         return error_messages

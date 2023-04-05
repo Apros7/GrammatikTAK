@@ -22,21 +22,21 @@ class Dataset(torch.utils.data.Dataset):
         return len(self.encodings["input_ids"])
 
 # loads model and returns trainer object
-def load_model():
 
+device = "cuda" if torch.cuda.is_available() else "mps"
+torch.device(device)
+
+def load_model():
     # punctuation model, padding and scope should match model and dataset
     # should have padding so that every word except the last is checked
     # else the logic in finding "find_comma_mistakes" needs to be changed
-    punctuation_model = torch.load("commaModel2", map_location=torch.device('mps'))
-    scope = 6
+    punctuation_model = torch.load("commaModel9", map_location=torch.device(device))
+    scope = 10
     padding = int(scope/2-1)
 
     punctuation_model.eval()
     punctuation_trainer = Trainer(punctuation_model)
     return punctuation_trainer, scope, padding
-
-device = "mps"
-torch.device(device)
 
 # This class will predict punctuation and correct based on sentence
 class PunctuationCorrector():
@@ -53,10 +53,11 @@ class PunctuationCorrector():
         if len(words) < self.scope:
             return [0]*len(words)
         test_data = [" ".join(words[i:i+self.scope]).strip(PUNCTUATIONS_WITHOUT_COMMA).strip(",") for i in range(len(words)-self.scope-1+self.padding)]
-        tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=512)
+        tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=int(self.scope*2.5+1))
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)
         final_predictions = np.argmax(raw_predictions, axis=1)
+        indexes = np.where(final_predictions == 1)[0]
         return final_predictions
 
     # creates comma error message
