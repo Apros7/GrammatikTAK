@@ -9,7 +9,7 @@ all_files = os.listdir()
 print(len(all_files))
 lines = [open(file).readlines() for file in all_files]
 big_words = [line.strip("\"") for lst in lines for line in lst]
-print(len(big_words))
+
 
 char = ["*", "@", ";", ":", "!", "\"", "?", "«", "»"]
 symbol = [".", ","]
