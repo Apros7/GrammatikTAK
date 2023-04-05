@@ -19,3 +19,4 @@ x | x | x | x | x | x | x
 
 ### Notes about training:
 - After epoch 2 the validation typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
+- Remember to change max_length in tokenization and potentially experiment with even more data
