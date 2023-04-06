@@ -15,5 +15,6 @@ Here is a small overview of the most important directories:
 * GrammatiktakBackend: development of backend 2.0. main.py is the backend. Currently used.
 * GrammatiktakTestDatasets: Datasets that have been used specifically to test modules. Accuracy is in the corresponding readme.
 
-### Other:  
-**To read more about the structure of the backend, see the readme in GrammatiktakBackend.**
+### Read more:
+**GrammatiktakBackend: The structure of the backend.**
+**FineTuneModels: Model development and performance logging**
