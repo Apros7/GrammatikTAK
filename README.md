@@ -16,5 +16,5 @@ Here is a small overview of the most important directories:
 * GrammatiktakTestDatasets: Datasets that have been used specifically to test modules. Accuracy is in the corresponding readme.
 
 ### Read more:
-* **GrammatiktakBackend: The structure of the backend.**  
-* **FineTuneModels: Model development and performance logging**
+- **GrammatiktakBackend: The structure of the backend.**  
+- **FineTuneModels: Model development and performance logging**
