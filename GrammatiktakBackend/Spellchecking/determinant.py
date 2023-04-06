@@ -7,7 +7,7 @@ def find_det_noun_pairs(lst):
         if lst[i] == "DET":
             for j in range(i+1, len(lst)):
                 if lst[j] == "NOUN":
-                    if all(x in ["ADV", "ADJ"] for x in lst[i+1:j]):
+                    if all(x in ["DET", "ADV", "ADJ"] for x in lst[i+1:j]):
                         indexes.append((i, j))
                     break
     return indexes

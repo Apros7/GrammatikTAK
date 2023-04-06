@@ -2,6 +2,7 @@ import torch
 from transformers import Trainer, BertTokenizer
 import numpy as np
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
+import string
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
 PUNCTUATIONS = ".!?"
@@ -52,12 +53,12 @@ class PunctuationCorrector():
         words = self.add_padding(prepare_sentence(sentence))
         if len(words) < self.scope:
             return [0]*len(words)
-        test_data = [" ".join(words[i:i+self.scope]).strip(PUNCTUATIONS_WITHOUT_COMMA).strip(",") for i in range(len(words)-self.scope-1+self.padding)]
+        test_data = [" ".join(words[i:i+self.scope]) for i in range(len(words)-self.scope-1+self.padding)]
+        test_data = [data.translate(str.maketrans("", "", string.punctuation)) for data in test_data]
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=int(self.scope*2.5+1))
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)
         final_predictions = np.argmax(raw_predictions, axis=1)
-        indexes = np.where(final_predictions == 1)[0]
         return final_predictions
 
     # creates comma error message
@@ -98,7 +99,7 @@ class PunctuationCorrector():
     # errors are no full stop at end of sentence
     def find_full_stop_mistakes(self, sentence, prepared_words) -> list:
         words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
-        full_stop_error = [True if word[-1] not in PUNCTUATIONS and sent[-1] == word else False for sent in words_for_every_sentence for word in sent]
+        full_stop_error = [True if word[-1] not in PUNCTUATIONS and i == len(sent)-1 else False for sent in words_for_every_sentence for i, word in enumerate(sent)]
         error_messages_full_stop = [self.create_full_stop_error_message(prepared_words[i], prepared_words, i) for i in range(len(prepared_words)) if full_stop_error[i]]
         return error_messages_full_stop
 
