@@ -23,4 +23,4 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test acc
 ### Road to 99% Comma Model
 - Remember to change max_length in tokenization and potentially experiment with even more data
 - Multiple epochs?
-- Maybe another structure?
+- Maybe another structure? Full sentences as input?
