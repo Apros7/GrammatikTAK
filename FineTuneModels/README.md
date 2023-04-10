@@ -13,9 +13,9 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test acc
 4 | 31-03-2023 | Danavis | 1.000.000 | 3 | 32 | 1e-5 | 0 | 3-3 | 94.19% | 0.83
 
 ### Tense Models
-Name | Date | Data | Datasize | Epochs | Batch Size | Test accuracy
---- | --- | --- | --- | --- | --- | ---
-x | x | x | x | x | x | x
+Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test accuracy | Test F1 
+--- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
+1 | 10-04-2023 | EuroParl | 214.000 | 2 | 16 | 1e-5 | 0 | 5-5 | --- | ---
 
 ### Notes about training:
 - After epoch 2 the validation typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
