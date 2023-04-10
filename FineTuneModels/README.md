@@ -12,7 +12,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test acc
 5 | 03-04-2023 | TV2 | 250.000 | 2 | 32 | 1e-5 | 0 | 3-3 | 96,69% | x
 4 | 31-03-2023 | Danavis | 1.000.000 | 3 | 32 | 1e-5 | 0 | 3-3 | 94.19% | 0.83
 
-### Tense Models
+### Nutidsr Models
 Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test accuracy | Test F1 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 1 | 10-04-2023 | EuroParl | 214.000 | 2 | 16 | 1e-5 | 0 | 5-5 | --- | ---
