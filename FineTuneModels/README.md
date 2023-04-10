@@ -3,7 +3,7 @@ Collection of notebooks to train and test various models:
 ## Performance Logging
 Performance logging of different models.
 ### Comma Models
-Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test accuracy | Test F1 
+Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test accuracy | Test F1 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 9 | 05-04-2023 | EuroParl | 4.000.000 | 1 | 16 | 1e-5 | 1e-4 | 5-5 | **98.09%** | **0.931**
 8 | 04-04-2023 | EuroParl | 2.000.000 | 2 | 32 | 1e-5 | 0 | 10-10 | 97.41% | 0.905
@@ -13,7 +13,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test acc
 4 | 31-03-2023 | Danavis | 1.000.000 | 3 | 32 | 1e-5 | 0 | 3-3 | 94.19% | 0.83
 
 ### Nutidsr Models
-Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test accuracy | Test F1 
+Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test accuracy | Test F1 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 1 | 10-04-2023 | EuroParl | 214.000 | 2 | 16 | 1e-5 | 0 | 5-5 | **94.06%** | **0.858**
 
