@@ -15,7 +15,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test acc
 ### Nutidsr Models
 Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test accuracy | Test F1 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-1 | 10-04-2023 | EuroParl | 214.000 | 2 | 16 | 1e-5 | 0 | 5-5 | **94,06** | **0.858**
+1 | 10-04-2023 | EuroParl | 214.000 | 2 | 16 | 1e-5 | 0 | 5-5 | **94.06%** | **0.858**
 
 ### Notes about training:
 - After epoch 2 the validation typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
