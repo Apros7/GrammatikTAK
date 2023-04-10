@@ -18,7 +18,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | Weight | Scope | Test acc
 1 | 10-04-2023 | EuroParl | 214.000 | 2 | 16 | 1e-5 | 0 | 5-5 | **94.06%** | **0.858**
 
 ### Notes about training:
-- After epoch 2 the validation typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
+- After epoch 2 the validation loss typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
 
 ### Road to 99% Comma Model
 - Remember to change max_length in tokenization and potentially experiment with even more data
