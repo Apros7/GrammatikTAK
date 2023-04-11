@@ -15,6 +15,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 ### Nutidsr Models
 Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test accuracy | Test F1 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
+2 | 11-04-2023 | EuroParl | 1.300.000 | 1 | 16 | 1e-5 | 0 | 5-5 | --- | ---
 1 | 10-04-2023 | EuroParl | 214.000 | 2 | 16 | 1e-5 | 0 | 5-5 | **94.06%** | **0.858**
 
 ### Notes about training:
