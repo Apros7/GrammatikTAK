@@ -24,7 +24,7 @@ class Dataset(torch.utils.data.Dataset):
 
 # loads model and returns trainer object
 
-device = "cuda" if torch.cuda.is_available() else "mps"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 torch.device(device)
 
 def load_model():
