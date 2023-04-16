@@ -62,12 +62,15 @@ class CapitalizationCorrector:
         error_messages_missing_capitalization = [self.create_ner_error_message(words[i], ner_words[i][1]) for i in range(len(words)) if ner_words[i][0] and not previous_capitalization[i]]
         return error_messages_missing_capitalization
 
+    def is_full_stop(self, word):
+        return word[-1] == "." or word[-1] == "?" or word[-1] == "!"
+
     # finds capitalization errors after full stop
     # does not fix ner og i errors
     def find_basic_errors(self, sentence, ner_tags) -> list:
         words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
         words = prepare_sentence(sentence, lowercase=False)
-        full_stop = [True if word[-1] == "." else False for sent in words_for_every_sentence for word in sent]
+        full_stop = [True if self.is_full_stop(word) else False for sent in words_for_every_sentence for word in sent]
         previous_capitalization = [True if word[0].isupper() else False for sent in words_for_every_sentence for word in sent]
         first_word_in_sentence = [True if word == sent[0] else False for sent in words_for_every_sentence for word in sent]
         is_i = [True if word.lower() == "i" else False for sent in words_for_every_sentence for word in sent]
