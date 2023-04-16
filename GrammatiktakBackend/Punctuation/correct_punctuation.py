@@ -89,10 +89,10 @@ class PunctuationCorrector():
         already_comma = [True if checked_words[i][-1] == "," else False for i in range(len(checked_words))]
         # where there should be a comma but isnt
         error_new_comma = [True if predicted_comma[i] and (not already_punctuated[i]) and (not already_comma[i]) else False for i in range(len(predicted_comma))]
-        error_messages_new_comma = [self.create_comma_error_message(checked_words[i], words, i+1, False) for i in range(len(checked_words)) if error_new_comma[i]]
+        error_messages_new_comma = [self.create_comma_error_message(checked_words[i], words, i, False) for i in range(len(checked_words)) if error_new_comma[i]]
         # where there should not be a comma but is
         error_remove_comma = [True if (not predicted_comma[i]) and (not already_punctuated[i]) and already_comma[i] else False for i in range(len(predicted_comma))]
-        error_messages_remove_comma = [self.create_comma_error_message(checked_words[i], words, i+1, True) for i in range(len(checked_words)) if error_remove_comma[i]]
+        error_messages_remove_comma = [self.create_comma_error_message(checked_words[i], words, i, True) for i in range(len(checked_words)) if error_remove_comma[i]]
         return error_messages_new_comma + error_messages_remove_comma
 
     # finds full stop mistakes and makes errors
