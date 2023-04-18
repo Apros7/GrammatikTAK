@@ -1,4 +1,4 @@
-from Utilities.utils import prepare_sentence, find_index
+from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 import pickle
 
 def find_det_noun_pairs(lst):
@@ -60,5 +60,4 @@ class determinantCorrector():
             except: continue
             if should_be_fælleskøn != is_fælleskøn:
                 error_messages.append(self.create_determinant_error_message(det, noun, words, pair[0], should_be_fælleskøn))
-
-        return error_messages
+        return move_index_based_on_br(error_messages, sentence)
