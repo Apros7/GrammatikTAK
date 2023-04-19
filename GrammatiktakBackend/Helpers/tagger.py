@@ -43,15 +43,14 @@ class Tagger():
     def get_ner_tags(self, sentence):
         result = self.ner_tagger.predict(prepare_sentence(sentence), IOBformat=False)
         namedEntities = [(ent["text"], [ent["start_pos"], ent["end_pos"]]) for ent in result["entities"]]
-        #splitted_sentences = prepare_sentence(sentence, split_sentences=True)
-        #namedEntities = []
-        #previous_sentences_len = 0
-        #for splitted_sentence in splitted_sentences:
-        #    for i in range(0, len(splitted_sentence), 10):
-        #        result = self.ner_tagger.predict(prepare_sentence(splitted_sentence[i:i+10]), IOBformat=False)
-        #        namedEntities += [(ent["text"], [ent["start_pos"], ent["end_pos"]]) for ent in result["entities"]]
-        #        previous_sentences_len += len(" ".join(splitted_sentence[i:i+10])) + 1
-        #    previous_sentences_len += 3
+        #words = prepare_sentence(sentence)
+        # previous_sentences_len = 0
+        # namedEntities = []
+        # step_size = 100
+        # for i in range(0, len(words), step_size):
+        #     result = self.ner_tagger.predict(words[i:i+step_size], IOBformat=False)
+        #     namedEntities += [(ent["text"], [ent["start_pos"] + previous_sentences_len, ent["end_pos"] + previous_sentences_len]) for ent in result["entities"]]
+        #     previous_sentences_len += len(" ".join(words[i:i+step_size])) + 1
         return namedEntities
     
     # run this function to get all tags
