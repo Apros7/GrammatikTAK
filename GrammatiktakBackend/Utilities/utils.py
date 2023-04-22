@@ -2,6 +2,7 @@
 # use as often as possible to avoid code duplication
 
 import re
+import string
 
 # input json_data
 # returns (is_empty_or_feedback, feedback, input, potential output)
@@ -33,13 +34,25 @@ def find_index(all_words_from_sentence, index_of_word_in_all_words, word):
 # if split_sentence then always lowercase = Falses
 def prepare_sentence(sentence, lowercase=True, split_sentences=False, clean=False) -> str:
     if clean:
-        sentence = sentence.strip(".,!?;:()[]{}")
+        sentence = clean_sentence(sentence)
     if split_sentences:
         sentences = sentence.split("<br>")
         return [sent.split() for sent in sentences]
     elif lowercase: 
         return sentence.replace("<br>", " ").lower().split()
     return sentence.replace("<br>", " ").split()
+
+def clean_sentence(sentence):
+    words = sentence.split()
+    cleaned_words = []
+    for word in words:
+        if all(char in string.punctuation for char in word):
+            cleaned_words.append(word)
+        else:
+            cleaned_word = word.translate(str.maketrans("", "", string.punctuation))
+            cleaned_words.append(cleaned_word)
+    sentence = " ".join(cleaned_words)
+    return sentence
 
 # This can be used to move index based on <br> if needed
 # This should be done in the module before returning to the main script
