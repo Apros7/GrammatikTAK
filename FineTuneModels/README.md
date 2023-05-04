@@ -18,6 +18,7 @@ Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wron
 1-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 4-4 | **74.47%** | 02.66% | 30 sec
 3-Electra | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 4-4 | 48.4% | **0%** | 24 sec
 1-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 4-4 | **74.47%** | 02.66% | 30 sec
+
 The data used is EuroParlNutidsr-trainset_verbs
 
 ### Notes about training:
