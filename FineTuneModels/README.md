@@ -15,7 +15,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 ### Nutids-r Models
 Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Time (113 sentences) 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-4-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | 30 sec
+4-Bert | 04-04-2023 | 200.000 | 2 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | 30 sec
 3-Electra | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 48.4% | **0%** | 24 sec
 1-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 74.47% | 02.66% | 30 sec
 
