@@ -87,7 +87,6 @@ class NutidsRCorrector():
             if verbs_to_check[i]:
                 if predictions[prediction_index][1] < 0.95:
                     yield None
-                
                 elif predictions[prediction_index][0] == 0:
                     yield True
                 else:
@@ -303,11 +302,13 @@ from IPython.utils import io
 
 tester = Tester(["FineTuneModels/models/nutidsrModel2"])
 
-model1 = "FineTuneModels/models/nutidsrModel1"
-model3 = "FineTuneModels/models/nutidsrModel3"
+#model1 = "FineTuneModels/models/nutidsrModel1"
+#model3 = "FineTuneModels/models/nutidsrModel3"
+#model4 = "FineTuneModels/models/nutidsrModel4-BERT"
+model5 = "FineTuneModels/models/nutidsrModel5-Electra"
 
-models = [model1, model3]
-model_names = ["Model 1", "Model 3"]
+models = [model5]
+model_names = ["Model 5-Electra"]
 
 for i in range(len(models)):
     start_time = time.time()
