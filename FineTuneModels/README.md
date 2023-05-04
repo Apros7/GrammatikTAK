@@ -19,8 +19,6 @@ Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wron
 3-Electra | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 4-4 | 48.4% | **0%** | 24 sec
 1-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 4-4 | **74.47%** | 02.66% | 30 sec
 
-The data used is EuroParlNutidsr-trainset_verbs
-
 ### Notes about training:
 - After epoch 2 the validation loss typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
 - We tried making a tense model to check for nutids-r, but a hard-coded checker seems to work much better.
