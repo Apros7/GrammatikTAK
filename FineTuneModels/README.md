@@ -12,6 +12,13 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 5 | 03-04-2023 | TV2 | 250.000 | 2 | 32 | 1e-5 | 0 | 3-3 | 96,69% | x
 4 | 31-03-2023 | Danavis | 1.000.000 | 3 | 32 | 1e-5 | 0 | 3-3 | 94.19% | 0.83
 
+### Nutids-r Models
+Model | Date | Data | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Time (113 sentences)
+--- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
+1-Bert | 04-04-2023 | EuroParl_NutidsrVerbs | 80.000 | 2 | 16 | 1e-5 | 4-4 | **74.47%** | 02.66% | 30 sec
+3-Electra | 04-04-2023 | EuroParl_NutidsrVerbs | 80.000 | 2 | 16 | 1e-5 | 4-4 | 48.4% | **0%** | 24 sec
+1-Bert | 04-04-2023 | EuroParl_NutidsrVerbs | 80.000 | 2 | 16 | 1e-5 | 4-4 | **74.47%** | 02.66% | 30 sec
+
 ### Notes about training:
 - After epoch 2 the validation loss typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
 - We tried making a tense model to check for nutids-r, but a hard-coded checker seems to work much better.
