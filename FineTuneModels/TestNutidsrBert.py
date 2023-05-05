@@ -304,11 +304,12 @@ tester = Tester(["FineTuneModels/models/nutidsrModel2"])
 
 #model1 = "FineTuneModels/models/nutidsrModel1"
 #model3 = "FineTuneModels/models/nutidsrModel3"
-#model4 = "FineTuneModels/models/nutidsrModel4-BERT"
+model4 = "FineTuneModels/models/nutidsrModel4-BERT"
 model5 = "FineTuneModels/models/nutidsrModel5-Electra"
+model6 = "FineTuneModels/models/nutidsrModel6-BERT"
 
-models = [model5]
-model_names = ["Model 5-Electra"]
+models = [model4, model6]
+model_names = ["Model 4-BERT", "Model 6-BERT"]
 
 for i in range(len(models)):
     start_time = time.time()
