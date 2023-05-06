@@ -73,39 +73,6 @@ def move_index_based_on_br(errors, sentence):
         error[2][0], error[2][1] = start, end
     return ErrorList([Error().from_list(error) for error in errors])
 
-# sort errors based on beginning index
-def sort_errors(errors):
-    return sorted(errors, key=lambda x: x[2][1])
-
-# this function needs to be updated whenever a module is added
-# currently runs the following logic:
-    # the first instance of a correction is always punctuation
-    # the second instance of a correction is always capitalization
-    # the third instance of a correction is always tense
-def concat_errors(errors):
-    elements = {}
-    for sublist in errors:
-        key = (sublist[2][0], sublist[2][1])
-        if key in elements.keys():
-            if elements[key][1][0].isupper():
-                elements[key][1] = elements[key][1].replace(sublist[0].capitalize(), sublist[1].capitalize())
-                elements[key][3] += " " + sublist[3]
-            elif elements[key][0][0].isupper():
-                elements[key][1] = elements[key][1].replace(sublist[0], sublist[1])
-                elements[key][3] += " " + sublist[3]
-            elif elements[key][1][-1] in ".,":
-                punctuation = elements[key][1][-1]
-                elements[key][1] = sublist[1] + punctuation
-                elements[key][3] += " " + sublist[3]
-            elif elements[key][0][-1] in ".,":
-                elements[key][1] = sublist[1][:-1]
-                elements[key][3] += " " + sublist[3]
-        else:
-            elements[key] = sublist
-    concatenated_error = list(elements.values())
-    return concatenated_error
-
-
 # This function is used to check if the index from a module is correct
 def check_if_index_is_correct(errors, sentence):
     should_be = [errors[i][0] for i in range(len(errors))]
