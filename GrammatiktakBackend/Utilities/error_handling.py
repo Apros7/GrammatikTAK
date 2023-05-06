@@ -83,6 +83,8 @@ def error_concatenator(errors, errors_to_project_onto_others):
 
     return ErrorList(errors_dict).to_list()
 
+
+
 class ErrorList():
     def __init__(self, lst) -> None:
         self.errors = lst
@@ -115,12 +117,12 @@ class ErrorList():
     def __add__(self, other):
         if not isinstance(other, ErrorList):
             return NotImplementedError("Can only add ErrorList + ErrorList")
-        all_errors = self.errors + other.errors
-        concated_errors = self.concat_errors(all_errors)
-        return ErrorList(concated_errors)
+        return ErrorList(self.errors + other.errors)
     
     def to_list(self):
         return list(self.sort([error.to_list() for error in self.errors]))
+
+
 
 class Error():
     def __init__(self, wrong_word: str = None, right_word: str = None, indexes: list = None, description: str = None, type: str = None) -> None:
