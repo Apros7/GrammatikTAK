@@ -49,6 +49,7 @@ class determinantCorrector():
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
 
     def correct_determinants(self, sentence, pos_tag):
+        uncleaned_words = prepare_sentence(sentence)
         words = prepare_sentence(sentence, lowercase=False, clean=True)
         pos = [x[0] for x in pos_tag]
         indexes = find_det_noun_pairs(pos)
@@ -61,6 +62,6 @@ class determinantCorrector():
             try: should_be_fælleskøn = self.genderDict[self.sbStemDict[noun]]
             except: continue
             if should_be_fælleskøn != is_fælleskøn:
-                error_messages.append(self.create_determinant_error_message(det, noun, words, pair[0], should_be_fælleskøn))
+                error_messages.append(self.create_determinant_error_message(det, noun, uncleaned_words, pair[0], should_be_fælleskøn))
         print(ErrorList(error_messages).to_list())
         return move_index_based_on_br(ErrorList(error_messages), sentence)

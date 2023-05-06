@@ -147,9 +147,12 @@ class NutidsRCorrector():
                 comment = " uden nutids-r"
             else:
                 form = "infinitiv"
+                comment = ""
         return form, comment
 
     def make_nutids_r_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, correct_word, to_nutids_r):
+        if word_to_correct == correct_word:
+            return None
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         error_type = "nutids-r"
         nutidsr_form, nutidsr_comment = self.get_nutidsr_comment(word_to_correct, correct_word, to_nutids_r)
@@ -178,7 +181,8 @@ class NutidsRCorrector():
                 to_nutids_r = False
             correct_word = words[i].replace(current_word, correct_word)
             error = self.make_nutids_r_error_message(words[i], words, i, correct_word, to_nutids_r)
-            errors.append(error)
+            if error is not None:
+                errors.append(error)
         return ErrorList(errors)
 
     def get_stats(self, verbs_to_check, should_be_nutidsr):
