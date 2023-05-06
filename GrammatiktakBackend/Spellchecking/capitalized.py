@@ -8,8 +8,8 @@ class CapitalizationCorrector:
 
     # creates comma error message
     def create_capitalization_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
-        error_description = f"'{word_to_correct.title()}' skal starte med stort, da det er starten på en ny sætning." if missing_capitalization else f"'{word_to_correct}' skal ikke starte med stort."
-        error_type = "del_cap" if missing_capitalization else "add_cap"
+        error_description = f"'{word_to_correct.title()}' skal starte med stort, da det er starten på en ny sætning." if missing_capitalization else f"'{word_to_correct.title()}' skal ikke starte med stort."
+        error_type = "add_cap" if missing_capitalization else "del_cap"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if missing_capitalization:
             wrong_word, right_word = word_to_correct, word_to_correct.title()
@@ -20,7 +20,7 @@ class CapitalizationCorrector:
     # creates I/i error message
     def create_i_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
         error_description = f"'{word_to_correct.title()}' skal starte med stort, da det står i stedet for nogen." if missing_capitalization else f"'{word_to_correct}' skal ikke starte med stort."
-        error_type = "del_cap" if missing_capitalization else "add_cap"
+        error_type = "add_cap" if missing_capitalization else "del_cap"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if missing_capitalization:
             wrong_word, right_word = word_to_correct, word_to_correct.title()

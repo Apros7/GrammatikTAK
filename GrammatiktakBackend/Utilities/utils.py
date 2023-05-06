@@ -3,6 +3,7 @@
 
 import re
 import string
+from Utilities.error_handling import Error, ErrorList
 
 # input json_data
 # returns (is_empty_or_feedback, feedback, input, potential output)
@@ -58,6 +59,7 @@ def clean_sentence(sentence):
 # This should be done in the module before returning to the main script
 def move_index_based_on_br(errors, sentence):
     br_indexes = [match.start() for match in re.finditer('<br>', sentence)]
+    errors = errors.to_list(include_type=True)
     for error in errors:
         (start, end) = error[2][0], error[2][1]
         # Adjust for <br> tags before the start index
@@ -69,7 +71,7 @@ def move_index_based_on_br(errors, sentence):
             elif br_index > start and br_index < end:
                 end += 3
         error[2][0], error[2][1] = start, end
-    return errors
+    return ErrorList([Error().from_list(error) for error in errors])
 
 # sort errors based on beginning index
 def sort_errors(errors):

@@ -6,16 +6,18 @@ approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r
 error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap"]
 
 
-
-def init_dict(self):
+def init_dict():
     def def_value():
         return []
     return defaultdict(def_value)
 
 def errors_to_index_dict(errors):
     dict = init_dict()
-    for error in errors:
-        dict[error[2]] += error
+    if not isinstance(errors, list):
+        errors = list(errors)
+    for errorList in errors:
+        for error in errorList.errors:
+            dict[tuple(error.indexes)].append(error)
     return dict
 
 def add_punc(error, error2):
@@ -65,27 +67,31 @@ def project_error(errors, error_to_project):
     
     return projected_errors
 
+def check_if_list_of_errorList(lst):
+    return isinstance(lst, list) and all(isinstance(item, ErrorList) for item in lst)
 
+# Main function for error concatenation
 def error_concatenator(errors, errors_to_project_onto_others):
-
     """
     Return sorted, listed and concatenated ErrorList
     """
 
-    if not isinstance(errors, ErrorList) or not isinstance(errors_to_project_onto_others, ErrorList):
-        return NotImplementedError("Can only work with ErrorLists")
+    if not check_if_list_of_errorList(errors) and not check_if_list_of_errorList(errors_to_project_onto_others):
+        raise NotImplementedError("Can only work with ErrorLists")
 
     errors_dict = errors_to_index_dict(errors)
     errors_to_project_dict = errors_to_index_dict(errors_to_project_onto_others)
 
     for key in errors_to_project_dict.keys():
         if key not in errors_dict.keys():
-            continue
-        for error_to_project in errors_to_project_dict[key]:
-            projected_errors = project_error(errors_dict[key], error_to_project)
-            errors_dict[key] = projected_errors
+            errors_dict[key] = errors_to_project_dict[key]
+        else:
+            for error_to_project in errors_to_project_dict[key]:
+                projected_errors = project_error(errors_dict[key], error_to_project)
+                errors_dict[key] = projected_errors
 
-    return ErrorList(errors_dict).to_list()
+    list_of_errors = [error[0] for error in list(errors_dict.values())]
+    return ErrorList(list_of_errors).to_list()
 
 
 
@@ -96,9 +102,12 @@ class ErrorList():
             raise ValueError(f"ErrorList is not healthy. Some errors have missing values.")
 
     def is_healthy(self):
+        healthy_errors = [error.is_healthy() for error in self.errors]
+        if len(healthy_errors) == 0:
+            return True
         return any([error.is_healthy() for error in self.errors])
 
-    def sort(errors):
+    def sort(self, errors):
         return sorted(errors, key=lambda x: x[2][1])
 
     def init_dict(self):
@@ -123,10 +132,9 @@ class ErrorList():
             return NotImplementedError("Can only add ErrorList + ErrorList")
         return ErrorList(self.errors + other.errors)
     
-    def to_list(self):
-        return list(self.sort([error.to_list() for error in self.errors]))
-
-
+    def to_list(self, include_type=False):
+        errors_to_list = [error.to_list(include_type) for error in self.errors]
+        return list(self.sort(errors_to_list))
 
 class Error():
     def __init__(self, wrong_word: str = None, right_word: str = None, indexes: list = None, description: str = None, type: str = None) -> None:
@@ -135,6 +143,9 @@ class Error():
         self.indexes = indexes
         self.description = description
         self.set_type(type)
+    
+    def from_list(self, lst):
+        return Error(lst[0], lst[1], lst[2], lst[3], lst[4])
 
     def set_type(self, type):
         if type is None:
@@ -147,15 +158,18 @@ class Error():
         return self.__type
 
     def get_description(self):
-        return self.description.replace("wrong", self.wrong_word).replace("right", self.right_word)
+        # Currently not used anywhere
+        return self.description.replace("$wrong$", self.wrong_word).replace("$right$", self.right_word)
 
     def is_healthy(self):
         if len([var_name for var_name, var_value in self.__dict__.items() if var_value is None]) == 0:
             return True
         return False
 
-    def to_list(self):
+    def to_list(self, include_type=False):
         if self.is_healthy():
+            if include_type:
+                return [self.wrong_word, self.right_word, self.indexes, self.get_description(), self.get_type()]
             return [self.wrong_word, self.right_word, self.indexes, self.get_description()]
         missing_instance_variables = [var_name for var_name, var_value in self.__dict__.items() if var_value is None]
         raise NotImplementedError(f"Error is not healthy. Please fill these variables: {[missing_instance_variables]}")

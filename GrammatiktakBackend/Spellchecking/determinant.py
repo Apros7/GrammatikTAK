@@ -41,7 +41,7 @@ class determinantCorrector():
     
     def create_determinant_error_message(self, word_to_correct, noun, all_words_from_sentence, index_of_word_in_all_words, fælleskøn) -> list:
         correct_word = self.change_determinant[word_to_correct]
-        gender = "fælleskøn" if fælleskøn else "intetkøn"
+        gender = "fælleskøn." if fælleskøn else "intetkøn."
         error_type = "det"
         error_description = f"Der skal skrives '{correct_word}' foran {noun}, da {noun} er {gender}"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
@@ -62,4 +62,5 @@ class determinantCorrector():
             except: continue
             if should_be_fælleskøn != is_fælleskøn:
                 error_messages.append(self.create_determinant_error_message(det, noun, words, pair[0], should_be_fælleskøn))
+        print(ErrorList(error_messages).to_list())
         return move_index_based_on_br(ErrorList(error_messages), sentence)
