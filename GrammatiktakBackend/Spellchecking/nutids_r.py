@@ -153,7 +153,7 @@ class NutidsRCorrector():
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         error_type = "nutids-r"
         nutidsr_form, nutidsr_comment = self.get_nutidsr_comment(word_to_correct, correct_word, to_nutids_r)
-        description = f"{word_to_correct} skal være bøjet i {nutidsr_form}{nutidsr_comment}, så der står {correct_word}"
+        description = f"'{word_to_correct}' skal være bøjet i {nutidsr_form}{nutidsr_comment}, så der står '{correct_word}'."
         return Error(word_to_correct, correct_word, previous_index, description, error_type)
 
     def make_error_messages(self, words, should_be_nutids_r, is_nutids_r, verbs_to_check):
