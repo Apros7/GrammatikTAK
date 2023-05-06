@@ -1,4 +1,5 @@
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
+from Utilities.error_handling import Error, ErrorList
 import numpy as np
 
 class CapitalizationCorrector:
@@ -8,28 +9,31 @@ class CapitalizationCorrector:
     # creates comma error message
     def create_capitalization_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
         error_description = f"'{word_to_correct.title()}' skal starte med stort, da det er starten på en ny sætning." if missing_capitalization else f"'{word_to_correct}' skal ikke starte med stort."
+        error_type = "del_cap" if missing_capitalization else "add_cap"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if missing_capitalization:
             wrong_word, right_word = word_to_correct, word_to_correct.title()
         else:
             wrong_word, right_word  = word_to_correct, word_to_correct.lower()
-        return [wrong_word, right_word, previous_index, error_description]
+        return Error(wrong_word, right_word, previous_index, error_description, error_type)
     
     # creates I/i error message
     def create_i_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
         error_description = f"'{word_to_correct.title()}' skal starte med stort, da det står i stedet for nogen." if missing_capitalization else f"'{word_to_correct}' skal ikke starte med stort."
+        error_type = "del_cap" if missing_capitalization else "add_cap"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if missing_capitalization:
             wrong_word, right_word = word_to_correct, word_to_correct.title()
         else:
             wrong_word, right_word  = word_to_correct, word_to_correct.lower()
-        return [wrong_word, right_word, previous_index, error_description]
+        return Error(wrong_word, right_word, previous_index, error_description, error_type)
 
     # create NER error
     def create_ner_error_message(self, word_to_correct, indexes) -> list:
         error_description = f"'{word_to_correct.title()}' skal starte med stort, da det er et egenavn."
+        error_type = "add_cap"
         wrong_word, right_word = word_to_correct, word_to_correct.title()
-        return [wrong_word, right_word, indexes, error_description]
+        return Error(wrong_word, right_word, indexes, error_description, error_type)
 
     # corrects all instances of i
     def correct_i(self, sentence, pos_tags) -> str:
@@ -44,7 +48,7 @@ class CapitalizationCorrector:
         error_messages_missing_capitalization = [self.create_i_error_message(words[i], words, i, True) for i in range(len(words)) if is_uncapitalized_i[i] and should_be_capitalized[i]]
         # get errors that are capitalized
         error_messages_wrong_capitalization = [self.create_i_error_message(words[i], words, i, False) for i in range(len(words)) if is_capitalized_i[i] and not should_be_capitalized[i]]
-        return error_messages_missing_capitalization + error_messages_wrong_capitalization
+        return ErrorList(error_messages_missing_capitalization + error_messages_wrong_capitalization)
 
     def check_ner_interval(self, interval_to_check, ner_intervals):
         ner_intervals = np.array(ner_intervals)
@@ -60,7 +64,7 @@ class CapitalizationCorrector:
         ner_indexes = [tag[1] for tag in ner_tags]
         ner_words = [(True, (find_index(words, i, words[i]))) if self.check_ner_interval(find_index(words, i, words[i]), ner_indexes) else (False, []) for i in range(len(words))]
         error_messages_missing_capitalization = [self.create_ner_error_message(words[i], ner_words[i][1]) for i in range(len(words)) if ner_words[i][0] and not previous_capitalization[i]]
-        return error_messages_missing_capitalization
+        return ErrorList(error_messages_missing_capitalization)
 
     def is_full_stop(self, word):
         return word[-1] == "." or word[-1] == "?" or word[-1] == "!"
@@ -87,7 +91,7 @@ class CapitalizationCorrector:
         # needs to take care of first word. Never correct in this case
         error_wrong_capitalization.insert(0, False)
         error_messages_wrong_capitalization = [self.create_capitalization_error_message(words[i], words, i, False) for i in range(len(words)) if error_wrong_capitalization[i]]
-        return error_messages_missing_capitalization + error_messages_wrong_capitalization
+        return ErrorList(error_messages_missing_capitalization + error_messages_wrong_capitalization)
 
     # use this function to get errors
     def correct_capitalization(self, sentence, pos_tags, ner_tags) -> list:

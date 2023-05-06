@@ -1,4 +1,5 @@
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
+from Utilities.error_handling import Error, ErrorList
 import pickle
 
 def find_det_noun_pairs(lst):
@@ -41,10 +42,11 @@ class determinantCorrector():
     def create_determinant_error_message(self, word_to_correct, noun, all_words_from_sentence, index_of_word_in_all_words, fælleskøn) -> list:
         correct_word = self.change_determinant[word_to_correct]
         gender = "fælleskøn" if fælleskøn else "intetkøn"
+        error_type = "det"
         error_description = f"Der skal skrives '{correct_word}' foran {noun}, da {noun} er {gender}"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         wrong_word = word_to_correct
-        return [wrong_word, correct_word, previous_index, error_description]
+        return Error(wrong_word, correct_word, previous_index, error_description, error_type)
 
     def correct_determinants(self, sentence, pos_tag):
         words = prepare_sentence(sentence, lowercase=False, clean=True)
@@ -60,4 +62,4 @@ class determinantCorrector():
             except: continue
             if should_be_fælleskøn != is_fælleskøn:
                 error_messages.append(self.create_determinant_error_message(det, noun, words, pair[0], should_be_fælleskøn))
-        return move_index_based_on_br(error_messages, sentence)
+        return move_index_based_on_br(ErrorList(error_messages), sentence)
