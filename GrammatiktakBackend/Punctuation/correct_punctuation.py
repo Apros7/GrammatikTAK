@@ -2,6 +2,7 @@ import torch
 from transformers import Trainer, BertTokenizer
 import numpy as np
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
+from Utilities.error_handling import Error, ErrorList
 import string
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
@@ -62,25 +63,27 @@ class PunctuationCorrector():
         return final_predictions
 
     # creates comma error message
-    def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> list:
+    def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> Error():
         error_description = f"Der skal ikke være komma efter '{word_to_correct[:-1]}'." if remove else f"Der skal være komma efter '{word_to_correct}'."
+        error_type = "del_punc" if remove else "add_punc"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if remove:
             wrong_word, right_word = word_to_correct, word_to_correct[:-1]
         else:
             wrong_word, right_word  = word_to_correct, word_to_correct + ","
-        return [wrong_word, right_word, previous_index, error_description]
+        return Error(wrong_word, right_word, previous_index, error_description, error_type)
     
     # creates full stop error message
-    def create_full_stop_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words) -> list:
+    def create_full_stop_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words) -> Error():
         error_description = f"Der skal være punktum efter '{word_to_correct}', da det er det sidste ord i sætningen."
+        error_type = "add_punc"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         wrong_word, right_word  = word_to_correct, word_to_correct + "."
-        return [wrong_word, right_word, previous_index, error_description]
+        return Error(wrong_word, right_word, previous_index, error_description, error_type)
 
     # find mistakes and makes errors
     # should be changed after model is retrained to character level
-    def find_comma_mistakes(self, predictions, words) -> list:
+    def find_comma_mistakes(self, predictions, words) -> ErrorList:
         # get relevant lists:
         # every words is checked but the last one
         checked_words = [words[i] for i in range(len(words)-1)]
@@ -93,15 +96,15 @@ class PunctuationCorrector():
         # where there should not be a comma but is
         error_remove_comma = [True if (not predicted_comma[i]) and (not already_punctuated[i]) and already_comma[i] else False for i in range(len(predicted_comma))]
         error_messages_remove_comma = [self.create_comma_error_message(checked_words[i], words, i, True) for i in range(len(checked_words)) if error_remove_comma[i]]
-        return error_messages_new_comma + error_messages_remove_comma
+        return ErrorList(error_messages_new_comma + error_messages_remove_comma)
 
     # finds full stop mistakes and makes errors
     # errors are no full stop at end of sentence
-    def find_full_stop_mistakes(self, sentence, prepared_words) -> list:
+    def find_full_stop_mistakes(self, sentence, prepared_words) -> ErrorList:
         words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
         full_stop_error = [True if word[-1] not in PUNCTUATIONS and i == len(sent)-1 else False for sent in words_for_every_sentence for i, word in enumerate(sent)]
         error_messages_full_stop = [self.create_full_stop_error_message(prepared_words[i], prepared_words, i) for i in range(len(prepared_words)) if full_stop_error[i]]
-        return error_messages_full_stop
+        return ErrorList(error_messages_full_stop)
 
 
     # this model should be retrained to used character based inputs

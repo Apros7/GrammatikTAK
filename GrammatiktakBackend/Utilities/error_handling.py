@@ -1,7 +1,11 @@
 from collections import defaultdict
 
+
+
 approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r"]
 error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap"]
+
+
 
 def init_dict(self):
     def def_value():
