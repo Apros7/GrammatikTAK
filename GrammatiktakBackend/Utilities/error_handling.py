@@ -134,7 +134,8 @@ class ErrorList():
     
     def to_list(self, include_type=False):
         errors_to_list = [error.to_list(include_type) for error in self.errors]
-        return list(self.sort(errors_to_list))
+        true_errors = [error for error in errors_to_list if error is not None]
+        return list(self.sort(true_errors))
 
 class Error():
     def __init__(self, wrong_word: str = None, right_word: str = None, indexes: list = None, description: str = None, type: str = None) -> None:
@@ -168,6 +169,8 @@ class Error():
 
     def to_list(self, include_type=False):
         if self.is_healthy():
+            if self.wrong_word == self.right_word:
+                return None
             if include_type:
                 return [self.wrong_word, self.right_word, self.indexes, self.get_description(), self.get_type()]
             return [self.wrong_word, self.right_word, self.indexes, self.get_description()]
