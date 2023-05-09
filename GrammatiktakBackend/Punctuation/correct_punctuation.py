@@ -27,24 +27,26 @@ class Dataset(torch.utils.data.Dataset):
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 torch.device(device)
+model_path = "models/commaModel9"
+model_scope = 10
+model_padding = int(model_scope/2)
+model_max_len = int(model_scope*2.5+1)
 
 def load_model():
     # punctuation model, padding and scope should match model and dataset
     # should have padding so that every word except the last is checked
     # else the logic in finding "find_comma_mistakes" needs to be changed
-    punctuation_model = torch.load("commaModel9", map_location=torch.device(device))
-    scope = 10
-    padding = int(scope/2-1)
-
+    punctuation_model = torch.load(model_path, map_location=torch.device(device))
     punctuation_model.eval()
     punctuation_trainer = Trainer(punctuation_model)
-    return punctuation_trainer, scope, padding
+    return punctuation_trainer
 
 # This class will predict punctuation and correct based on sentence
 class PunctuationCorrector():
     def __init__(self) -> None:
-        self.model, self.scope, self.padding = load_model()
-        self.tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
+        self.model = load_model()
+        self.scope, self.padding = model_scope, model_padding
+        self.tokenizer = BertTokenizer(vocab_file="models/vocab.txt", do_lower_case=False)
     
     def add_padding(self, words):
         return ["<PAD>"]*self.padding + words + ["<PAD>"]*self.padding
@@ -56,7 +58,7 @@ class PunctuationCorrector():
             return [0]*len(words)
         test_data = [" ".join(words[i:i+self.scope]) for i in range(len(words)-self.scope-1+self.padding)]
         test_data = [data.translate(str.maketrans("", "", string.punctuation)) for data in test_data]
-        tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=int(self.scope*2.5+1))
+        tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=model_max_len)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)
         final_predictions = np.argmax(raw_predictions, axis=1)

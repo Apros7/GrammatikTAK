@@ -30,19 +30,19 @@ def load_model(path):
     classifier.to(device)
     return Trainer(classifier)
 
-model_path = "nutidsrModel4-BERT"
+model_path = "models/nutidsrModel4-BERT"
 model_padding = 5
-cutoff_value = .95
 model_max_len = 15
+model_cutoff_value = .95
 
 class NutidsRCorrector():
     def __init__(self) -> None:
         self.can_verb_be_checked = pickle.load(open("Datasets/nutids_r_stem.pickle", "rb"))
         self.get_tense_from_verb = pickle.load(open("Datasets/nutids_r_bøjninger.pickle", "rb"))
-        self.tokenizer = BertTokenizer.from_pretrained('Maltehb/danish-bert-botxo')
+        self.tokenizer = BertTokenizer(vocab_file="models/vocab.txt", do_lower_case=False)
         self.classifier = load_model(model_path)
         self.padding = model_padding
-        self.cutoff_value = cutoff_value
+        self.cutoff_value = model_cutoff_value
         self.max_len = model_max_len
 
     def verbs_to_check(self, words, pos):
