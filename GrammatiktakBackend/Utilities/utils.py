@@ -44,6 +44,7 @@ def prepare_sentence(sentence, lowercase=True, split_sentences=False, clean=Fals
     return sentence.replace("<br>", " ").split()
 
 def clean_sentence(sentence):
+    sentence = sentence.replace("<br>", " ")
     words = sentence.split()
     cleaned_words = []
     for word in words:

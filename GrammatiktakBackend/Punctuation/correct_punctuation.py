@@ -29,7 +29,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 torch.device(device)
 model_path = "models/commaModel9"
 model_scope = 10
-model_padding = int(model_scope/2)
+model_padding = int(model_scope/2-1)
 model_max_len = int(model_scope*2.5+1)
 
 def load_model():
