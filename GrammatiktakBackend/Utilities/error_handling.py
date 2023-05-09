@@ -90,8 +90,15 @@ def error_concatenator(errors, errors_to_project_onto_others):
                 projected_errors = project_error(errors_dict[key], error_to_project)
                 errors_dict[key] = projected_errors
 
-    list_of_errors = [error[0] for error in list(errors_dict.values())]
-    return ErrorList(list_of_errors).to_list()
+    # In case of multiple errors_to_project on same indexes:
+    final_errors = []
+    for list_of_errors in errors_dict.values():
+        first_error = list_of_errors[0]
+        for additional_error in list_of_errors[1:]:
+            first_error = project_error([first_error], additional_error)[0]
+        final_errors.append(first_error)
+
+    return ErrorList(final_errors).to_list()
 
 
 

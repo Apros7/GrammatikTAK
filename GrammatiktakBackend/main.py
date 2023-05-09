@@ -90,9 +90,11 @@ time_tracker.complete_reset()
 # message = "En anden form for bias er confirmation bias, hvor man som forsker vægte undersøgelser som understøtte ens hypotse end undersøgelser som vil modsige ens hypotese. Det omfatter også, at hvis man har en vis forventning af et bestemt præparat virkning, at man i så fald også vil fortolke ens data på en måde som understøtter ens forventning."
 # message = "Hey. Jeg håber, at du nyder weekenden :smile:. Jeg har endelig fået lavet et fix til edit detection til web-anno. Jeg har lavet en PR med det. Hvis du vil approve og restarte serveren, så skal jeg nok nå så mange reviews, som jeg kan i løbet af i dag og i morgen."
 # message = "Jeg skal på arbejde d. 9. august 2022."
+# message = "hej jeg hedder lucas. hej jeg hedder lucas"
 
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
+
 # check_if_index_is_correct(errors1, message)
 
 time_tracker.track2("end")
