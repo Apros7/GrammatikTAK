@@ -31,9 +31,9 @@ import concurrent.futures
 
 chunk_size = 1000
 
-for i in tqdm(range(70000, 80000, chunk_size)):
+for i in tqdm(range(180000, 200000, chunk_size)):
     chunk = lines[i:i+chunk_size]
-    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         results = list(executor.map(lambda line: get_pos_tags(line.split()), chunk))
     for j, tags in enumerate(results):
         true_words = chunk[j].split()
