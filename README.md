@@ -1,5 +1,10 @@
-<h1 align="center"><b><span class="size" style="font-size:36px">Grammatik</span><span class="colour" style="color:rgb(0, 119, 204)"><span class="size" style="font-size:36px">TAK!</span></span>
-</h1>
+<div align="center">
+<span style="font-size: 36px;"><strong>Grammatik</strong></span>
+<span style="color: #0077cc; font-size: 36px;"><strong>TAK!</strong></span>
+</div>
+
+## What is GrammatikTAK?
+
 Working on becoming the best grammar assistant for nordic languages. With a combination of NLP, AI and Linguists, this erpo has been developed.
 
 This currently only corrects danish text at **GrammatikTAK.com.** Models and datasets are not included in this repo.
