@@ -1,8 +1,7 @@
 <div align="center">
-  <code>
-    <span style="font-size: 36px;"><strong>Grammatik</strong></span>
-    <span style="color: #0077cc; font-size: 36px;"><strong>TAK!</strong></span>
-  </code>
+
+# GrammatikTAK!
+
 </div>
 
 ## What is GrammatikTAK?
