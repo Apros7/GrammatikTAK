@@ -16,9 +16,9 @@ The rise in NLP and AI has greatly affected popular languages, their respective 
 ## Design principles
 **GrammatikTAK** is:
 
-- **Simple**: Build in modules, a module can easily be replaced, reworked or even deleted without affecting other modules.
+- **Simple**: Build in [modules](https://github.com/Apros7/GrammatikTAK/tree/main/GrammatiktakBackend), a module can easily be replaced, reworked or even deleted without affecting other modules.
 - **Adaptable**: Although speed is important, we focus on adaptability and readability over speed.
-- **Well-tested**: Every module is well-tested to secure a high accuracy.
+- **Well-tested**: Every module is [well-tested](https://github.com/Apros7/GrammatikTAK/tree/main/FineTuneModels) to secure a high accuracy.
 
 
 ## Directories:

@@ -1,16 +1,16 @@
-### Structure of backend:
+## Structure of backend:
 The backend is built from the principles of refactoring. It follows the following structure:  
 * main.py is the script to run the flask app. It initialize correctors and only has 1 function that runs the sentence through the all the correctors
 * Utilities are a collection of function typically used to prepare the sentence in a module and make sure the errors are correct.
 * All other directories are modules built to solve a specific kind of error.
 
-### Deployment checklist
+## Deployment checklist
 1. Set time_tracker.inactive = True.
 2. Make sure no input runs on startup.
 3. Set save = True in correct_input in index().
 4. Run `flask —app main run` and test with webapp to make sure the script runs without errors.
 
-### New modules:
+## New modules:
 You're a champ for building a new module :sunglasses:!  
 When building a module please keep the following in mind:  
 * As much of the code as possible should be done in the __init__ function to improve the speed of correction.
@@ -21,7 +21,7 @@ When building a module please keep the following in mind:
   * indexes (list) (Use util function): [4, 13]
   * description (str): "Christian skal stå med stort, da det er et egenavn." 
 
-### Before releasing a new module. 
+## Before releasing a new module. 
 1. Use 'check_if_index_is_correct' to check if your errors are correct
   * This could especially be due to you not using 'move_index_based_on_br'
 
@@ -36,7 +36,7 @@ When building a module please keep the following in mind:
 3. Open "GrammatiktakWebsite/Handle_errors.js. Change it so that the second line is active, and the third line is commented out.  
 4. Go live with "GrammatiktakWebsite" in your browser. When you now press "ret min tekst" this will happen on your device.
 
-### Commen module errors:
+## Commen module errors:
 Are you using the utilities functions?
 * Find index based on sentence.split() index with find_index
 * Did you remember to move_index_based_on_br()?

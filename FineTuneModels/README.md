@@ -1,8 +1,8 @@
 Collection of notebooks to train and test various models:
 
-## Performance Logging
+# Performance Logging
 Performance logging of different models.
-### Comma Models
+## Comma Models
 Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test accuracy | Test F1 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 9 | 05-04-2023 | EuroParl | 4.000.000 | 1 | 16 | 1e-5 | 1e-4 | 5-5 | **98.09%** | **0.931**
@@ -16,7 +16,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 - After epoch 2 the validation loss typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
 - We tried making a tense model to check for nutids-r, but a hard-coded checker seems to work much better.
 
-### Nutids-r Models
+## Nutids-r Models
 Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Time (113 sentences) 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 4-Bert | 04-04-2023 | 200.000 | 4 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | 30 sec
@@ -29,7 +29,7 @@ Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wron
 - The best cutoff for BERT seems to be .95.
 - More epochs does not seems to improve model further (although the loss goes down, the test acc. does not)
 
-### Road to 99% Comma Model
+## Road to 99% Comma Model
 - Remember to change max_length in tokenization and potentially experiment with even more data
 - Multiple epochs?
 - Maybe another structure? Full sentences as input?
