@@ -17,7 +17,7 @@ The rise in NLP and AI has greatly affected popular languages, their respective 
 **GrammatikTAK** is:
 
 - **Simple**: Build in modules, a module can easily be replaced, reworked or even deleted without affecting other modules.
-- **Effective**: Speed is key: Every module needs to perform at extreme speed before being implemented.
+- **Adaptable**: Although speed is important, we focus on adaptability and readability over speed.
 - **Well-tested**: Every module is well-tested to secure a high accuracy.
 
 
