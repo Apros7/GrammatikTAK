@@ -15,11 +15,12 @@ You're a champ for building a new module :sunglasses:!
 When building a module please keep the following in mind:  
 * As much of the code as possible should be done in the __init__ function to improve the speed of correction.
 * The input sentence is given to all modules as a raw input. Use util function to prepare the way you want. Always return a list of elements. If no errors return a empty list
-* Errors should be a list with the following elements in this order (with examples):
+* Errors should be the Error class: Examples of content:
   * wrong_word (str): "christian"
   * right_word (str): "Christian"
   * indexes (list) (Use util function): [4, 13]
   * description (str): "Christian skal stå med stort, da det er et egenavn." 
+* All errors from a module should go into a ErrorList - See [Utilities](https://github.com/Apros7/GrammatikTAK/blob/main/GrammatiktakBackend/Utilities/error_handling.py) for more information
 
 ## Before releasing a new module. 
 1. Use 'check_if_index_is_correct' to check if your errors are correct
