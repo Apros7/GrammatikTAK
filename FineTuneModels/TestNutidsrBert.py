@@ -63,11 +63,12 @@ def load_model(path):
     return Trainer(classifier)
 
 class NutidsRCorrector():
-    def __init__(self, model, pos, padding):
+    def __init__(self, model, pos, padding_left, padding_right):
         self.can_verb_be_checked = pickle.load(open("Datasets/nutids_r_stem.pickle", "rb"))
         self.get_tense_from_verb = pickle.load(open("Datasets/nutids_r_bøjninger.pickle", "rb"))
         self.classifier = model
-        self.padding = padding
+        self.padding_left = padding_left
+        self.padding_right = padding_right
         self.pos = pos
         self.tokenizer = BertTokenizer.from_pretrained('Maltehb/danish-bert-botxo')
         self.buffer = []
@@ -85,7 +86,7 @@ class NutidsRCorrector():
         prediction_index = 0
         for i in range(len(verbs_to_check)):
             if verbs_to_check[i]:
-                if predictions[prediction_index][1] < 0.95:
+                if predictions[prediction_index][1] < 0:
                     yield None
                 elif predictions[prediction_index][0] == 0:
                     yield True
@@ -111,11 +112,12 @@ class NutidsRCorrector():
         return [(p, s) for p, s in zip(final_prediction, max_scores)]
 
     def make_dataset(self, verbs_to_check):
-        pos_with_padding = ["<PAD>"]*self.padding + [p[0] for p in self.pos] + ["<PAD>"]*self.padding
+        pos_with_padding = ["<PAD>"]*self.padding_left + [p[0] for p in self.pos] + ["<PAD>"]*self.padding_right
         dataset = []
         for i in range(len(verbs_to_check)):
             if verbs_to_check[i]:
-                dataset.append(" ".join(pos_with_padding[i:i+2*self.padding+1]))
+                dataset.append(" ".join(pos_with_padding[i:i+self.padding_left + self.padding_right+1]))
+        self.dataset = dataset
         return dataset
 
     def verbs_to_check(self, words):
@@ -197,7 +199,7 @@ class NutidsRCorrector():
         should_be = self.should_be_nutidsr(verbs_to_check)
         errors = self.make_error_messages(words, should_be, is_nutids_r, verbs_to_check)
         wrong, correct, no_guess = self.get_measures(errors, verbs_to_check, should_be, sentence, correct_sentence)
-        return errors, (wrong, correct, no_guess, self.buffer)
+        return errors, (wrong, correct, no_guess, self.buffer), self.dataset
 
     def get_measures(self, errors, verbs_to_check, should_be_nutids, current_sentence, correct_sentence):
         for error in errors:
@@ -283,19 +285,19 @@ class Tester():
             print("pos_caching.pkl already exists")
         return pos_list
     
-    def test_one_model(self, model):
+    def test_one_model(self, model, padding_left, padding_right):
         total_wrong, total_correct, total_no_guess = 0,0,0
         total_buffer = []
         for i in range(len(self.x)):
             x, y, pos = self.x[i], self.y[i], self.pos[i]
-            corrector = NutidsRCorrector(model, pos, 5)
-            errors, (wrong, correct, no_guess, buffer) = corrector.correct(x, y)
+            corrector = NutidsRCorrector(model, pos, padding_left, padding_right)
+            errors, (wrong, correct, no_guess, buffer), dataset = corrector.correct(x, y)
             total_wrong += wrong
             total_correct += correct
             total_no_guess += no_guess
             total_buffer.append(buffer)
 
-        return round(total_wrong/(total_wrong+total_correct+total_no_guess)*100, 2), round(total_correct/(total_wrong+total_correct+total_no_guess)*100, 2), round(total_no_guess/(total_wrong+total_correct+total_no_guess)*100, 2), total_buffer
+        return dataset, round(total_wrong/(total_wrong+total_correct+total_no_guess)*100, 2), round(total_correct/(total_wrong+total_correct+total_no_guess)*100, 2), round(total_no_guess/(total_wrong+total_correct+total_no_guess)*100, 2), total_buffer
 
 import time
 from IPython.utils import io
@@ -307,19 +309,23 @@ tester = Tester(["FineTuneModels/models/nutidsrModel2"])
 model4 = "FineTuneModels/models/nutidsrModel4-BERT"
 model5 = "FineTuneModels/models/nutidsrModel5-Electra"
 model6 = "FineTuneModels/models/nutidsrModel6-BERT"
+model7 = "FineTuneModels/models/nutidsrModel7-BERT"
 
-models = [model4, model6]
-model_names = ["Model 4-BERT", "Model 6-BERT"]
+models = [model7]
+model_names = ["Model 7-BERT"]
+paddings = [(10, 4)]
 
 for i in range(len(models)):
     start_time = time.time()
     model = models[i]
     model_name = model_names[i]
+    padding = paddings[i]
 
     print(model_name)
     with io.capture_output() as captured:
-        wrong, correct, no_guess, scores = tester.test_one_model(load_model(model))
+        dataset, wrong, correct, no_guess, scores = tester.test_one_model(load_model(model), padding[0], padding[1])
 
+    print("dataset: ", dataset)
     print("Wrong: ", wrong)
     print("Correct: ", correct)
     print("No Guess: ", no_guess)
