@@ -29,9 +29,9 @@ def get_pos_tags(words):
 
 import concurrent.futures
 
-chunk_size = 1000
+chunk_size = 2000
 
-for i in tqdm(range(270000, 300000, chunk_size)):
+for i in tqdm(range(300000, 350000, chunk_size)):
     chunk = lines[i:i+chunk_size]
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
         results = list(executor.map(lambda line: get_pos_tags(line.split()), chunk))
