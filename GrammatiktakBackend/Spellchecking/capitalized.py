@@ -79,9 +79,9 @@ class CapitalizationCorrector:
         first_word_in_sentence = [True if word == sent[0] else False for sent in words_for_every_sentence for word in sent]
         is_i = [True if word.lower() == "i" else False for sent in words_for_every_sentence for word in sent]
         ner_indexes = [tag[1] for tag in ner_tags]
-        # i and NER should be skipped
-        skip_word = [True if self.check_ner_interval(find_index(words, i, words[i]), ner_indexes) or is_i[i] else False for i in range(len(words))]
-        # if there is a full stop and the word is not capitalized
+        # i and NER and all upper words should be skipped
+        skip_word = [True if self.check_ner_interval(find_index(words, i, words[i]), ner_indexes) or is_i[i] or words[i].isupper() else False for i in range(len(words))]
+        # if there is a full stop and the word is not capitalize´
         error_missing_capitalization = [True if (full_stop[i] or first_word_in_sentence[i+1]) and not previous_capitalization[i+1] and not skip_word[i+1] else False for i in range(len(words)-1)]
         # Needs to take care of first word: correct if not capitalized
         error_missing_capitalization.insert(0, True if not previous_capitalization[0] else False)

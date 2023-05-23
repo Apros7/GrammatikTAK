@@ -61,18 +61,25 @@ def clean_sentence(sentence):
 def move_index_based_on_br(errors, sentence):
     br_indexes = [match.start() for match in re.finditer('<br>', sentence)]
     errors = errors.to_list(include_type=True)
+    br_space = count_spaces_before_after_br(br_indexes, sentence)
     for error in errors:
         (start, end) = error[2][0], error[2][1]
-        # Adjust for <br> tags before the start index
         for br_index in br_indexes:
             if br_index < start:
-                start += 3
-                end += 3
-        # Adjust for <br> tags between the start and end indexes
+                start += 3 + br_space[br_index]
+                end += 3 + br_space[br_index]
             elif br_index > start and br_index < end:
-                end += 3
+                end += 3 + br_space[br_index]
         error[2][0], error[2][1] = start, end
     return ErrorList([Error().from_list(error) for error in errors])
+
+def count_spaces_before_after_br(br_indexes, sentence):
+    spaces_dict = {}
+    for br_index in br_indexes:
+        spaces_before = len(sentence[:br_index]) - len(sentence[:br_index].rstrip())
+        spaces_after = len(sentence[br_index + 4:]) - len(sentence[br_index + 4:].lstrip())
+        spaces_dict[br_index] = spaces_before + spaces_after
+    return spaces_dict
 
 # This function is used to check if the index from a module is correct
 def check_if_index_is_correct(errors, sentence):
