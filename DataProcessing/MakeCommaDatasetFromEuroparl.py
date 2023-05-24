@@ -21,9 +21,9 @@ for i in range(0, len(lines),step_rate):
     result.append((' '.join(lines[i:i+step_rate])).split())
 
 # Changing to six words scope
-scope = 10
-middle = int(scope/2-1)
-padding = int(scope/2-1)
+left_scope = 15
+right_scope = 10
+middle = left_scope
 
 print(len(result))
 old_big_words = result[:60000]
@@ -33,13 +33,13 @@ old_big_words = result[:60000]
 big_words_lsts = []
 for i in tqdm(range(len(old_big_words))):
     lst = old_big_words[i]
-    lst = ["<PAD>"]*padding + lst + ["<PAD>"]*padding
+    lst = ["<PAD>"]*left_scope + lst + ["<PAD>"]*right_scope
     big_words_lsts.append(lst)
 
 for i in tqdm(range(len(big_words_lsts))):
     big_words = big_words_lsts[i]
-    for x in range(len(big_words)-scope+1):
-        four_words = big_words[x:x+scope]
+    for x in range(len(big_words)-(left_scope+right_scope)+1):
+        four_words = big_words[x:x+left_scope+right_scope]
         if any([x == y for y in char for x in four_words]):
             continue
         elif four_words[middle][-1] == symbol[1]:
@@ -60,7 +60,7 @@ df["comment_text"] = big_lst
 df["label"] = output1_lst
 
 print(len(df))
-df = df[:6000000]
+df = df[:10000000]
 
 def distribution(df):
     print(df["label"].value_counts())
@@ -68,4 +68,4 @@ def distribution(df):
 distribution(df)
 print(len(df))
 header = ["comment_text", "label"]
-df.to_csv("Datasets/EuroparlWithPadding10.csv", encoding="UTF-8", index=False, sep=";")
+df.to_csv("Datasets/EuroparlWithPadding15-5.csv", encoding="UTF-8", index=False, sep=";")
