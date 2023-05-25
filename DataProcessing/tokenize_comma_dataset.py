@@ -5,6 +5,8 @@ from tqdm import tqdm
 from transformers import BertTokenizer, BertModel, BertForSequenceClassification, TrainingArguments, Trainer
 from sklearn.model_selection import train_test_split
 
+import pickle
+
 current_dir = os.getcwd()
 os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/")
 
@@ -22,8 +24,11 @@ for text in tqdm(X_train, desc="Tokenizing X_train"):
     )
     X_train_tokenized.append(tokens)
 
-train_df = pd.DataFrame(X_train_tokenized)
-train_df.to_csv('train_tokenized.csv', index=False)
+with open('train_tokenized.pkl', 'wb') as file:
+    pickle.dump(X_train_tokenized, file)
+
+with open('y_train.pkl', 'wb') as file:
+    pickle.dump(y_train, file)
 
 y_train_df = pd.DataFrame(y_train)
 y_train_df.to_csv('y_train.csv', index=False)
@@ -36,10 +41,10 @@ for text in tqdm(X_val, desc="Tokenizing X_val"):
     )
     X_val_tokenized.append(tokens)
 
-val_df = pd.DataFrame(X_val_tokenized)
-val_df.to_csv('val_tokenized.csv', index=False)
+with open('val_tokenized.pkl', 'wb') as file:
+    pickle.dump(X_val_tokenized, file)
 
-y_val_df = pd.DataFrame(y_val)
-y_val_df.to_csv('y_val.csv', index=False)
+with open('y_val.pkl', 'wb') as file:
+    pickle.dump(y_val, file)
 print("val done")
 
