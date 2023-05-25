@@ -30,10 +30,10 @@ def load_model(path):
     classifier.to(device)
     return Trainer(classifier)
 
-model_path = "models/nutidsrModel4-BERT"
-model_padding = 5
-model_max_len = 15
-model_cutoff_value = .95
+model_path = "models/nutidsrModel9-BERT"
+model_left_padding = 15
+model_right_padding = 5
+model_cutoff_value = 0
 
 class NutidsRCorrector():
     def __init__(self) -> None:
@@ -41,9 +41,9 @@ class NutidsRCorrector():
         self.get_tense_from_verb = pickle.load(open("Datasets/nutids_r_bøjninger.pickle", "rb"))
         self.tokenizer = BertTokenizer(vocab_file="models/vocab.txt", do_lower_case=False)
         self.classifier = load_model(model_path)
-        self.padding = model_padding
+        self.left_padding = model_left_padding
+        self.right_padding = model_right_padding
         self.cutoff_value = model_cutoff_value
-        self.max_len = model_max_len
 
     def verbs_to_check(self, words, pos):
         verbs = []
@@ -81,16 +81,38 @@ class NutidsRCorrector():
                 is_nutids_r.append(None)
         return is_nutids_r
 
-    def make_dataset(self, verbs_to_check, pos):
-        pos_with_padding = ["<PAD>"]*self.padding + [p[0] for p in pos] + ["<PAD>"]*self.padding
+    def make_dataset(self, verbs_to_check, pos, words):
+        pos_with_padding = ["<PAD>"]*self.left_padding + [p[0] for p in pos] + ["<PAD>"]*self.right_padding
         dataset = []
-        for i in range(len(verbs_to_check)):
-            if verbs_to_check[i]:
-                dataset.append(" ".join(pos_with_padding[i:i+2*self.padding+1]))
-        return dataset
+        at_indexes = []
+        at_index = -1
+
+        for i, word in enumerate(words):
+            if not verbs_to_check[i]:
+                continue
+
+            if word[-1] == "s" or pos_with_padding[i+self.left_padding] != "VERB":
+                continue
+
+            if words[i-1].lower().strip() == "og": 
+                continue
+
+            if words[i-1][-1] == ",":
+                continue
+
+            at_index += 1
+
+            if words[i-1].lower().strip() == "at": 
+                at_indexes.append(at_index)
+
+            dataset.append(" ".join(pos_with_padding[i:i+self.left_padding+self.right_padding+1]))
+
+        print(*dataset, sep="\n")
+        print(at_indexes)
+        return dataset, at_indexes
     
     def tokenize_sentences(self, sentences):
-        X_tokenized = self.tokenizer(sentences, padding=True, truncation=True, max_length=self.max_len)
+        X_tokenized = self.tokenizer(sentences, padding=True, truncation=True)
         return X_tokenized
 
     def convert_dataset_to_dataloader(self, dataset):
@@ -103,15 +125,26 @@ class NutidsRCorrector():
         max_scores, final_prediction = torch.max(scores, dim=1)
         final_prediction = np.argmax(raw_predictions, axis=1)
         return [(p, s) for p, s in zip(final_prediction, max_scores)]
+    
+    def correct_at_predictions(self, predictions, at_indexes):
+        true_predictions = [p for (p, s) in predictions]
+        true_score = [s for (p, s) in predictions]
+        for i in range(len(true_predictions)):
+            if i in at_indexes:
+                true_predictions[i] = 1
+                true_score[i] = 1
+        return list(zip(true_predictions, true_score))
 
-    def should_verb_be_nutidsr(self, verbs_to_check, pos):
-        dataset = self.make_dataset(verbs_to_check, pos)
+    def should_verb_be_nutidsr(self, verbs_to_check, pos, words):
+        dataset, at_indexes = self.make_dataset(verbs_to_check, pos, words)
         if len(dataset) < 1:
             return [None]*len(verbs_to_check)
         tokenized = self.tokenize_sentences(dataset)
         dataloader = self.convert_dataset_to_dataloader(tokenized)
         predictions = self.get_predictions(dataloader)
-        return list(self.turn_predictions_to_bool(predictions, verbs_to_check))
+        corrected_predictions = self.correct_at_predictions(predictions, at_indexes)
+        bool_predictions = list(self.turn_predictions_to_bool(corrected_predictions, verbs_to_check))
+        return bool_predictions
 
     def turn_predictions_to_bool(self, predictions, verbs_to_check):
         prediction_index = 0
@@ -201,7 +234,7 @@ class NutidsRCorrector():
         words = prepare_sentence(sentence, lowercase=True)
         verbs_to_check = self.verbs_to_check(words, pos)
         is_nutids_r = self.is_verbs_nutids_r(words, verbs_to_check)
-        should_be_nutidsr = self.should_verb_be_nutidsr(verbs_to_check, pos)
+        should_be_nutidsr = self.should_verb_be_nutidsr(verbs_to_check, pos, words)
         errors = self.make_error_messages(words, should_be_nutidsr, is_nutids_r, verbs_to_check)
 
         if get_stats:
