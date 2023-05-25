@@ -37,6 +37,7 @@ time_tracker.track("initialize correctors")
 # corrector function
 
 def correct_input(input, save=False):
+
     punctuation_errors = punctuation_corrector.correct_punctuation(input)
     time_tracker.track("correct punctuation")
 
@@ -56,7 +57,9 @@ def correct_input(input, save=False):
         firestore_client.save_input(input)
         time_tracker.track("saving to firestore")
 
-    return error_concatenator([determinant_errors, nutidsr_errors], errors_to_project_onto_others=[punctuation_errors, capitalization_errors])
+    final_errors = error_concatenator([determinant_errors, nutidsr_errors], errors_to_project_onto_others=[punctuation_errors, capitalization_errors])
+
+    return final_errors
 
 # flask app:
 app = Flask(__name__)
@@ -91,11 +94,11 @@ time_tracker.complete_reset()
 # message = "Hey. Jeg håber, at du nyder weekenden :smile:. Jeg har endelig fået lavet et fix til edit detection til web-anno. Jeg har lavet en PR med det. Hvis du vil approve og restarte serveren, så skal jeg nok nå så mange reviews, som jeg kan i løbet af i dag og i morgen."
 # message = "Jeg skal på arbejde d. 9. august 2022."
 # message = "hej jeg hedder lucas. hej jeg hedder lucas"
-
+# message = "Super sejt, Simon Gaarde💪. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ stolt🇩🇰🇩🇰🇩🇰. "
+# message = "Super sejt, Simon Gaarde. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ, stolt."
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
-
-# check_if_index_is_correct(errors1, message)
+#check_if_index_is_correct(errors1, message)
 
 time_tracker.track2("end")
 time_tracker(.5)
