@@ -20,7 +20,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 
 ## Nutids-r Models
 Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Test F1
---- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | **98.86%** | 01.12% | **99,04%**
 5-Bert | 04-04-2023 | 200.000 | 4 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | Unknown
 4-Bert | 04-04-2023 | 200.000 | 2 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | Unknown
