@@ -107,8 +107,6 @@ class NutidsRCorrector():
 
             dataset.append(" ".join(pos_with_padding[i:i+self.left_padding+self.right_padding+1]))
 
-        print(*dataset, sep="\n")
-        print(at_indexes)
         return dataset, at_indexes
     
     def tokenize_sentences(self, sentences):

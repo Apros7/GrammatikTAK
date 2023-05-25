@@ -6,7 +6,8 @@ from Utilities.error_handling import Error, ErrorList
 import string
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
-PUNCTUATIONS = ".!?"
+PUNCTUATIONS_FULL_STOP = ".!?"
+PUNCTUATIONS = "!\"#$%&'()*+,-./:;=?@[\]^_`{|}~"
 
 # used to create torch dataset for predictions
 class Dataset(torch.utils.data.Dataset):
@@ -27,10 +28,9 @@ class Dataset(torch.utils.data.Dataset):
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 torch.device(device)
-model_path = "models/commaModel9"
-model_scope = 10
-model_padding = int(model_scope/2-1)
-model_max_len = int(model_scope*2.5+1)
+model_path = "models/commaModel10"
+model_left_padding = 15
+model_right_padding = 10
 
 def load_model():
     # punctuation model, padding and scope should match model and dataset
@@ -45,20 +45,20 @@ def load_model():
 class PunctuationCorrector():
     def __init__(self) -> None:
         self.model = load_model()
-        self.scope, self.padding = model_scope, model_padding
+        self.left_padding, self.right_padding = model_left_padding, model_right_padding
         self.tokenizer = BertTokenizer(vocab_file="models/vocab.txt", do_lower_case=False)
     
     def add_padding(self, words):
-        return ["<PAD>"]*self.padding + words + ["<PAD>"]*self.padding
+        return ["<pad>"]*self.left_padding + words + ["<pad>"]*self.right_padding
 
     # prepares dataset and get predictions
     def get_predictions(self, sentence) -> list:
         words = self.add_padding(prepare_sentence(sentence))
-        if len(words) < self.scope:
+        if len(words) < self.left_padding:
             return [0]*len(words)
-        test_data = [" ".join(words[i:i+self.scope]) for i in range(len(words)-self.scope-1+self.padding)]
-        test_data = [data.translate(str.maketrans("", "", string.punctuation)) for data in test_data]
-        tokenized_data = self.tokenizer(test_data, padding=True, truncation=True, max_length=model_max_len)
+        test_data = [" ".join(words[i:i+self.left_padding+self.right_padding]) for i in range(len(words)-self.left_padding-self.right_padding)]
+        test_data = [data.translate(str.maketrans("", "", PUNCTUATIONS)) for data in test_data]
+        tokenized_data = self.tokenizer(test_data, padding=True, truncation=True)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)
         final_predictions = np.argmax(raw_predictions, axis=1)
@@ -104,7 +104,7 @@ class PunctuationCorrector():
     # errors are no full stop at end of sentence
     def find_full_stop_mistakes(self, sentence, prepared_words) -> ErrorList:
         words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
-        full_stop_error = [True if word[-1] not in PUNCTUATIONS and i == len(sent)-1 else False for sent in words_for_every_sentence for i, word in enumerate(sent)]
+        full_stop_error = [True if word[-1] not in PUNCTUATIONS_FULL_STOP and i == len(sent)-1 else False for sent in words_for_every_sentence for i, word in enumerate(sent)]
         error_messages_full_stop = [self.create_full_stop_error_message(prepared_words[i], prepared_words, i) for i in range(len(prepared_words)) if full_stop_error[i]]
         return ErrorList(error_messages_full_stop)
 
@@ -118,3 +118,20 @@ class PunctuationCorrector():
         comma_mistakes = self.find_comma_mistakes(predictions, words)
         full_stop_mistakes = self.find_full_stop_mistakes(sentence, words)
         return move_index_based_on_br(comma_mistakes + full_stop_mistakes, sentence)
+
+
+"""
+
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt;0
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag;0
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den;0
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den 17;0
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den 17 december;0
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den 17 december for;0
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den 17 december for genoptaget;1
+
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> livet i et globaliseret samfund hvor sprog og identitet med fuld fart udvikles kan være
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> livet i et globaliseret samfund hvor sprog og identitet med fuld fart udvikles kan være svært
+<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> livet i et globaliseret samfund hvor sprog og identitet med fuld fart udvikles kan være svært at
+
+"""
