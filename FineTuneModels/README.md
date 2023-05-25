@@ -33,7 +33,7 @@ Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wron
 ### Notes about training:
 - The data used is EuroParlNutidsr-trainset_verbs.
 - Training on POS and not the words. I have not been able to make it work with just words.
-- A cutoff value works in tests, but not in the real world :-(.
+- A cutoff value works in tests, but not in the real world :sad:.
 - Hard coded to not guess if comma or "og" right before.
 - Hard coded to guess "infinitiv" if "at" right before.
 - Hard coded improved accuracy with ~.3%.
