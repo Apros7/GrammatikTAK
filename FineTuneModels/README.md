@@ -19,16 +19,14 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 - About 0.7% increase in accuracy with epoch 2, 0.05% increase with epoch 3, and decrease in accuracy with >3 epochs.
 
 ## Nutids-r Models
-Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Test F1
+Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Test F1 | Cutoff
 --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | **98.86%** | 01.12% | **0.990**
-5-Bert | 04-04-2023 | 200.000 | 4 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | Unknown
-4-Bert | 04-04-2023 | 200.000 | 2 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | Unknown
-3-Electra | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 48.4% | **0%** | Unknown
-1-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 74.47% | 02.66% | Unknown
-
-- 1-Bert, 3-Electra, 4-Bert & 5-Bert all tested with cutoff-value: 0.95.
-- 9-Bert has no cutoff value
+9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | **96.62%** | 0.46% | **0.990** | 0.95
+9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | **98.87%** | 01.13% | **0.990** | 0
+5-Bert | 04-04-2023 | 200.000 | 4 | 16 | 1e-5 | 5-5 | 75.53% | 02.66% | Unknown | 0.95
+4-Bert | 04-04-2023 | 200.000 | 2 | 16 | 1e-5 | 5-5 | 75.53% | 02.66% | Unknown | 0.95
+3-Electra | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 48.4% | **0%** | Unknown | 0.95
+1-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 74.47% | 02.66% | Unknown | 0.95
 
 ### Notes about training:
 - The data used is EuroParlNutidsr-trainset_verbs.
