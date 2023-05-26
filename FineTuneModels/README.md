@@ -34,7 +34,7 @@ Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wron
 - Hard coded to:
   - not guess if comma or "og" right before.
   - guess "infinitiv" if "at" right before.
-- Hard coded improved accuracy with ~.3%.
+- Hard coded improved accuracy with ~.3%. Ideally these should be deleted for later models.
 
 ## Road to 99% Comma Model
 - Multiple epochs?
