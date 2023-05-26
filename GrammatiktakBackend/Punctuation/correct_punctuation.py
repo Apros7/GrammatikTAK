@@ -1,6 +1,7 @@
-import torch
-from transformers import Trainer, BertTokenizer
+from transformers import BertTokenizer
 import numpy as np
+import string
+
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 from Utilities.error_handling import Error, ErrorList
 from Utilities.model_utils import Dataset, load_model
@@ -23,13 +24,26 @@ class PunctuationCorrector():
     def add_padding(self, words):
         return ["<pad>"]*self.left_padding + words + ["<pad>"]*self.right_padding
 
+    def make_test_data(self, words):
+        test_data = [" ".join(words[i:i+self.left_padding+self.right_padding]) for i in range(len(words)-self.left_padding-self.right_padding)]
+        corrected_test_data = []
+        for i in range(len(test_data)):
+            words = test_data[i].split()
+            for j in range(len(words)):
+                if words[j] in string.punctuation:
+                    words[j] = "<PAD>"
+            corrected_test_data.append(" ".join(words))
+        no_punctuation_test_data = [data.translate(str.maketrans("", "", PUNCTUATIONS)) for data in corrected_test_data]
+        return no_punctuation_test_data
+
+
     # prepares dataset and get predictions
     def get_predictions(self, sentence) -> list:
         words = self.add_padding(prepare_sentence(sentence))
         if len(words) < self.left_padding:
             return [0]*len(words)
-        test_data = [" ".join(words[i:i+self.left_padding+self.right_padding]) for i in range(len(words)-self.left_padding-self.right_padding)]
-        test_data = [data.translate(str.maketrans("", "", PUNCTUATIONS)) for data in test_data]
+        test_data = self.make_test_data(words)
+        print(*test_data, sep="\n")
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)

@@ -38,11 +38,11 @@ time_tracker.track("initialize correctors")
 
 def correct_input(input, save=False):
 
-    punctuation_errors = punctuation_corrector.correct_punctuation(input)
-    time_tracker.track("correct punctuation")
-
     pos_tags, ner_tags = tagger.get_tags(input)
     time_tracker.track("get tags")
+
+    punctuation_errors = punctuation_corrector.correct_punctuation(input, ner_tags)
+    time_tracker.track("correct punctuation")
 
     determinant_errors = determinant_corrector.correct_determinants(input, pos_tags)
     time_tracker.track("correct determinant")
@@ -96,8 +96,9 @@ time_tracker.complete_reset()
 # message = "hej jeg hedder lucas. hej jeg hedder lucas"
 # message = "Super sejt, Simon Gaarde💪. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ stolt🇩🇰🇩🇰🇩🇰. "
 # message = "Super sejt, Simon Gaarde. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ, stolt."
-# errors1 = correct_input(message)
-# print(*errors1, sep="\n")
+message = "Træner teamet Mathilde Pugholm Hvid, Nichlas Fonnesbech & Bastian Løve Høegh - Jeg tror ikke helt I ved, hvor KÆMPE en forskel I gør - TUSIND TAK🙏🙏."
+errors1 = correct_input(message)
+print(*errors1, sep="\n")
 #check_if_index_is_correct(errors1, message)
 
 time_tracker.track2("end")
