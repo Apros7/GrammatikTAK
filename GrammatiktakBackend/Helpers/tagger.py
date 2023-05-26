@@ -1,15 +1,31 @@
 import stanza
 from danlp.models import load_bert_ner_model
+import emoji
+
 from Utilities.utils import prepare_sentence
 
-def load_models():
+def load_tagger_models():
     ner_model = load_bert_ner_model()
     pos_model = stanza.Pipeline("da", processors='tokenize,pos', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
     return ner_model, pos_model
 
+def find_emoji_indexes(text):
+    emoji_indexes = []
+    for index, char in enumerate(text):
+        if emoji.is_emoji(char):
+            emoji_indexes.append(index)
+    return emoji_indexes
+
+def strip_emojis(text):
+    cleaned_text = ""
+    for char in text:
+        if not emoji.is_emoji(char):
+            cleaned_text += char
+    return cleaned_text
+
 class Tagger():
     def __init__(self) -> None:
-        self.ner_tagger, self.pos_tagger = load_models()
+        self.ner_tagger, self.pos_tagger = load_tagger_models()
 
     def turn_features_to_dicts(self, features):
         feature_dicts = []
@@ -30,7 +46,6 @@ class Tagger():
             feature_dicts.append(feature_dict)
         return feature_dicts
 
-
     def get_pos_tags(self, sentence):
         words = prepare_sentence(sentence, lowercase=False, clean=True)
         sentence = " ".join(words)
@@ -41,7 +56,10 @@ class Tagger():
         return results
     
     def get_ner_tags(self, sentence):
-        result = self.ner_tagger.predict(prepare_sentence(sentence), IOBformat=False)
+        emoji_indexes = find_emoji_indexes(sentence)
+        emoji_free_sentence = strip_emojis(sentence)
+        words = prepare_sentence(emoji_free_sentence)
+        result = self.ner_tagger.predict(words, IOBformat=False)
         namedEntities = [(ent["text"], [ent["start_pos"], ent["end_pos"]]) for ent in result["entities"]]
         #words = prepare_sentence(sentence)
         # previous_sentences_len = 0
@@ -51,6 +69,14 @@ class Tagger():
         #     result = self.ner_tagger.predict(words[i:i+step_size], IOBformat=False)
         #     namedEntities += [(ent["text"], [ent["start_pos"] + previous_sentences_len, ent["end_pos"] + previous_sentences_len]) for ent in result["entities"]]
         #     previous_sentences_len += len(" ".join(words[i:i+step_size])) + 1
+
+        for namedEntity in namedEntities:
+            for emoji_index in emoji_indexes:
+                if emoji_index < namedEntity[1][0]:
+                    namedEntity[1][0] += 1
+                    namedEntity[1][1] += 1
+                elif emoji_index < namedEntity[1][1]:
+                    namedEntity[1][1] += 1
         return namedEntities
     
     # run this function to get all tags
