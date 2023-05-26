@@ -1,10 +1,7 @@
 from collections import defaultdict
 
-
-
 approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r"]
 error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap"]
-
 
 def init_dict():
     def def_value():
@@ -105,8 +102,16 @@ def error_concatenator(errors, errors_to_project_onto_others):
 class ErrorList():
     def __init__(self, lst) -> None:
         self.errors = lst
+        self.convert_lists_to_errors()
         if not self.is_healthy():
             raise ValueError(f"ErrorList is not healthy. Some errors have missing values.")
+
+    def convert_lists_to_errors(self):
+        if len(self.errors) == 0 or isinstance(self.errors[0], Error):
+            return 
+        if len(self.errors[0]) != 5:
+            raise ValueError(f"The errors list should have 5 columns, not {len(self.errors[0])}. Did you remember to: .to_list(include_type=True)?")
+        self.errors = [Error(error[0], error[1], error[2], error[3], error[4]) for error in self.errors]
 
     def is_healthy(self):
         healthy_errors = [error.is_healthy() for error in self.errors]
@@ -143,6 +148,7 @@ class ErrorList():
         errors_to_list = [error.to_list(include_type) for error in self.errors]
         true_errors = [error for error in errors_to_list if error is not None]
         return list(self.sort(true_errors))
+
 
 class Error():
     def __init__(self, wrong_word: str = None, right_word: str = None, indexes: list = None, description: str = None, type: str = None) -> None:

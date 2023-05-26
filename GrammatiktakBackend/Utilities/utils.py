@@ -13,7 +13,6 @@ def check_empty_input_or_feedback(json_data):
     input_string = json_data["sentence"]
     feedback = json_data["feedback"]
 
-    # check for feedback
     if feedback != None:
         return True, feedback, input_string, "Saved"
 

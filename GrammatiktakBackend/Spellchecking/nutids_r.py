@@ -1,34 +1,13 @@
 from Utilities.utils import prepare_sentence, move_index_based_on_br, find_index
 from Utilities.error_handling import Error, ErrorList
+from Utilities.model_utils import Dataset, load_model
+
 import pickle
 import torch
 from transformers import Trainer, BertTokenizer
 import numpy as np
-import pandas as pd
 import time
 import string
-
-class Dataset(torch.utils.data.Dataset):
-    def __init__(self, encodings, labels=None):
-        self.encodings = encodings
-        self.labels = labels
-
-    def __getitem__(self, idx):
-        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
-        if self.labels:
-            item["labels"] = torch.tensor(self.labels[idx])
-        return item
-
-    def __len__(self):
-        return len(self.encodings["input_ids"])
-
-def load_model(path):
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    torch.device(device)
-    classifier = torch.load(path, map_location=torch.device('cpu'))
-    classifier.eval()
-    classifier.to(device)
-    return Trainer(classifier)
 
 model_path = "models/nutidsrModel9-BERT"
 model_left_padding = 15
@@ -39,7 +18,7 @@ class NutidsRCorrector():
     def __init__(self) -> None:
         self.can_verb_be_checked = pickle.load(open("Datasets/nutids_r_stem.pickle", "rb"))
         self.get_tense_from_verb = pickle.load(open("Datasets/nutids_r_bøjninger.pickle", "rb"))
-        self.tokenizer = BertTokenizer(vocab_file="models/vocab.txt", do_lower_case=False)
+        self.tokenizer = BertTokenizer.from_pretrained("Maltehb/danish-bert-botxo")
         self.classifier = load_model(model_path)
         self.left_padding = model_left_padding
         self.right_padding = model_right_padding

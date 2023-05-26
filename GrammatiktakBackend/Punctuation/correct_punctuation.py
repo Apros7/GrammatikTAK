@@ -3,48 +3,20 @@ from transformers import Trainer, BertTokenizer
 import numpy as np
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 from Utilities.error_handling import Error, ErrorList
-import string
+from Utilities.model_utils import Dataset, load_model
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
 PUNCTUATIONS_FULL_STOP = ".!?"
 PUNCTUATIONS = "!\"#$%&'()*+,-./:;=?@[\]^_`{|}~"
 
-# used to create torch dataset for predictions
-class Dataset(torch.utils.data.Dataset):
-    def __init__(self, encodings, labels=None):
-        self.encodings = encodings
-        self.labels = labels
-
-    def __getitem__(self, idx):
-        item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
-        if self.labels:
-            item["labels"] = torch.tensor(self.labels[idx])
-        return item
-
-    def __len__(self):
-        return len(self.encodings["input_ids"])
-
-# loads model and returns trainer object
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
-torch.device(device)
 model_path = "models/commaModel10"
 model_left_padding = 15
 model_right_padding = 10
 
-def load_model():
-    # punctuation model, padding and scope should match model and dataset
-    # should have padding so that every word except the last is checked
-    # else the logic in finding "find_comma_mistakes" needs to be changed
-    punctuation_model = torch.load(model_path, map_location=torch.device(device))
-    punctuation_model.eval()
-    punctuation_trainer = Trainer(punctuation_model)
-    return punctuation_trainer
-
 # This class will predict punctuation and correct based on sentence
 class PunctuationCorrector():
     def __init__(self) -> None:
-        self.model = load_model()
+        self.model = load_model(model_path)
         self.left_padding, self.right_padding = model_left_padding, model_right_padding
         self.tokenizer = BertTokenizer(vocab_file="models/vocab.txt", do_lower_case=False)
     
@@ -98,7 +70,9 @@ class PunctuationCorrector():
         # where there should not be a comma but is
         error_remove_comma = [True if (not predicted_comma[i]) and (not already_punctuated[i]) and already_comma[i] else False for i in range(len(predicted_comma))]
         error_messages_remove_comma = [self.create_comma_error_message(checked_words[i], words, i, True) for i in range(len(checked_words)) if error_remove_comma[i]]
-        return ErrorList(error_messages_new_comma + error_messages_remove_comma)
+        comma_errors = ErrorList(error_messages_new_comma + error_messages_remove_comma)
+        final_errors = self.ignore_mistakes_in_ner_objects(comma_errors)
+        return final_errors
 
     # finds full stop mistakes and makes errors
     # errors are no full stop at end of sentence
@@ -108,30 +82,25 @@ class PunctuationCorrector():
         error_messages_full_stop = [self.create_full_stop_error_message(prepared_words[i], prepared_words, i) for i in range(len(prepared_words)) if full_stop_error[i]]
         return ErrorList(error_messages_full_stop)
 
+    def ignore_mistakes_in_ner_objects(self, mistakes: ErrorList):
+        mistakes_list = mistakes.to_list(include_type=True)
+        ner_indexes = [index for (name, index) in self.ner_tags]
+
+        filtered_mistakes = []
+        for mistake in mistakes_list:
+            mistake_indexes = mistake[2]
+            if not any(start <= mistake_indexes[0] <= end or start <= mistake_indexes[1] <= end for (start, end) in ner_indexes):
+                filtered_mistakes.append(mistake)
+
+        return ErrorList(filtered_mistakes)
 
     # this model should be retrained to used character based inputs
     # instead of word based inputs
     # this is the function to call when error messages are needed
-    def correct_punctuation(self, sentence):
+    def correct_punctuation(self, sentence, ner_tags):
+        self.ner_tags = ner_tags
         predictions = self.get_predictions(sentence)
         words = prepare_sentence(sentence, lowercase=False)
         comma_mistakes = self.find_comma_mistakes(predictions, words)
         full_stop_mistakes = self.find_full_stop_mistakes(sentence, words)
         return move_index_based_on_br(comma_mistakes + full_stop_mistakes, sentence)
-
-
-"""
-
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt;0
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag;0
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den;0
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den 17;0
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den 17 december;0
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den 17 december for;0
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> genoptagelse af sessionen jeg erklærer europa-parlamentets session der blev afbrudt fredag den 17 december for genoptaget;1
-
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> livet i et globaliseret samfund hvor sprog og identitet med fuld fart udvikles kan være
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> livet i et globaliseret samfund hvor sprog og identitet med fuld fart udvikles kan være svært
-<pad> <pad> <pad> <pad> <pad> <pad> <pad> <pad> livet i et globaliseret samfund hvor sprog og identitet med fuld fart udvikles kan være svært at
-
-"""
