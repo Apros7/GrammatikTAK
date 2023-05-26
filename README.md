@@ -8,7 +8,7 @@
 
 Working on becoming the best grammar assistant for nordic languages. With a combination of NLP, AI and Linguists, this erpo has been developed.
 
-This currently only corrects danish text at **GrammatikTAK.com.** Models and datasets are not included in this repo.
+This currently only corrects danish text at [**GrammatikTAK.com.**](https://www.grammatiktak.com) Models and datasets are not included in this repo.
 
 ## Why?
 The rise in NLP and AI has greatly affected popular languages, their respective grammar assistants and NLP work. The nordic, especially danish, are sadly way behind. This repo is hopefully going to help cover some basic NLP needs and make a great danish, an potential nordic, grammar assistant.
