@@ -41,13 +41,13 @@ def correct_input(input, save=False):
     pos_tags, ner_tags = tagger.get_tags(input)
     time_tracker.track("get tags")
 
-    punctuation_errors = punctuation_corrector.correct_punctuation(input, ner_tags)
+    punctuation_errors = punctuation_corrector.correct(input, ner_tags)
     time_tracker.track("correct punctuation")
 
-    determinant_errors = determinant_corrector.correct_determinants(input, pos_tags)
+    determinant_errors = determinant_corrector.correct(input, pos_tags)
     time_tracker.track("correct determinant")
 
-    capitalization_errors = capitalize_corrector.correct_capitalization(input, pos_tags, ner_tags)
+    capitalization_errors = capitalize_corrector.correct(input, pos_tags, ner_tags)
     time_tracker.track("correct capitalization")
 
     nutidsr_errors, stats = nutids_corrector.correct(input, pos_tags, get_stats=True)
@@ -96,11 +96,11 @@ time_tracker.complete_reset()
 # message = "Hey. Jeg håber, at du nyder weekenden :smile:. Jeg har endelig fået lavet et fix til edit detection til web-anno. Jeg har lavet en PR med det. Hvis du vil approve og restarte serveren, så skal jeg nok nå så mange reviews, som jeg kan i løbet af i dag og i morgen."
 # message = "Jeg skal på arbejde d. 9. august 2022."
 # message = "hej jeg hedder lucas. hej jeg hedder lucas"
-message = "Super sejt, Simon Gaarde💪. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ stolt🇩🇰🇩🇰🇩🇰. "
+# message = "Super sejt, Simon Gaarde💪. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ stolt🇩🇰🇩🇰🇩🇰. "
 # message = "Super sejt, Simon Gaarde. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ, stolt."
 # message = "Træner teamet Mathilde Pugholm Hvid, Nichlas Fonnesbech & Bastian Løve Høegh - Jeg tror ikke helt I ved, hvor KÆMPE en forskel I gør - TUSIND TAK🙏🙏."
-errors1 = correct_input(message)
-print(*errors1, sep="\n")
+# errors1 = correct_input(message)
+# print(*errors1, sep="\n")
 #check_if_index_is_correct(errors1, message)
 
 time_tracker.track2("end")
