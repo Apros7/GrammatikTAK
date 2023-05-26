@@ -21,21 +21,21 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 ## Nutids-r Models
 Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Test F1
 --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | **98.86%** | 01.12% | **99,04%**
+9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | **98.86%** | 01.12% | **0.990**
 5-Bert | 04-04-2023 | 200.000 | 4 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | Unknown
 4-Bert | 04-04-2023 | 200.000 | 2 | 16 | 1e-5 | 5-5 | **75.53%** | 02.66% | Unknown
 3-Electra | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 48.4% | **0%** | Unknown
 1-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 74.47% | 02.66% | Unknown
 
-- 1-Bert, 3-Electra, 4-Bert & 5-Bert all trained with cutoff-value: 0.95.
+- 1-Bert, 3-Electra, 4-Bert & 5-Bert all tested with cutoff-value: 0.95.
 - 9-Bert has no cutoff value
 
 ### Notes about training:
 - The data used is EuroParlNutidsr-trainset_verbs.
 - Training on POS and not the words. I have not been able to make it work with just words.
-- A cutoff value works in tests, but not in the real world 😞.
-- Hard coded to not guess if comma or "og" right before.
-- Hard coded to guess "infinitiv" if "at" right before.
+- Hard coded to:
+  - not guess if comma or "og" right before.
+  - guess "infinitiv" if "at" right before.
 - Hard coded improved accuracy with ~.3%.
 
 ## Road to 99% Comma Model
