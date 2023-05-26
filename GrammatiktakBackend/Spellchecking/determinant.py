@@ -48,7 +48,7 @@ class determinantCorrector():
         wrong_word = word_to_correct
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
 
-    def correct_determinants(self, sentence, pos_tag):
+    def correct(self, sentence, pos_tag):
         uncleaned_words = prepare_sentence(sentence)
         words = prepare_sentence(sentence, lowercase=False, clean=True)
         pos = [x[0] for x in pos_tag]

@@ -94,7 +94,7 @@ class CapitalizationCorrector:
         return ErrorList(error_messages_missing_capitalization + error_messages_wrong_capitalization)
 
     # use this function to get errors
-    def correct_capitalization(self, sentence, pos_tags, ner_tags) -> list:
+    def correct(self, sentence, pos_tags, ner_tags) -> list:
         basic_errors = self.find_basic_errors(sentence, ner_tags)
         i_errors = self.correct_i(sentence, pos_tags)
         ner_errors = self.find_ner_errors(sentence, ner_tags)
