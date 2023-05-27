@@ -1,6 +1,6 @@
 <div align="center">
 
-# GrammatikTAK!
+<img src="LogoText.png" alt="Logo">
 
 </div>
 
