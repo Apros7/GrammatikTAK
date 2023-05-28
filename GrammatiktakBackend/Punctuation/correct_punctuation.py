@@ -43,7 +43,6 @@ class PunctuationCorrector():
         if len(words) < self.left_padding:
             return [0]*len(words)
         test_data = self.make_test_data(words)
-        print(*test_data, sep="\n")
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)

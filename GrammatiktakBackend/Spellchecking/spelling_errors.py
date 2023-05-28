@@ -22,6 +22,11 @@ NO_CORRECTION_IF_IN_WORD = "-_"
 PARTLY_CLEANING = ",.:;?!()[]{}'\""
 
 class SpellChecker():
+
+    """
+    Built using the Misspeller class based on research on danish misspellings.
+    """
+
     def __init__(self) -> None:
         print("Loading spellchecking dictionaries...")
         self.dictionary = pickle.load(open("Datasets/dictionary.pickle", "rb"))
