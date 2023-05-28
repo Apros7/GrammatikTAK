@@ -95,6 +95,7 @@ time_tracker.complete_reset()
 # message = "Træner teamet Mathilde Pugholm Hvid, Nichlas Fonnesbech & Bastian Løve Høegh - Jeg tror ikke helt I ved, hvor KÆMPE en forskel I gør - TUSIND TAK🙏🙏."
 # message = "jeg heder lucas. jeg har fødseldag idag"
 # message = "Jeg håber ikke, at du skulle vente så lang tid på, at den blev færdig."
+# message = "Så er vi tilbage på 0 på annotate. Jeg har sendt billeder af statistics. Jeg har også lavet en PE med nogle fixes, flere static filtre og evnen til at specificere om en person faller på videoen, sover og hvorvidt patienten har dyne på. Jeg kan vise mere i morgen. Er du på kontoret i morgen?"
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # check_if_index_is_correct(errors1, message)

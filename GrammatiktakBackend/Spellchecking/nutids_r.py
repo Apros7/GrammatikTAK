@@ -61,22 +61,26 @@ class NutidsRCorrector():
         return is_nutids_r
 
     def make_dataset(self, verbs_to_check, pos, words):
+        print(words)
         pos_with_padding = ["<PAD>"]*self.left_padding + [p[0] for p in pos] + ["<PAD>"]*self.right_padding
         dataset = []
         at_indexes = []
+        skipped_indexes = []
         at_index = -1
 
         for i, word in enumerate(words):
             if not verbs_to_check[i]:
                 continue
 
+            print(word, words[i-1], words[i-1][-1])
+
             if word[-1] == "s" or pos_with_padding[i+self.left_padding] != "VERB":
+                skipped_indexes.append(i)
                 continue
 
-            if words[i-1].lower().strip() == "og": 
-                continue
-
-            if words[i-1][-1] == ",":
+            if words[i-1].lower().strip() == "og" or words[i-1][-1] == ",": 
+                print(words)
+                skipped_indexes.append(i)
                 continue
 
             at_index += 1
@@ -86,7 +90,7 @@ class NutidsRCorrector():
 
             dataset.append(" ".join(pos_with_padding[i:i+self.left_padding+self.right_padding+1]))
 
-        return dataset, at_indexes
+        return dataset, at_indexes, skipped_indexes
     
     def tokenize_sentences(self, sentences):
         X_tokenized = self.tokenizer(sentences, padding=True, truncation=True)
@@ -113,20 +117,23 @@ class NutidsRCorrector():
         return list(zip(true_predictions, true_score))
 
     def should_verb_be_nutidsr(self, verbs_to_check, pos, words):
-        dataset, at_indexes = self.make_dataset(verbs_to_check, pos, words)
+        dataset, at_indexes, skipped_indexes = self.make_dataset(verbs_to_check, pos, words)
         if len(dataset) < 1:
             return [None]*len(verbs_to_check)
         tokenized = self.tokenize_sentences(dataset)
         dataloader = self.convert_dataset_to_dataloader(tokenized)
         predictions = self.get_predictions(dataloader)
         corrected_predictions = self.correct_at_predictions(predictions, at_indexes)
-        bool_predictions = list(self.turn_predictions_to_bool(corrected_predictions, verbs_to_check))
+        bool_predictions = list(self.turn_predictions_to_bool(corrected_predictions, verbs_to_check, skipped_indexes))
         return bool_predictions
 
-    def turn_predictions_to_bool(self, predictions, verbs_to_check):
+    def turn_predictions_to_bool(self, predictions, verbs_to_check, skipped_indexes):
         prediction_index = 0
         for i in range(len(verbs_to_check)):
             if verbs_to_check[i]:
+                if i in skipped_indexes:
+                    yield None
+                    continue
                 if predictions[prediction_index][1] < self.cutoff_value:
                     yield None
                 elif predictions[prediction_index][0] == 0:
@@ -180,7 +187,7 @@ class NutidsRCorrector():
             current_word = words[i].strip(",.!?():;")
             should_be = should_be_nutids_r[i]
             is_nutid = is_nutids_r[i]
-            if should_be == is_nutid or is_nutid is None:
+            if should_be == is_nutid or is_nutid is None or should_be is None:
                 continue
             stemmed_word = self.can_verb_be_checked[current_word]
             if should_be is True:
