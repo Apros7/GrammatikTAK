@@ -146,6 +146,12 @@ class Misspeller():
         reverse_wrong_vocal_dict = {"e": "a", "i": ["æ", "e"], "u": ["å", "o"], "y": "ø", "o": "å", "æ": ["a", "e"]}
         self.permutate(word, wrong_vocal_dict, reverse_wrong_vocal_dict)
 
+    def clean_permutations(self, word):
+        self.permutations = list(set(self.permutations))
+        for permutation in self.permutations:
+            if word[1:] == permutation[1:] or word[:-1] == permutation[:-1]:
+                self.permutations.remove(permutation)
+
     def get_permutations(self, word):
         self.permutations = []
         #self.keyboard_mistakes(word)
@@ -155,4 +161,5 @@ class Misspeller():
         self.silent_h(word)
         self.other_silent(word)
         self.wrong_vocal(word)
+        self.clean_permutations(word)
         return list(set(self.permutations))

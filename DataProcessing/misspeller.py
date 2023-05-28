@@ -69,5 +69,7 @@ df.to_csv("misspellings_dict.csv", index=False)
 with open("misspellings_dict.pickle", "wb") as file:
     pickle.dump(misspelling_dict, file)
 
+dictionary = [x.lower() for x in dictionary]
+
 with open("dictionary.pickle", "wb") as file:
     pickle.dump(dictionary, file)
