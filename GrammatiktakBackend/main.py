@@ -1,40 +1,33 @@
-
-# initailize the tracker
 from Timetracking.timetracker import TimeTracker
 time_tracker = TimeTracker()
 time_tracker.inactive = True
 
-# import internal modules for correcting
 from Punctuation.correct_punctuation import PunctuationCorrector
 from Helpers.tagger import Tagger
 from Spellchecking.capitalized import CapitalizationCorrector
 from Spellchecking.nutids_r import NutidsRCorrector
 from Spellchecking.determinant import determinantCorrector
+from Spellchecking.spelling_errors import SpellChecker
 from Utilities.utils import check_empty_input_or_feedback, check_if_index_is_correct
-from Utilities.error_handling import Error, ErrorList, error_concatenator
+from Utilities.error_handling import error_concatenator
 
-# import external modules for storage
 from Storage.Firestore import FirestoreClient
 
-# importing external modules
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 time_tracker.track("import modules")
 
-# initialize correctors:
 punctuation_corrector = PunctuationCorrector()
 capitalize_corrector = CapitalizationCorrector()
 tagger = Tagger()
 determinant_corrector = determinantCorrector()
 nutids_corrector = NutidsRCorrector()
+spellchecker = SpellChecker()
 
-# initialize firestore client:
 firestore_client = FirestoreClient()
 
 time_tracker.track("initialize correctors")
-
-# corrector function
 
 def correct_input(input, save=False):
 
@@ -53,13 +46,14 @@ def correct_input(input, save=False):
     nutidsr_errors, stats = nutids_corrector.correct(input, pos_tags, get_stats=True)
     time_tracker.track("nutids r")
 
+    spelling_errors = spellchecker.correct(input)
+    time_tracker.track("spellcheck")
+
     if save:
         firestore_client.save_input(input)
         time_tracker.track("saving to firestore")
 
-    final_errors = error_concatenator([determinant_errors, nutidsr_errors], errors_to_project_onto_others=[punctuation_errors, capitalization_errors])
-
-    check_if_index_is_correct(final_errors, input)
+    final_errors = error_concatenator([determinant_errors, nutidsr_errors, spelling_errors], errors_to_project_onto_others=[punctuation_errors, capitalization_errors])
 
     return final_errors
 
@@ -99,9 +93,10 @@ time_tracker.complete_reset()
 # message = "Super sejt, Simon Gaarde💪. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ stolt🇩🇰🇩🇰🇩🇰. "
 # message = "Super sejt, Simon Gaarde. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ, stolt."
 # message = "Træner teamet Mathilde Pugholm Hvid, Nichlas Fonnesbech & Bastian Løve Høegh - Jeg tror ikke helt I ved, hvor KÆMPE en forskel I gør - TUSIND TAK🙏🙏."
+# message = "jeg heder lucas. jeg har fødseldag idag"
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
-#check_if_index_is_correct(errors1, message)
+# check_if_index_is_correct(errors1, message)
 
 time_tracker.track2("end")
 time_tracker(.5)

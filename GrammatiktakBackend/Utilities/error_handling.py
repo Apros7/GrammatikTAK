@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r"]
+approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", "spellcheck"]
 error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap"]
 
 def init_dict():
@@ -97,8 +97,6 @@ def error_concatenator(errors, errors_to_project_onto_others):
 
     return ErrorList(final_errors).to_list()
 
-
-
 class ErrorList():
     def __init__(self, lst) -> None:
         self.errors = lst
@@ -107,8 +105,9 @@ class ErrorList():
             raise ValueError(f"ErrorList is not healthy. Some errors have missing values.")
 
     def convert_lists_to_errors(self):
-        if len(self.errors) == 0 or isinstance(self.errors[0], Error):
-            return 
+        if len(self.errors) == 0: return 
+        self.errors = [error for error in self.errors if error is not None] 
+        if isinstance(self.errors[0], Error): return
         if len(self.errors[0]) != 5:
             raise ValueError(f"The errors list should have 5 columns, not {len(self.errors[0])}. Did you remember to: .to_list(include_type=True)?")
         self.errors = [Error(error[0], error[1], error[2], error[3], error[4]) for error in self.errors]
@@ -171,10 +170,6 @@ class Error():
     def get_type(self):
         return self.__type
 
-    def get_description(self):
-        # Currently not used anywhere
-        return self.description.replace("$wrong$", self.wrong_word).replace("$right$", self.right_word)
-
     def is_healthy(self):
         if len([var_name for var_name, var_value in self.__dict__.items() if var_value is None]) == 0:
             return True
@@ -185,8 +180,8 @@ class Error():
             if self.wrong_word == self.right_word:
                 return None
             if include_type:
-                return [self.wrong_word, self.right_word, self.indexes, self.get_description(), self.get_type()]
-            return [self.wrong_word, self.right_word, self.indexes, self.get_description()]
+                return [self.wrong_word, self.right_word, self.indexes, self.description, self.get_type()]
+            return [self.wrong_word, self.right_word, self.indexes, self.description]
         missing_instance_variables = [var_name for var_name, var_value in self.__dict__.items() if var_value is None]
         raise NotImplementedError(f"Error is not healthy. Please fill these variables: {[missing_instance_variables]}")
         

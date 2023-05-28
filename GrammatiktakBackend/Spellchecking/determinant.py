@@ -63,5 +63,4 @@ class determinantCorrector():
             except: continue
             if should_be_fælleskøn != is_fælleskøn:
                 error_messages.append(self.create_determinant_error_message(det, noun, uncleaned_words, pair[0], should_be_fælleskøn))
-        print(ErrorList(error_messages).to_list())
         return move_index_based_on_br(ErrorList(error_messages), sentence)
