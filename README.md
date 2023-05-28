@@ -6,7 +6,7 @@
 
 ## What is GrammatikTAK?
 
-Working on becoming the best grammar assistant for nordic languages. With a combination of NLP, AI and Linguists, this erpo has been developed.
+Working on becoming the best grammar assistant for nordic languages with a combination of NLP, AI and Linguists.
 
 This currently only corrects danish text at [**GrammatikTAK.com.**](https://www.grammatiktak.com) Models and datasets are not included in this repo.
 
