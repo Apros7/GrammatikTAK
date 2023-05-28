@@ -163,6 +163,7 @@ class Misspeller():
         self.silent_d(word)
         self.silent_h(word)
         self.other_silent(word)
+        self.missing_s(word)
         self.wrong_vocal(word)
         self.clean_permutations(word)
         return list(set(self.permutations))
