@@ -105,9 +105,9 @@ class ErrorList():
             raise ValueError(f"ErrorList is not healthy. Some errors have missing values.")
 
     def convert_lists_to_errors(self):
-        if len(self.errors) == 0: return 
         self.errors = [error for error in self.errors if error is not None] 
-        if isinstance(self.errors[0], Error): return
+        if len(self.errors) == 0: return None
+        if isinstance(self.errors[0], Error): return None
         if len(self.errors[0]) != 5:
             raise ValueError(f"The errors list should have 5 columns, not {len(self.errors[0])}. Did you remember to: .to_list(include_type=True)?")
         self.errors = [Error(error[0], error[1], error[2], error[3], error[4]) for error in self.errors]

@@ -94,6 +94,7 @@ time_tracker.complete_reset()
 # message = "Super sejt, Simon Gaarde. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ, stolt."
 # message = "Træner teamet Mathilde Pugholm Hvid, Nichlas Fonnesbech & Bastian Løve Høegh - Jeg tror ikke helt I ved, hvor KÆMPE en forskel I gør - TUSIND TAK🙏🙏."
 # message = "jeg heder lucas. jeg har fødseldag idag"
+# message = "Jeg håber ikke, at du skulle vente så lang tid på, at den blev færdig."
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # check_if_index_is_correct(errors1, message)
