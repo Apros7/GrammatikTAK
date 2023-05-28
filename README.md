@@ -1,7 +1,7 @@
 <div align="center">
-
+<br>
 <img src="LogoText.png" alt="Logo">
-
+<br>
 </div>
 
 ## What is GrammatikTAK?
