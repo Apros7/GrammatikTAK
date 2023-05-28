@@ -133,13 +133,16 @@ class Misspeller():
         silent_letters_dict = {"nt":"n", "st": "s", "et": "e", "lv": "l", "vt": "v"}
         reverse_silent_letters_dict = reverse_dict(silent_letters_dict)
         self.permutate(word, silent_letters_dict, reverse_silent_letters_dict)
-
         silent_letters = ["g", "t", "v"]
-
         for i in range(len(word) + 1):
             for letter in silent_letters:
                 new_word = word[:i] + letter + word[i:]
                 self.permutations.append(new_word)
+
+    def missing_s(self, word):
+        for i, letter in enumerate(word):
+            if letter == "s":
+                self.permutations.append(word[:i] + word[i+1:])
     
     def wrong_vocal(self, word): 
         wrong_vocal_dict = {"a": ["æ", "e"], "e": ["æ", "i"], "o": "u", "ø": "y", "æ": "i", "å": ["u", "o"]}
