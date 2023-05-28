@@ -20,11 +20,14 @@ print(time.time() - start)
 
 start = time.time()
 
-os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/")
-
 df_misspellings = pd.read_csv("misspellings_dict.csv")
+words = df_misspellings["word"].tolist()
+misspellings = df_misspellings["misspellings"].tolist()
+
+misspelling_dict = {word: misspelling for word, misspelling in zip(words, misspellings)}
 
 print(time.time() - start)
+
 
 larger_than_two = {k:v for (k, v) in misspelling_dict.items() if len(v) > 1}
 rnumbers = [random.randint(0, len(larger_than_two)) for _ in range(10)]

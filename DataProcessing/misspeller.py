@@ -57,6 +57,8 @@ for k, v in tqdm(misspelling_dict.items()):
     misspelling_dict[k] = list(set(v))
 
 import pickle
+import json
+import yaml
 
 keys = list(misspelling_dict.keys())
 values = list(misspelling_dict.values())
@@ -64,5 +66,8 @@ values = list(misspelling_dict.values())
 df = pd.DataFrame({"word": keys, "misspellings": values})
 df.to_csv("misspellings_dict.csv", index=False)
 
-with open("misspellings_dict.pkl", "wb") as file:
+with open("misspellings_dict.pickle", "wb") as file:
     pickle.dump(misspelling_dict, file)
+
+with open("dictionary.pickle", "wb") as file:
+    pickle.dump(dictionary, file)
