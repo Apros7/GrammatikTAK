@@ -1,17 +1,79 @@
 
 
-let service_url = "http://127.0.0.1:5000/";
-// let service_url = "https://backend1-2f53ohkurq-ey.a.run.app";
+// let service_url = "http://127.0.0.1:5000/";
+let service_url = "https://backend1-2f53ohkurq-ey.a.run.app";
 //let errors = [["he", "hej", 0, "beskrivelse"], ["heder", "hedder", 2, "beskrivelse"], ["lucas", "Lucas", 3, "beskrivelse"]]
 
 
 let errors = []
-let originalText = "dette er din tekst"
+let originalText = "Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl, og andre grammatiske fejl .<br><br>Vi retter også egenavne som københavn og erik.<br>Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser."
+originalText = "Stavefejl og andre grammatiske fejl kan påvirke din troværdighed. GrammatikTAK hjælper dig med at finde dine stavefejl, og andre grammatiske fejl .<br><br>Vi retter også egenavne som københavn og erik.<div>Så er du sikker på at din tekst er grammatisk korrekt og at du dermed giver den bedste indtryk på din læser.</div>"
+let originalWords = []
 
 async function get_text() {
   var text = await chrome.storage.local.get(["word"]).then((result) => {
     originalText = result.word;
   });
+  await set_text_and_words()
+}
+
+async function set_text_and_words() {
+  let html = originalText.replace(/<span[^>]*>/g, '').replace(/<\/span>/g, '');
+  html = html.replace(/<div>/g, match => {
+    return "<br>"
+  });
+  html = html.replace(/<\/div>/g, '');
+  html = html.replace(/&nbsp;/g, '');
+  originalText = html
+  originalWords = splitWords(html)
+}
+
+function splitWords(sentence) {
+  sentence = sentence.replace(/<span[^>]*>/g, '').replace(/<\/span>/g, '');
+  let words = sentence.split(' '); 
+  let true_words = [];
+  let result = []; 
+  const symbols = ".,!?\";:"
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+    if (symbols.includes(word[0]) || symbols.includes(word[-1])) {
+      if (i == 0) {
+        words[1] = word + " " + words[i]
+      } else {
+        const lastElement = true_words[true_words.length - 1]
+        let elements = [lastElement]
+        let pushWord = ""
+        if (symbols.includes(word[0])) {
+          elements.push(word[0]) 
+          pushWord = word.substring(1)
+        } else {
+          elements.push(word[-1])
+          pushWord = word.substring(0, word.length - 1)
+        }
+        true_words.splice(true_words.length - 1, 1, elements.join(" "))
+        true_words.push(pushWord)
+      }
+    } else {
+      true_words.push(word)
+    }
+  }
+  for (let i = 0; i < true_words.length; i++) {
+    const word = true_words[i];
+    if (word.includes('<br>')) { 
+      const [left, right] = word.split('<br>');
+      if (left === "" || right === "") {
+        result.push(word)
+      } else {
+        result.push(left + '<br>'); 
+        result.push(right); 
+      }
+    } else {
+      result.push(word); 
+    }
+  }
+  console.log(result)
+  result = result.filter(str => str !== "");
+  return result; 
 }
 
 const copyButton = document.querySelector(".copy-button");
@@ -43,13 +105,14 @@ async function fetchData() {
 
 async function main() {
 
-
+  console.log(originalText)
+  console.log(originalWords)
   await fetchData();
   console.log("Fetch is complete!");
 
   let corrected_errors = []
 
-const words = originalText.split(" ");
+const words = originalWords
 const newLineIndices = [];
 for (let i = 0; i < words.length - 1; i++) {
   if (words[i] === "" && words[i + 1] === "") {
