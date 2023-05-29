@@ -61,7 +61,6 @@ class NutidsRCorrector():
         return is_nutids_r
 
     def make_dataset(self, verbs_to_check, pos, words):
-        print(words)
         pos_with_padding = ["<PAD>"]*self.left_padding + [p[0] for p in pos] + ["<PAD>"]*self.right_padding
         dataset = []
         at_indexes = []
@@ -72,14 +71,11 @@ class NutidsRCorrector():
             if not verbs_to_check[i]:
                 continue
 
-            print(word, words[i-1], words[i-1][-1])
-
             if word[-1] == "s" or pos_with_padding[i+self.left_padding] != "VERB":
                 skipped_indexes.append(i)
                 continue
 
             if words[i-1].lower().strip() == "og" or words[i-1][-1] == ",": 
-                print(words)
                 skipped_indexes.append(i)
                 continue
 

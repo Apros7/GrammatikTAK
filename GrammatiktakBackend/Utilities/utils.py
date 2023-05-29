@@ -81,16 +81,20 @@ def count_spaces_before_after_br(br_indexes, sentence):
     return spaces_dict
 
 # This function is used to check if the index from a module is correct
-def check_if_index_is_correct(errors, sentence):
+def check_if_index_is_correct(errors, sentence, info=True):
     should_be = [errors[i][0] for i in range(len(errors))]
     actual = [sentence[errors[i][2][0]:errors[i][2][1]] for i in range(len(errors))]
+    states = []
     for i in range(len(should_be)):
-        print("Should be: ", should_be[i], ". Actual: ", actual[i], ". Equal?: ", should_be[i] == actual[i])
-    
-    print("BE AWARE:")
-    print("If you use this function directly in your script it might return False even though your function works perfectly!")
-    print("Instead, launch the GrammatikTAK website locally, hook it up to your backend, and try it out.")
-    print("This is due to some features in the front that changes the html code to fit.")
+        states.append(should_be[i].lower() == actual[i].lower())
+        if info: print("Should be: ", should_be[i], ". Actual: ", actual[i], ". Equal?: ", should_be[i] == actual[i])
+
+    if info:
+        print("BE AWARE:")
+        print("If you use this function directly in your script it might return False even though your function works perfectly!")
+        print("Instead, launch the GrammatikTAK website locally, hook it up to your backend, and try it out.")
+        print("This is due to some features in the front that changes the html code to fit.")
+    return all(states)
 
 # This function is used to test a new module:
 
