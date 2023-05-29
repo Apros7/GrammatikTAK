@@ -1,4 +1,5 @@
 from google.cloud import datastore
+import time
 
 # used to save text, spellingerrors and feedback to Google Cloud Firestore
 
@@ -17,6 +18,9 @@ class FirestoreClient():
         num_entities = (len(input_bytes) + max_bytes_per_entity - 1) // max_bytes_per_entity
         input_entity = datastore.Entity(self.client.key(kind))
         input_entity_dict = {}
+
+        time_string = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
+        input_entity_dict["time"] = time_string
 
         for i in range(num_entities):
             start = i * max_bytes_per_entity
