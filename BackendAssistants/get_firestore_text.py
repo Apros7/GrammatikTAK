@@ -6,7 +6,7 @@ os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/BackendAssistants/data_review_
 
 class FirestoreClient():
     def __init__(self):
-        key_path = "Keys/serviceAccountKey.json"
+        key_path = "../Keys/serviceAccountKey.json"
         self.client = datastore.Client.from_service_account_json(key_path)
         self.kinds = ["Backend-alltext", "Feedback"]
         self.KIND = ""
@@ -43,7 +43,9 @@ class FirestoreClient():
         for entity in entities:
             cleaned_entity = {}
             for key, value in sorted(entity.items()):
-                true_key = key[:-1] if key not in ["feedback", "text"] else key
+                true_key = key[:-1] if key[-1].isdigit() else key
+                if not any([true_key == kind for kind in ["feedback", "text", "state", "time"]]):
+                    continue
                 if true_key in cleaned_entity:
                     cleaned_entity[true_key] += value
                 else:
@@ -53,9 +55,15 @@ class FirestoreClient():
         no_empty_dicts = self.add_keys_if_does_not_exist(no_duplicates)
         return no_empty_dicts
 
-    def tag_entities(self, entities):
+    def tag_entities(self, entities, kind):
         for entity in entities:
-            entity["state"] = "new"
+            if kind == "Backend-alltext":
+                if "time" not in entity:
+                    entity["time"] = "unknown"
+                if "state" in entity:
+                    del entity['time']
+            elif kind == "Feedback":
+                entity["state"] = "new"
         return entities
 
     def save_entities_to_csv(self, kind):
@@ -69,7 +77,7 @@ class FirestoreClient():
         else: 
             all_entities = entities
         cleaned_entities = self.clean_entities(all_entities)
-        tagged_entities = self.tag_entities(cleaned_entities)
+        tagged_entities = self.tag_entities(cleaned_entities, kind)
         json.dump(tagged_entities, open("datastore/" + kind + ".json", "w"), indent=4, ensure_ascii=False)
         
     def delete_all_entries(self, kind):
