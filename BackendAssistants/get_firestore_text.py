@@ -2,6 +2,8 @@ from google.cloud import datastore
 import json
 import os
 
+os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/BackendAssistants/data_review_site")
+
 class FirestoreClient():
     def __init__(self):
         key_path = "Keys/serviceAccountKey.json"
@@ -41,7 +43,7 @@ class FirestoreClient():
         for entity in entities:
             cleaned_entity = {}
             for key, value in sorted(entity.items()):
-                true_key = key[:-1]
+                true_key = key[:-1] if key not in ["feedback", "text"] else key
                 if true_key in cleaned_entity:
                     cleaned_entity[true_key] += value
                 else:
@@ -51,17 +53,24 @@ class FirestoreClient():
         no_empty_dicts = self.add_keys_if_does_not_exist(no_duplicates)
         return no_empty_dicts
 
+    def tag_entities(self, entities):
+        for entity in entities:
+            entity["state"] = "new"
+        return entities
+
     def save_entities_to_csv(self, kind):
         entities = self.get_all_text(kind)
         self.check_kind(kind)
-        filepath = "Firestore/" + kind + ".json"
+        filepath = "datastore/" + kind + ".json"
         if os.path.exists(filepath):
-            earlier_entities = list(json.load(open("Firestore/" + kind + ".json")))
+            earlier_entities = list(json.load(open("datastore/" + kind + ".json")))
+            print("Reading file...")
             all_entities = list(entities) + earlier_entities
         else: 
             all_entities = entities
         cleaned_entities = self.clean_entities(all_entities)
-        json.dump(cleaned_entities, open("Firestore/" + kind + ".json", "w"), indent=4, ensure_ascii=False)
+        tagged_entities = self.tag_entities(cleaned_entities)
+        json.dump(tagged_entities, open("datastore/" + kind + ".json", "w"), indent=4, ensure_ascii=False)
         
     def delete_all_entries(self, kind):
         self.check_kind(kind)
