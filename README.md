@@ -25,12 +25,11 @@ The rise in NLP and AI has greatly affected popular languages, their respective 
 
 Here is a small overview of the most important directories:
 
-* DataCreation: A tool for getting data from wikipedia, correct it, and save it.
-* DataProcessing: Notebooks for converting text to datasets.
-* Use&FineTuneModels: For training BERT models and experimenting with using other models in the main script.
-* GoogleAppEngine: (Not used anymore) Google App Engine script to run backend.
+* BackendAssistants: Scripts for analysing the backend performance & complexity.
+* DataProcessing: Scripts & notebooks for converting text to datasets.
+* FineTuneModels: Scripts for finetuning models and logging performance
 * GoogleDocsAddOn: Scripts for the GrammatikTAK Google Docs Add-on
-* GoogleExtension: Scripts for the GrammatikTAK Google Extension
-* GrammatiktakFlask (outdated) : main.py is the backend currently running on Google Cloud Engine
+* GoogleExtension: Scripts for the GrammatikTAK Google Extension (not finished)
 * GrammatiktakBackend: development of backend 2.0. main.py is the backend. Currently used.
-* GrammatiktakTestDatasets: Datasets that have been used specifically to test modules. Accuracy is in the corresponding readme.
+* Other: Powerpoints
+* TestingOtherModels: Scripts for testing models from other people to use or compare with.
