@@ -10,7 +10,7 @@ class CapitalizationCorrector:
 
     # creates comma error message
     def create_capitalization_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
-        error_description = f"'{word_to_correct.title()}' skal starte med stort, da det er starten på en ny sætning." if missing_capitalization else f"'{word_to_correct.title()}' skal ikke starte med stort."
+        error_description = "'$right' skal starte med stort, da det er starten på en ny sætning." if missing_capitalization else "'$right' skal ikke starte med stort."
         error_type = "add_cap" if missing_capitalization else "del_cap"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if missing_capitalization:
@@ -21,7 +21,7 @@ class CapitalizationCorrector:
     
     # creates I/i error message
     def create_i_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
-        error_description = f"'{word_to_correct.title()}' skal starte med stort, da det står i stedet for nogen." if missing_capitalization else f"'{word_to_correct}' skal ikke starte med stort."
+        error_description = "'$right' skal starte med stort, da det står i stedet for nogen." if missing_capitalization else "'$right' skal ikke starte med stort."
         error_type = "add_cap" if missing_capitalization else "del_cap"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if missing_capitalization:
@@ -32,7 +32,7 @@ class CapitalizationCorrector:
 
     # create NER error
     def create_ner_error_message(self, word_to_correct, indexes) -> list:
-        error_description = f"'{word_to_correct.title()}' skal starte med stort, da det er et egenavn."
+        error_description = "'$right' skal starte med stort, da det er et egenavn."
         error_type = "add_cap"
         wrong_word, right_word = word_to_correct, word_to_correct.title()
         return Error(wrong_word, right_word, indexes, error_description, error_type)
@@ -53,9 +53,7 @@ class CapitalizationCorrector:
         return ErrorList(error_messages_missing_capitalization + error_messages_wrong_capitalization)
 
     def check_ner_interval(self, interval_to_check, ner_intervals, word):
-        print(interval_to_check, word)
         interval_to_check = self.correct_interval_from_emojies(word, interval_to_check)
-        print(interval_to_check, word)
         ner_intervals = np.array(ner_intervals)
         if np.size(ner_intervals) == 0:
             return False

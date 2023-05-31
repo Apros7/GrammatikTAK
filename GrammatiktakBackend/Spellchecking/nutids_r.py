@@ -198,17 +198,6 @@ class NutidsRCorrector():
                 errors.append(error)
         return ErrorList(errors)
 
-    def get_stats(self, verbs_to_check, should_be_nutidsr):
-        stats = {"Guesses": 0, "No guesses": 0, "Time": time.time() - self.start_time}
-        for verb_to_check, should_be in zip(verbs_to_check, should_be_nutidsr):
-            if not verb_to_check:
-                continue
-            if should_be is None:
-                stats["No guesses"] += 1
-            else:
-                stats["Guesses"] += 1
-        return stats
-
     def correct(self, sentence, pos, get_stats=False):
         self.start_time = time.time()
         words = prepare_sentence(sentence, lowercase=True)
@@ -216,10 +205,4 @@ class NutidsRCorrector():
         is_nutids_r = self.is_verbs_nutids_r(words, verbs_to_check)
         should_be_nutidsr = self.should_verb_be_nutidsr(verbs_to_check, pos, words)
         errors = self.make_error_messages(words, should_be_nutidsr, is_nutids_r, verbs_to_check)
-
-        if get_stats:
-            stats = self.get_stats(verbs_to_check, should_be_nutidsr)
-            return move_index_based_on_br(errors, sentence), stats
-
         return move_index_based_on_br(errors, sentence)
-

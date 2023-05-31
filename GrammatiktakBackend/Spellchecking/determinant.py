@@ -33,10 +33,8 @@ class determinantCorrector():
         self.change_determinant = {"en": "et", "et": "en", "den": "det", "det": "den"}
     
     def is_determinant_fælleskøn(self, det):
-        if det in ["en", "den"]:
-            return True
-        elif det in ["et", "det"]: 
-            return False
+        if det in ["en", "den"]: return True
+        elif det in ["et", "det"]: return False
         return None
     
     def create_determinant_error_message(self, word_to_correct, noun, all_words_from_sentence, index_of_word_in_all_words, fælleskøn) -> list:

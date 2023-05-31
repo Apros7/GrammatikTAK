@@ -68,7 +68,7 @@ def check_if_list_of_errorList(lst):
     return isinstance(lst, list) and all(isinstance(item, ErrorList) for item in lst)
 
 # Main function for error concatenation
-def error_concatenator(errors, errors_to_project_onto_others):
+def error_concatenator(errors, errors_to_project_onto_others, include_type=False):
     """
     Return sorted, listed and concatenated ErrorList
     """
@@ -95,7 +95,7 @@ def error_concatenator(errors, errors_to_project_onto_others):
             first_error = project_error([first_error], additional_error)[0]
         final_errors.append(first_error)
 
-    return ErrorList(final_errors).to_list()
+    return ErrorList(final_errors).to_list(include_type=include_type, finalize=True)
 
 class ErrorList():
     def __init__(self, lst) -> None:
@@ -143,11 +143,11 @@ class ErrorList():
             return NotImplementedError("Can only add ErrorList + ErrorList")
         return ErrorList(self.errors + other.errors)
     
-    def to_list(self, include_type=False):
-        errors_to_list = [error.to_list(include_type) for error in self.errors]
+    def to_list(self, include_type=False, finalize=False):
+        if finalize: errors_to_list = [error.to_finalized_list() for error in self.errors]
+        else: errors_to_list = [error.to_list(include_type) for error in self.errors]
         true_errors = [error for error in errors_to_list if error is not None]
         return list(self.sort(true_errors))
-
 
 class Error():
     def __init__(self, wrong_word: str = None, right_word: str = None, indexes: list = None, description: str = None, type: str = None) -> None:
@@ -161,27 +161,33 @@ class Error():
         return Error(lst[0], lst[1], lst[2], lst[3], lst[4])
 
     def set_type(self, type):
-        if type is None:
-            pass
-        elif type not in approved_types:
-            raise ValueError(f"Type must be in {approved_types}")
+        if type is None: pass
+        elif type not in approved_types: raise ValueError(f"Type must be in {approved_types}")
         self.__type = type
 
     def get_type(self):
         return self.__type
 
+    def get_description(self):
+        """
+        This function should be used on errors in concat_errors
+        """
+        if self.right_word[-1] in ",.!?":
+            return self.description.replace("$wrong", self.wrong_word).replace("$right", self.right_word[:-1])
+        return self.description.replace("$wrong", self.wrong_word).replace("$right", self.right_word)
     def is_healthy(self):
-        if len([var_name for var_name, var_value in self.__dict__.items() if var_value is None]) == 0:
-            return True
+        if len([var_name for var_name, var_value in self.__dict__.items() if var_value is None]) == 0: return True
         return False
 
     def to_list(self, include_type=False):
         if self.is_healthy():
-            if self.wrong_word == self.right_word:
-                return None
+            if self.wrong_word == self.right_word: return None
             if include_type:
                 return [self.wrong_word, self.right_word, self.indexes, self.description, self.get_type()]
             return [self.wrong_word, self.right_word, self.indexes, self.description]
         missing_instance_variables = [var_name for var_name, var_value in self.__dict__.items() if var_value is None]
         raise NotImplementedError(f"Error is not healthy. Please fill these variables: {[missing_instance_variables]}")
+
+    def to_finalized_list(self):
+        return [self.wrong_word, self.right_word, self.indexes, self.get_description()]
         

@@ -51,7 +51,7 @@ class PunctuationCorrector():
 
     # creates comma error message
     def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> Error():
-        error_description = f"Der skal ikke være komma efter '{word_to_correct[:-1]}'." if remove else f"Der skal være komma efter '{word_to_correct}'."
+        error_description = f"Der skal ikke være komma efter '$right'." if remove else f"Der skal være komma efter '$right'."
         error_type = "del_punc" if remove else "add_punc"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         if remove:
@@ -62,7 +62,7 @@ class PunctuationCorrector():
     
     # creates full stop error message
     def create_full_stop_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words) -> Error():
-        error_description = f"Der skal være punktum efter '{word_to_correct}', da det er det sidste ord i sætningen."
+        error_description = f"Der skal være punktum efter '$right', da det er det sidste ord i sætningen."
         error_type = "add_punc"
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         wrong_word, right_word  = word_to_correct, word_to_correct + "."
