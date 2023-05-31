@@ -1,6 +1,8 @@
 from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
 from Utilities.error_handling import Error, ErrorList
 import numpy as np
+import emoji
+import string
 
 class CapitalizationCorrector:
     def __init__(self) -> None:
@@ -50,19 +52,32 @@ class CapitalizationCorrector:
         error_messages_wrong_capitalization = [self.create_i_error_message(words[i], words, i, False) for i in range(len(words)) if is_capitalized_i[i] and not should_be_capitalized[i]]
         return ErrorList(error_messages_missing_capitalization + error_messages_wrong_capitalization)
 
-    def check_ner_interval(self, interval_to_check, ner_intervals):
+    def check_ner_interval(self, interval_to_check, ner_intervals, word):
+        print(interval_to_check, word)
+        interval_to_check = self.correct_interval_from_emojies(word, interval_to_check)
+        print(interval_to_check, word)
         ner_intervals = np.array(ner_intervals)
         if np.size(ner_intervals) == 0:
             return False
         mask = (ner_intervals[:, 0] <= interval_to_check[0]) & (ner_intervals[:, 1] >= interval_to_check[1])
         return np.any(mask)
 
+    def correct_interval_from_emojies(self, word, interval):
+        while len(word) > 0 and word[-1] in string.punctuation: word = word[:-1]; interval[1] -= 1
+        if len(word) == 0: return interval
+        i, char = 0, word[0]
+        while i < len(word)-1 and emoji.is_emoji(char): interval[0] += 1; i += 1; char = word[i]
+        i, char = -1, word[-1]
+        while abs(i) < len(word) and emoji.is_emoji(char): interval[1] -= 1; i -= 1; char = word[i]
+        while abs(i) < len(word) and emoji.is_emoji(word[i-1:]) or emoji.is_emoji(word[i-1:i+1]): interval[1] -= 2; i -= 2
+        return interval
+
     # finds capitalization errors with NER not being capitalized
     def find_ner_errors(self, sentence, ner_tags) -> list:
         words = prepare_sentence(sentence, lowercase=False)
         previous_capitalization = [True if word[0].isupper() else False for word in words]
         ner_indexes = [tag[1] for tag in ner_tags]
-        ner_words = [(True, (find_index(words, i, words[i]))) if self.check_ner_interval(find_index(words, i, words[i]), ner_indexes) else (False, []) for i in range(len(words))]
+        ner_words = [(True, (find_index(words, i, words[i]))) if self.check_ner_interval(find_index(words, i, words[i]), ner_indexes, words[i]) else (False, []) for i in range(len(words))]
         error_messages_missing_capitalization = [self.create_ner_error_message(words[i], ner_words[i][1]) for i in range(len(words)) if ner_words[i][0] and not previous_capitalization[i]]
         return ErrorList(error_messages_missing_capitalization)
 
@@ -80,7 +95,7 @@ class CapitalizationCorrector:
         is_i = [True if word.lower() == "i" else False for sent in words_for_every_sentence for word in sent]
         ner_indexes = [tag[1] for tag in ner_tags]
         # i and NER and all upper words should be skipped
-        skip_word = [True if self.check_ner_interval(find_index(words, i, words[i]), ner_indexes) or is_i[i] or words[i].isupper() else False for i in range(len(words))]
+        skip_word = [True if self.check_ner_interval(find_index(words, i, words[i]), ner_indexes, words[i]) or is_i[i] or words[i].isupper() else False for i in range(len(words))]
         # if there is a full stop and the word is not capitalize´
         error_missing_capitalization = [True if (full_stop[i] or first_word_in_sentence[i+1]) and not previous_capitalization[i+1] and not skip_word[i+1] else False for i in range(len(words)-1)]
         # Needs to take care of first word: correct if not capitalized

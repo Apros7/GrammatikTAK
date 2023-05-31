@@ -1,11 +1,12 @@
 import stanza
-from danlp.models import load_bert_ner_model
+from transformers import pipeline
 import emoji
+import pandas as pd
 
 from Utilities.utils import prepare_sentence
 
 def load_tagger_models():
-    ner_model = load_bert_ner_model()
+    ner_model = pipeline(task='ner', model='saattrupdan/nbailab-base-ner-scandi', aggregation_strategy='first')
     pos_model = stanza.Pipeline("da", processors='tokenize,pos', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
     return ner_model, pos_model
 
@@ -55,21 +56,8 @@ class Tagger():
         results = [(word.upos, [word.start_char, word.end_char], feature_dicts[i]) for sentence in doc.sentences for i, word in enumerate(sentence.words)]
         return results
     
-    def get_ner_tags(self, sentence):
+    def move_ner_tags_by_emoji(self, namedEntities, sentence):
         emoji_indexes = find_emoji_indexes(sentence)
-        emoji_free_sentence = strip_emojis(sentence)
-        words = prepare_sentence(emoji_free_sentence)
-        result = self.ner_tagger.predict(words, IOBformat=False)
-        namedEntities = [(ent["text"], [ent["start_pos"], ent["end_pos"]]) for ent in result["entities"]]
-        #words = prepare_sentence(sentence)
-        # previous_sentences_len = 0
-        # namedEntities = []
-        # step_size = 100
-        # for i in range(0, len(words), step_size):
-        #     result = self.ner_tagger.predict(words[i:i+step_size], IOBformat=False)
-        #     namedEntities += [(ent["text"], [ent["start_pos"] + previous_sentences_len, ent["end_pos"] + previous_sentences_len]) for ent in result["entities"]]
-        #     previous_sentences_len += len(" ".join(words[i:i+step_size])) + 1
-
         for namedEntity in namedEntities:
             for emoji_index in emoji_indexes:
                 if emoji_index < namedEntity[1][0]:
@@ -78,6 +66,16 @@ class Tagger():
                 elif emoji_index < namedEntity[1][1]:
                     namedEntity[1][1] += 1
         return namedEntities
+    
+    def get_ner_tags(self, sentence):
+        emoji_free_sentence = strip_emojis(sentence)
+        result = self.ner_tagger.predict(emoji_free_sentence)
+        print(pd.DataFrame.from_records(result))
+        namedEntities = [(ent["word"], [ent["start"], ent["end"]]) for ent in result]
+        no_misc_entities = [namedEntity for i, namedEntity in enumerate(namedEntities) if result[i]["entity_group"] != "MISC"]
+        print(*no_misc_entities, sep="\n")
+        emoji_corrected_entities = self.move_ner_tags_by_emoji(no_misc_entities, sentence)
+        return emoji_corrected_entities
     
     # run this function to get all tags
     def get_tags(self, sentence):
