@@ -14,11 +14,11 @@ This currently only corrects danish text at [**GrammatikTAK.com.**](https://www.
 The rise in NLP and AI has greatly affected popular languages, their respective grammar assistants and NLP work. The nordic, especially danish, are sadly way behind. This repo is hopefully going to help cover some basic NLP needs and make a great danish, an potential nordic, grammar assistant.
 
 ## Design principles
-**GrammatikTAK** is:
+I focus on making **GrammatikTAK**:
 
 - **Simple**: Build in [modules](https://github.com/Apros7/GrammatikTAK/tree/main/GrammatiktakBackend), a module can easily be replaced, reworked or even deleted without affecting other modules.
-- **Adaptable**: Although speed is important, we focus on adaptability and readability over speed.
-- **Well-tested**: Every module is [well-tested](https://github.com/Apros7/GrammatikTAK/tree/main/FineTuneModels) to secure a high accuracy.
+- **Adaptable**: Although speed is important, I focus on adaptability and readability over speed.
+- **Well-tested**: I have tried to do [extensive testing](https://github.com/Apros7/GrammatikTAK/tree/main/FineTuneModels) to my models to secure a high accuracy.
 
 
 ## Directories:
