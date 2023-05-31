@@ -17,7 +17,7 @@ The rise in NLP and AI has greatly affected popular languages, their respective 
 I focus on making **GrammatikTAK**:
 
 - **Simple**: Build in [modules](https://github.com/Apros7/GrammatikTAK/tree/main/GrammatiktakBackend), a module can easily be replaced, reworked or even deleted without affecting other modules.
-- **Adaptable**: Although speed is important, I focus on adaptability and readability over speed.
+- **Adaptable**: Although speed is important, I have focused on adaptability and readability over speed.
 - **Well-tested**: I have tried to do [extensive testing](https://github.com/Apros7/GrammatikTAK/tree/main/FineTuneModels) to my models to secure a high accuracy.
 
 
