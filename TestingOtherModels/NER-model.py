@@ -68,6 +68,7 @@ timeTracker = TimeTracker()
 
 def find_cap_words1(sentence):
     result = ner(sentence)
+    print(pd.DataFrame.from_records(result))
     namedEntities = [row["word"] for row in result]
     return namedEntities
 
@@ -86,6 +87,14 @@ def find_cap_words3(sentence):
     namedEntities = [row["word"] for row in result]
     return namedEntities
 
+def get_score(namedEntities):
+    score = len([item for item in namedEntities if item.strip(",") in NER]) / len(namedEntities)
+    errors = [item for item in namedEntities if item.strip(",") not in NER]
+    missed = [item for item in NER if item not in namedEntities]
+    # print("SCORE: ", score)
+    # print("ERRORS: ", *errors, sep="\n")
+    # print("MISSED: ", *missed, sep="\n")
+
 timeTracker.track("Ælectra model")
 
 
@@ -98,14 +107,17 @@ Start din dag med en lækker morgenmad på det populære cafésted, "Smørrebrø
 Hvis du er kunstinteresseret, bør du besøge "ARoS", byens berømte kunstmuseum, der huser værker af både danske og internationale kunstnere. Efter en kulturel oplevelse kan du tage en shoppingtur i "Strøget", Aarhus' mest populære shoppinggade, hvor du finder butikker som "H&M", "Magasin" og "Illum".
 """
 
-NER = ["Aarhus", "Østjylland", "Smørrebrødsbaren", "Aarhus Havn", "Aarhus Ø", "Innovatech", 
+NER = ["Aarhus", "Østjylland-kysten", "Smørrebrødsbaren", "Aarhus Havn", "Aarhus Ø", "Innovatech", 
         "Aarhus Shipping", "ARoS", "Strøget", "Magasin", "H&M", "Illum", "Aarhus'"]
 
 print("NER scandi: ")
-print(find_cap_words1(sentence))
+ner_scandi = find_cap_words1(sentence)
+get_score(ner_scandi)
 print("Current model: ")
-print(find_cap_words2(sentence))
+current_model = find_cap_words2(sentence)
+get_score(current_model)
 print("Ælectra model: ")
-print(find_cap_words3(sentence))
+electra = find_cap_words3(sentence)
+get_score(electra)
 
 print(timeTracker())
