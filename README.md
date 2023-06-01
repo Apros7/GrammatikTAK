@@ -14,23 +14,22 @@ This currently only corrects danish text at [**GrammatikTAK.com.**](https://www.
 The rise in NLP and AI has greatly affected popular languages, their respective grammar assistants and NLP work. The nordic, especially danish, are sadly way behind. This repo is hopefully going to help cover some basic NLP needs and make a great danish, an potential nordic, grammar assistant.
 
 ## Design principles
-**GrammatikTAK** is:
+I focus on making **GrammatikTAK**:
 
 - **Simple**: Build in [modules](https://github.com/Apros7/GrammatikTAK/tree/main/GrammatiktakBackend), a module can easily be replaced, reworked or even deleted without affecting other modules.
-- **Adaptable**: Although speed is important, we focus on adaptability and readability over speed.
-- **Well-tested**: Every module is [well-tested](https://github.com/Apros7/GrammatikTAK/tree/main/FineTuneModels) to secure a high accuracy.
+- **Adaptable**: Although speed is important, I have focused on adaptability and readability over speed.
+- **Well-tested**: I have tried to do [extensive testing](https://github.com/Apros7/GrammatikTAK/tree/main/FineTuneModels) to my models to secure a high accuracy.
 
 
 ## Directories:
 
 Here is a small overview of the most important directories:
 
-* DataCreation: A tool for getting data from wikipedia, correct it, and save it.
-* DataProcessing: Notebooks for converting text to datasets.
-* Use&FineTuneModels: For training BERT models and experimenting with using other models in the main script.
-* GoogleAppEngine: (Not used anymore) Google App Engine script to run backend.
+* BackendAssistants: Scripts for analysing the backend performance & complexity.
+* DataProcessing: Scripts & notebooks for converting text to datasets.
+* FineTuneModels: Scripts for finetuning models and logging performance
 * GoogleDocsAddOn: Scripts for the GrammatikTAK Google Docs Add-on
-* GoogleExtension: Scripts for the GrammatikTAK Google Extension
-* GrammatiktakFlask (outdated) : main.py is the backend currently running on Google Cloud Engine
+* GoogleExtension: Scripts for the GrammatikTAK Google Extension (not finished)
 * GrammatiktakBackend: development of backend 2.0. main.py is the backend. Currently used.
-* GrammatiktakTestDatasets: Datasets that have been used specifically to test modules. Accuracy is in the corresponding readme.
+* Other: Powerpoints
+* TestingOtherModels: Scripts for testing models from other people to use or compare with.

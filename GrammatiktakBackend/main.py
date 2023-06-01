@@ -43,7 +43,7 @@ def correct_input(input, save=False):
     capitalization_errors = capitalize_corrector.correct(input, pos_tags, ner_tags)
     time_tracker.track("correct capitalization")
 
-    nutidsr_errors, stats = nutids_corrector.correct(input, pos_tags, get_stats=True)
+    nutidsr_errors = nutids_corrector.correct(input, pos_tags)
     time_tracker.track("nutids r")
 
     spelling_errors = spellchecker.correct(input)
@@ -53,7 +53,8 @@ def correct_input(input, save=False):
         firestore_client.save_input(input)
         time_tracker.track("saving to firestore")
 
-    final_errors = error_concatenator([determinant_errors, nutidsr_errors, spelling_errors], errors_to_project_onto_others=[punctuation_errors, capitalization_errors])
+    final_errors = error_concatenator([determinant_errors, nutidsr_errors, spelling_errors], 
+                                        errors_to_project_onto_others=[punctuation_errors, capitalization_errors])
 
     return final_errors
 
@@ -90,15 +91,17 @@ time_tracker.complete_reset()
 # message = "Hey. Jeg håber, at du nyder weekenden :smile:. Jeg har endelig fået lavet et fix til edit detection til web-anno. Jeg har lavet en PR med det. Hvis du vil approve og restarte serveren, så skal jeg nok nå så mange reviews, som jeg kan i løbet af i dag og i morgen."
 # message = "Jeg skal på arbejde d. 9. august 2022."
 # message = "hej jeg hedder lucas. hej jeg hedder lucas"
-# message = "Super sejt, Simon Gaarde💪. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ stolt🇩🇰🇩🇰🇩🇰. "
+# message = "Super sejt, Simon Gaarde💪💪💪. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ stolt🇩🇰🇩🇰🇩🇰. Jeg kan godt lide danske gulerødder 💪💪🚀"
 # message = "Super sejt, Simon Gaarde. Vi ved du kæmper til tårerne triller og hvor meget du giver afkald på, for at nå dine mål i vandet - du skal være SÅ, stolt."
 # message = "Træner teamet Mathilde Pugholm Hvid, Nichlas Fonnesbech & Bastian Løve Høegh - Jeg tror ikke helt I ved, hvor KÆMPE en forskel I gør - TUSIND TAK🙏🙏."
 # message = "jeg heder lucas. jeg har fødseldag idag"
 # message = "Jeg håber ikke, at du skulle vente så lang tid på, at den blev færdig."
 # message = "Så er vi tilbage på 0 på annotate. Jeg har sendt billeder af statistics. Jeg har også lavet en PE med nogle fixes, flere static filtre og evnen til at specificere om en person faller på videoen, sover og hvorvidt patienten har dyne på. Jeg kan vise mere i morgen. Er du på kontoret i morgen?"
-# errors1 = correct_input(message)
-# print(*errors1, sep="\n")
-# check_if_index_is_correct(errors1, message)
+# message = "9 mennesker boede på en gammel ø.. De havde en god ven"
+message = "idag har jeg fødseldag. Jeg har fødselsdag idag"
+errors1 = correct_input(message)
+print(*errors1, sep="\n")
+check_if_index_is_correct(errors1, message)
 
 time_tracker.track2("end")
 time_tracker(.5)
