@@ -8,21 +8,19 @@ const port = 3001;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Change path?
 const feedbackDataPath = './datastore/Feedback.json';
 
-// Load feedback from JSON file
 function loadFeedback() {
   const feedbackData = fs.readFileSync(feedbackDataPath, 'utf8');
   return JSON.parse(feedbackData);
 }
 
-// Save feedback to JSON file
 function saveFeedback(feedback) {
   const jsonContent = JSON.stringify(feedback, null, 4);
   fs.writeFileSync(feedbackDataPath, jsonContent, 'utf8');
 }
 
-// API endpoint to update feedback state
 app.post('/resolve-feedback', (req, res) => {
   const { index } = req.body;
   const feedback = loadFeedback();
@@ -36,7 +34,6 @@ app.post('/resolve-feedback', (req, res) => {
   }
 });
 
-// API endpoint to get feedback data
 app.get('/feedback', (req, res) => {
   const feedback = loadFeedback();
   res.json(feedback);
