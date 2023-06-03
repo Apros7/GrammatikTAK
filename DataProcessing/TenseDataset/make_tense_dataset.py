@@ -6,6 +6,10 @@ from tqdm import tqdm
 import time
 import numpy as np
 
+##############
+## OUTDATED ## 
+##############
+
 pos_model = stanza.Pipeline("da", processors='tokenize,pos,lemma', use_gpu=True, cache_directory='./cache', tokenize_pretokenized=True, n_process=4)
 
 current_dir = os.getcwd()
