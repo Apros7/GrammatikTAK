@@ -61,7 +61,7 @@ print("Tokenizing test...")
 x_test_tokenized = list(tokenizer(X_test))
 print("Done Tokenizing.")
 
-EPOCHS, BATCH_SIZE = 10, 128
+EPOCHS, BATCH_SIZE = 10, 64
 
 model = NutidsrModel()
 optimizer = optim.Adam(optim.get_parameters(model),lr=0.0002, b1=0.5)
@@ -103,8 +103,9 @@ def to_binary(o):
 
 def save_model(epoch):
     os.makedirs("simpleNNmodels", exist_ok=True)
+    params = model.get_parameters()
     with open("simpleNNmodels/nn1_epoch:"+str(epoch)+".pkl", "wb") as f:
-        pickle.dump(model, f)
+        pickle.dump(params, f)
 
 print("Accuracy before training: ")
 test_model()
