@@ -15,7 +15,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 
 ### Notes about training:
 - After epoch 2 the validation loss typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
-- Max data avaliable is 6.9 mil.
+- Max data avaliable is 6.9 mil. A potential data collection funnel could be created to gather more data and thereby increasing accuracy.
 - About 0.7% increase in accuracy with epoch 2, 0.05% increase with epoch 3, and decrease in accuracy with >3 epochs.
 
 ## Nutids-r Models
