@@ -46,6 +46,7 @@ class NutidsrModel(nn.Module):
         self.l4 = nn.Linear(64, 1)
         self.activation = nn.LeakyReLU(0.2)
         self.sigmoid = nn.Sigmoid()
+        print(self.l1.weight.dtype)
 
     def forward(self, x):
         x = self.l1(x)
@@ -90,6 +91,7 @@ def get_batch(x, y):
 def train_model(xb, yb):
     yb = torch.tensor(yb, dtype=torch.float32)
     optimizer.zero_grad()
+    xb = torch.tensor(xb, dtype=torch.float32)
     output = model.forward(xb)
     loss = loss_fn(output, yb)
     loss.backward()
@@ -98,26 +100,28 @@ def train_model(xb, yb):
 
 def test_model():
     accuracies = []
-    for i in tqdm(range(eval_steps)):
+    for _ in tqdm(range(eval_steps)):
         xb, yb = get_batch(x_test_tokenized, y_test)
-        xb = torch.tensor(xb)
+        xb = torch.tensor(xb, dtype=torch.float32)
         output = list(model.forward(xb))
-        accuracy = sum([1 if to_binary(o.numpy()) == y else 0 for (o,y) in zip(output, yb)])/len(output)
+        accuracy = sum([1 if to_binary(o) == y else 0 for (o,y) in zip(output, yb)])/len(output)
         accuracies.append(accuracy)
         del xb, yb, output, accuracy
     print("Eval accuracy: ", round(sum(accuracies)/len(accuracies)*100, 2), "%")
 
 def to_binary(o):
-    return 1 if o > 0.5 else 0
+    return 1 if float(o) > 0.5 else 0
 
 def save_model(epoch):
     os.makedirs("simpleNNmodelsPT", exist_ok=True)
     torch.save(model.state_dict(), f"simpleNNmodelsPT/model_{epoch}.pt")
 
 print("Accuracy before training: ")
-test_model()
+accuracy_begin = test_model()
 save_model(-1)
 
+eval_accuracy = []
+losses = []
 
 for epoch in range(EPOCHS):
     model.train()
@@ -126,7 +130,7 @@ for epoch in range(EPOCHS):
         xb = torch.tensor(xb)
         loss = train_model(xb, yb)
         if i % 3000 == 0:
-            print(f"Loss at step {i}: {-loss}")
+            print(f"Loss at step {i}: {loss}")
     
     print(f"Done with Epoch {epoch}")
     print("Evaluating...")
