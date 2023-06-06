@@ -26,18 +26,17 @@ class determinantCorrector():
      - en/et
      - den/det
     """
-    
     def __init__(self) -> None:
         self.genderDict, self.sbStemDict = load_dicts()
         self.posible_corrections = ["en", "et", "den", "det"]
         self.change_determinant = {"en": "et", "et": "en", "den": "det", "det": "den"}
     
-    def is_determinant_fælleskøn(self, det):
-        if det in ["en", "den"]: return True
-        elif det in ["et", "det"]: return False
+    def is_determinant_fælleskøn(self, determinant):
+        if determinant in ["en", "den"]: return True
+        elif determinant in ["et", "det"]: return False
         return None
     
-    def create_determinant_error_message(self, word_to_correct, noun, all_words_from_sentence, index_of_word_in_all_words, fælleskøn) -> list:
+    def create_determinant_error_message(self, word_to_correct, noun, all_words_from_sentence, index_of_word_in_all_words, fælleskøn):
         correct_word = self.change_determinant[word_to_correct]
         gender = "fælleskøn." if fælleskøn else "intetkøn."
         error_type = "det"
