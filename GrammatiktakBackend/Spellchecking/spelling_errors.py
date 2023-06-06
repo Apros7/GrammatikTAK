@@ -8,7 +8,7 @@ import pandas as pd
 NO_CORRECTION_IF_IN_WORD = "-_"
 PARTLY_CLEANING = ",.:;?!()[]{}'\""
 
-def load_spelling_errors():
+def load_spelling_errors(): # Faster to load keys and values seperately than the complete dictionary with pickle.
     return {k: v for k,v in zip(pickle.load(open("Datasets/spelling_errors_keys.pickle", "rb")), pickle.load(open("Datasets/spelling_errors_values.pickle", "rb")))}
 
 class SpellChecker():
@@ -22,7 +22,6 @@ class SpellChecker():
         self.composite_words = pickle.load(open("Datasets/composite_words.pickle", "rb"))
         self.dictionary = pickle.load(open("Datasets/dictionary.pickle", "rb"))
         self.spelling_errors = load_spelling_errors()
-        print(len(self.spelling_errors))
 
     def is_word_in_dictionary(self, word): return word in self.dictionary
     def punctuation_in_word(self, word): return any([x in word for x in NO_CORRECTION_IF_IN_WORD])
