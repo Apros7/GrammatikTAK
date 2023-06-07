@@ -27,17 +27,12 @@ class NutidsRCorrector():
     def verbs_to_check(self, words, pos):
         verbs = []
         for i in range(len(pos)):
-            if pos[i][0] != "VERB":
-                verbs.append(False)
-            elif "Tense" not in pos[i][2].keys():
-                verbs.append(False)
-            elif pos[i][2]["Tense"] != "Pres":
-                verbs.append(False)
-            else:
-                verbs.append(True)
+            if pos[i][0] != "VERB":                 verbs.append(False)
+            elif "Tense" not in pos[i][2].keys():   verbs.append(False)
+            elif pos[i][2]["Tense"] != "Pres":      verbs.append(False)
+            else:                                   verbs.append(True)
         for i, bool in enumerate(verbs):
-            if not bool:
-                continue
+            if not bool: continue
             word = words[i].strip(",.!?():;")
             try: stemmed_verb = self.can_verb_be_checked[word]
             except: verbs[i] = False; continue
@@ -47,17 +42,11 @@ class NutidsRCorrector():
         is_nutids_r = []
         for word, should_check in zip(words, verbs_to_check):
             word = word.strip(",.!?():;")
-            if not should_check:
-                is_nutids_r.append(None)
-                continue
+            if not should_check: is_nutids_r.append(None); continue
             infinitiv_form, nutids_r_form = self.get_tense_from_verb[self.can_verb_be_checked[word]]
-            if word == infinitiv_form:
-                is_nutids_r.append(False)
-            elif word == nutids_r_form:
-                is_nutids_r.append(True)
-            else:
-                print("ERROR: word is not infinitiv or nutids_r")
-                is_nutids_r.append(None)
+            if word == infinitiv_form:  is_nutids_r.append(False)
+            elif word == nutids_r_form: is_nutids_r.append(True)
+            else: print("ERROR: word is not infinitiv or nutids_r"); is_nutids_r.append(None)
         return is_nutids_r
 
     def make_dataset(self, verbs_to_check, pos, words):
@@ -68,16 +57,13 @@ class NutidsRCorrector():
         at_index = -1
 
         for i, word in enumerate(words):
-            if not verbs_to_check[i]:
-                continue
+            if not verbs_to_check[i]: continue
 
             if word[-1] == "s" or pos_with_padding[i+self.left_padding] != "VERB":
-                skipped_indexes.append(i)
-                continue
+                skipped_indexes.append(i); continue
 
             if words[i-1].lower().strip() == "og" or words[i-1][-1] == ",": 
-                skipped_indexes.append(i)
-                continue
+                skipped_indexes.append(i); continue
 
             at_index += 1
 
@@ -114,8 +100,7 @@ class NutidsRCorrector():
 
     def should_verb_be_nutidsr(self, verbs_to_check, pos, words):
         dataset, at_indexes, skipped_indexes = self.make_dataset(verbs_to_check, pos, words)
-        if len(dataset) < 1:
-            return [None]*len(verbs_to_check)
+        if len(dataset) < 1: return [None]*len(verbs_to_check)
         tokenized = self.tokenize_sentences(dataset)
         dataloader = self.convert_dataset_to_dataloader(tokenized)
         predictions = self.get_predictions(dataloader)
@@ -127,15 +112,10 @@ class NutidsRCorrector():
         prediction_index = 0
         for i in range(len(verbs_to_check)):
             if verbs_to_check[i]:
-                if i in skipped_indexes:
-                    yield None
-                    continue
-                if predictions[prediction_index][1] < self.cutoff_value:
-                    yield None
-                elif predictions[prediction_index][0] == 0:
-                    yield True
-                else:
-                    yield False
+                if i in skipped_indexes: yield None; continue
+                if predictions[prediction_index][1] < self.cutoff_value: yield None
+                elif predictions[prediction_index][0] == 0: yield True
+                else: yield False
                 prediction_index += 1
             else:
                 yield None
@@ -164,8 +144,7 @@ class NutidsRCorrector():
         return form, comment
 
     def make_nutids_r_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, correct_word, to_nutids_r):
-        if word_to_correct == correct_word:
-            return None
+        if word_to_correct == correct_word: return None
         previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         error_type = "nutids-r"
         nutidsr_form, nutidsr_comment = self.get_nutidsr_comment(word_to_correct, correct_word, to_nutids_r)
@@ -198,11 +177,11 @@ class NutidsRCorrector():
                 errors.append(error)
         return ErrorList(errors)
 
-    def correct(self, sentence, pos, get_stats=False):
+    def correct(self, sentence, pos_tags, ner_tags):
         self.start_time = time.time()
         words = prepare_sentence(sentence, lowercase=True)
-        verbs_to_check = self.verbs_to_check(words, pos)
+        verbs_to_check = self.verbs_to_check(words, pos_tags)
         is_nutids_r = self.is_verbs_nutids_r(words, verbs_to_check)
-        should_be_nutidsr = self.should_verb_be_nutidsr(verbs_to_check, pos, words)
+        should_be_nutidsr = self.should_verb_be_nutidsr(verbs_to_check, pos_tags, words)
         errors = self.make_error_messages(words, should_be_nutidsr, is_nutids_r, verbs_to_check)
         return move_index_based_on_br(errors, sentence)

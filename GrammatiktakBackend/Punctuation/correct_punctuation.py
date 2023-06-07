@@ -110,7 +110,7 @@ class PunctuationCorrector():
     # this model should be retrained to used character based inputs
     # instead of word based inputs
     # this is the function to call when error messages are needed
-    def correct(self, sentence, ner_tags):
+    def correct(self, sentence, pos_tags, ner_tags):
         self.ner_tags = ner_tags
         predictions = self.get_predictions(sentence)
         words = prepare_sentence(sentence, lowercase=False)

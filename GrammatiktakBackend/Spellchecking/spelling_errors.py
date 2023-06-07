@@ -51,7 +51,7 @@ class SpellChecker():
         if not self.has_possible_misspelling_correction(word): return None
         return self.create_error_message(word, self.spelling_errors[word], words, index)
 
-    def correct(self, input):
+    def correct(self, input, pos_tags, ner_tags):
         words = prepare_sentence(input)
         cleaned_words = prepare_sentence(self.partly_clean_sentence(input), lowercase=True)
         errors = ErrorList([self.correct_word(word, index, words) for index, word in enumerate(cleaned_words)])

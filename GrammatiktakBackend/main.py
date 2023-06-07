@@ -1,6 +1,6 @@
 from Timetracking.timetracker import TimeTracker
 time_tracker = TimeTracker()
-time_tracker.inactive = True
+# time_tracker.inactive = True
 
 from Punctuation.correct_punctuation import PunctuationCorrector
 from Helpers.tagger import Tagger
@@ -10,6 +10,7 @@ from Spellchecking.determinant import determinantCorrector
 from Spellchecking.spelling_errors import SpellChecker
 from Utilities.utils import check_empty_input_or_feedback, check_if_index_is_correct
 from Utilities.error_handling import error_concatenator
+from Utilities.module_utils import ModuleSequential
 
 from Storage.Firestore import FirestoreClient
 
@@ -18,12 +19,18 @@ from flask_cors import CORS
 
 time_tracker.track("import modules")
 
-punctuation_corrector = PunctuationCorrector()
-capitalize_corrector = CapitalizationCorrector()
 tagger = Tagger()
-determinant_corrector = determinantCorrector()
-nutids_corrector = NutidsRCorrector()
-spellchecker = SpellChecker()
+
+modules_to_project_onto_others = ModuleSequential([
+    PunctuationCorrector(),
+    CapitalizationCorrector()
+], timeTracker=time_tracker)
+
+modules_be_projected_on = ModuleSequential([
+    determinantCorrector(),
+    NutidsRCorrector(),
+    SpellChecker()
+], timeTracker=time_tracker)
 
 firestore_client = FirestoreClient()
 
@@ -34,27 +41,15 @@ def correct_input(input, save=False):
     pos_tags, ner_tags = tagger.get_tags(input)
     time_tracker.track("get tags")
 
-    punctuation_errors = punctuation_corrector.correct(input, ner_tags)
-    time_tracker.track("correct punctuation")
-
-    determinant_errors = determinant_corrector.correct(input, pos_tags)
-    time_tracker.track("correct determinant")
-
-    capitalization_errors = capitalize_corrector.correct(input, pos_tags, ner_tags)
-    time_tracker.track("correct capitalization")
-
-    nutidsr_errors = nutids_corrector.correct(input, pos_tags)
-    time_tracker.track("nutids r")
-
-    spelling_errors = spellchecker.correct(input)
-    time_tracker.track("spellcheck")
+    errors_be_projected_on = modules_be_projected_on.correct(input, pos_tags, ner_tags)
+    errors_to_project_onto_others = modules_to_project_onto_others.correct(input, pos_tags, ner_tags)
 
     if save:
         firestore_client.save_input(input)
         time_tracker.track("saving to firestore")
 
-    final_errors = error_concatenator([determinant_errors, nutidsr_errors, spelling_errors], 
-                                        errors_to_project_onto_others=[punctuation_errors, capitalization_errors])
+    final_errors = error_concatenator(errors_be_projected_on, 
+                                        errors_to_project_onto_others=errors_to_project_onto_others)
 
     return final_errors
 
