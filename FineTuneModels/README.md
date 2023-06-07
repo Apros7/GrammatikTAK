@@ -22,13 +22,13 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Test F1 | Cutoff
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 10-Bert | 07-06-2023 | 2.6 mil | 2 | 32 | 2e-5 | 15-5 | % | ___ | ___ | 0
-1-Simplenn | 07-06-2023 | 2.6 mil | 10 | 64 | 2e-6 | 15-5 | 97.56% | ___ | ___ | 0 
 9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | **96.62%** | 00.46% | **0.990** | 0.95
 9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | 98.87% | 01.13% | **0.990** | 0
 5-Bert | 04-04-2023 | 200.000 | 4 | 16 | 1e-5 | 5-5 | 75.53% | 02.66% | Unknown | 0.95
 4-Bert | 04-04-2023 | 200.000 | 2 | 16 | 1e-5 | 5-5 | 75.53% | 02.66% | Unknown | 0.95
 3-Electra | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 48.4% | **0%** | Unknown | 0.95
 1-Bert | 04-04-2023 | 80.000 | 2 | 16 | 1e-5 | 5-5 | 74.47% | 02.66% | Unknown | 0.95
+SimpleNN | 07-06-2023 | 2.6 mil | 10 | 64 | 2e-6 | 15-5 | 97.56% | ___ | ___ | 0 
 
 ### Notes about training:
 - The data used is EuroParlNutidsr-trainset_verbs.
@@ -37,6 +37,7 @@ Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wron
   - not guess if comma or "og" right before.
   - guess "infinitiv" if "at" right before.
 - Hard coded improved accuracy with ~.3%. Ideally these should be deleted for later models.
+- SimpleNN in pytorch: can't seem to get above 97.5%
 
 ## Road to 99% Comma Model
 - Multiple epochs?
