@@ -25,6 +25,9 @@ testset = []
 labels = []
 testset_words = []
 
+df2 = pd.read_csv("../Datasets/EuroparlNutidsr_trainset_verbs.csv", encoding="UTF-8", sep=";")
+print(len(df2))
+
 df = pd.read_csv("../Datasets/EuroparlSentToPos.csv", encoding="UTF-8", sep=";")
 df_filtered = df.dropna(subset=["pos"])
 sentences = list(df_filtered["sent"])

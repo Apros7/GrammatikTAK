@@ -7,13 +7,13 @@ import time
 
 os.chdir("/Users/lucasvilsen/Desktop/GrammatiktakDatasets/Danish")
 
-df = pd.read_csv("wikipedia_spelling_errors.csv", sep="|")
+df = pd.read_csv("spelling_errors.csv", sep="|")
 
 start = time.time()
 
 os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/")
 
-with open("misspellings_dict.pkl", "rb") as file:
+with open("misspellings_dict.pickle", "rb") as file:
     misspelling_dict = pickle.load(file)
 
 print(time.time() - start)
