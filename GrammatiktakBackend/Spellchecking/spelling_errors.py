@@ -7,6 +7,7 @@ import pandas as pd
 
 NO_CORRECTION_IF_IN_WORD = "-_"
 PARTLY_CLEANING = ",.:;?!()[]{}'\""
+METERS = ["nano", "micro", "milli", "deci", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"]
 
 def load_spelling_errors(): # Faster to load keys and values seperately than the complete dictionary with pickle.
     return {k: v for k,v in zip(pickle.load(open("Datasets/spelling_errors_keys.pickle", "rb")), pickle.load(open("Datasets/spelling_errors_values.pickle", "rb")))}
