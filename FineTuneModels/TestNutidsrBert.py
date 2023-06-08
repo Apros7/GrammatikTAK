@@ -4,6 +4,10 @@ import torch
 from transformers import Trainer, BertTokenizer
 import numpy as np
 
+##########################
+## USE NOTEBOOK INSTEAD ##
+##########################
+
 test_sentences_verbs = pd.read_csv("Datasets/EuroparlNutidsr_testset.csv", sep=";")
 
 class Dataset(torch.utils.data.Dataset):
@@ -310,10 +314,12 @@ model4 = "FineTuneModels/models/nutidsrModel4-BERT"
 model5 = "FineTuneModels/models/nutidsrModel5-Electra"
 model6 = "FineTuneModels/models/nutidsrModel6-BERT"
 model7 = "FineTuneModels/models/nutidsrModel7-BERT"
+model9 = "FineTuneModels/models/nutidsrModel9-BERT"
+model10 = "FineTuneModels/models/nutidsrModel10-BERT"
 
-models = [model7]
-model_names = ["Model 7-BERT"]
-paddings = [(10, 4)]
+models = [model9, model10]
+model_names = ["Model 9-BERT", "Model 10-BERT"]
+paddings = [(15, 5)]
 
 for i in range(len(models)):
     start_time = time.time()
