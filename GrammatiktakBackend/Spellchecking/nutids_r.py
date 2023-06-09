@@ -1,4 +1,4 @@
-from Utilities.utils import prepare_sentence, move_index_based_on_br, find_index
+from Utilities.utils import prepare_sentence, move_index_based_on_br
 from Utilities.error_handling import Error, ErrorList
 from Utilities.model_utils import Dataset, load_model
 
@@ -145,14 +145,14 @@ class NutidsRCorrector():
 
     def make_nutids_r_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, correct_word, to_nutids_r):
         if word_to_correct == correct_word: return None
-        previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         error_type = "nutids-r"
         nutidsr_form, nutidsr_comment = self.get_nutidsr_comment(word_to_correct, correct_word, to_nutids_r)
         description = f"'{word_to_correct}' skal være bøjet i {nutidsr_form}{nutidsr_comment}, så der står '{correct_word}'."
         return Error(word_to_correct, correct_word, previous_index, description, error_type)
 
     def make_error_messages(self, words, should_be_nutids_r, is_nutids_r, verbs_to_check):
-        errors = []
+        errors = ErrorList()
         for i in range(len(words)):
             if len(words[i].strip(",.!?():;")) == 0:
                 continue
@@ -175,9 +175,10 @@ class NutidsRCorrector():
             error = self.make_nutids_r_error_message(words[i], words, i, correct_word, to_nutids_r)
             if error is not None:
                 errors.append(error)
-        return ErrorList(errors)
+        return errors
 
-    def correct(self, sentence, pos_tags, ner_tags):
+    def correct(self, sentence, pos_tags, ner_tags, index_finder):
+        self.index_finder = index_finder
         self.start_time = time.time()
         words = prepare_sentence(sentence, lowercase=True)
         verbs_to_check = self.verbs_to_check(words, pos_tags)

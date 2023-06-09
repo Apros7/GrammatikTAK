@@ -1,4 +1,4 @@
-from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br, get_pos_without_information
+from Utilities.utils import prepare_sentence, move_index_based_on_br, get_pos_without_information
 from Utilities.error_handling import Error, ErrorList
 import pickle
 
@@ -43,7 +43,7 @@ class DeterminantCorrector():
         gender = "fælleskøn." if fælleskøn else "intetkøn."
         error_type = "det"
         error_description = f"{word_to_correct} ser ikke ud til at være bøjet korrekt. Der skal skrives '{correct_word}' foran {noun}, da {noun} er {gender}"
-        previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         wrong_word = word_to_correct
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
     
@@ -52,13 +52,13 @@ class DeterminantCorrector():
         gender = "fælleskøn." if fælleskøn else "intetkøn."
         error_type = "det"
         error_description = f"Der skal skrives '{correct_word}' foran {noun}, da {noun} er {gender}"
-        previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
         wrong_word = word_to_correct
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
 
     def correct_adjective(self, words, pos):
         indexes = find_det_noun_pairs(pos, only_adj=True)
-        error_messages = []
+        error_messages = ErrorList()
         for pair in indexes:
             if pair[1] - pair[0] != 2: continue
             is_fællesskøn = self.is_adjective_fælleskøn(words[pair[0]+1])
@@ -74,7 +74,7 @@ class DeterminantCorrector():
 
     def correct_determinant(self, words, uncleaned_words, pos):
         indexes = find_det_noun_pairs(pos)
-        error_messages = []
+        error_messages = ErrorList()
         for pair in indexes:
             det = words[pair[0]].lower()
             noun = words[pair[1]].lower()
@@ -86,11 +86,12 @@ class DeterminantCorrector():
                 error_messages.append(self.create_determinant_error_message(det, noun, uncleaned_words, pair[0], should_be_fælleskøn))
         return error_messages
 
-    def correct(self, sentence, pos_tags, ner_tags):
+    def correct(self, sentence, pos_tags, ner_tags, index_finder):
+        self.index_finder = index_finder
         uncleaned_words = prepare_sentence(sentence)
         words = prepare_sentence(sentence, lowercase=False, clean=True)
         pos = get_pos_without_information(pos_tags)
         adjective_errors = self.correct_adjective(words, pos)
         determinant_errors = self.correct_determinant(words, uncleaned_words, pos)
-        return move_index_based_on_br(ErrorList(determinant_errors + adjective_errors), sentence)
+        return move_index_based_on_br(determinant_errors + adjective_errors, sentence)
     

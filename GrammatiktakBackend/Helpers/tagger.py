@@ -53,7 +53,7 @@ class Tagger():
         doc = self.pos_tagger(sentence)
         features = [word.feats if word.feats else None for sentence in doc.sentences for word in sentence.words]
         feature_dicts = self.turn_features_to_dicts(features)
-        results = [(word.upos, [word.start_char, word.end_char], feature_dicts[i]) for sentence in doc.sentences for i, word in enumerate(sentence.words)]
+        results = [[word.upos, [word.start_char, word.end_char], feature_dicts[i]] for sentence in doc.sentences for i, word in enumerate(sentence.words)]
         return results
     
     def move_ner_tags_by_emoji(self, namedEntities, sentence):
@@ -70,7 +70,7 @@ class Tagger():
     def get_ner_tags(self, sentence):
         emoji_free_sentence = strip_emojis(sentence)
         result = self.ner_tagger.predict(emoji_free_sentence)
-        namedEntities = [(ent["word"], [ent["start"], ent["end"]]) for ent in result]
+        namedEntities = [[ent["word"], [ent["start"], ent["end"]]] for ent in result]
         no_misc_entities = [namedEntity for i, namedEntity in enumerate(namedEntities) if result[i]["entity_group"] != "MISC"]
         emoji_corrected_entities = self.move_ner_tags_by_emoji(no_misc_entities, sentence)
         return emoji_corrected_entities

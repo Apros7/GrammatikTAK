@@ -1,4 +1,4 @@
-from Utilities.utils import prepare_sentence, move_index_based_on_br, find_index
+from Utilities.utils import prepare_sentence, move_index_based_on_br
 from Utilities.error_handling import Error, ErrorList
 
 import pickle
@@ -25,7 +25,6 @@ class SpellChecker():
         self.dictionary = pickle.load(open("Datasets/dictionary.pickle", "rb"))
         self.spelling_errors = load_spelling_errors()
         self.meter_errors = {k: v for k, v in zip([prefix + "met" for prefix in METERS_PREFIX], [prefix + "meter" for prefix in METERS_PREFIX])}
-        print(self.meter_errors)
 
     def is_word_in_dictionary(self, word): return word in self.dictionary
     def punctuation_in_word(self, word): return any([x in word for x in NO_CORRECTION_IF_IN_WORD])
@@ -44,7 +43,7 @@ class SpellChecker():
         error_type = "spellcheck"
         correct_word = correct_word[0] if len(correct_word) == 1 else correct_word
         error_description = f"{wrong_word} er ikke ordbogen. Mente du en af disse ord?" if isinstance(correct_word, list) else f"{wrong_word} er ikke ordbogen. Mente du '{correct_word}'?"
-        previous_index = find_index(all_words_from_sentence, index_of_word_in_all_words, wrong_word)
+        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
     
     def correct_word(self, word, index, words):
@@ -56,8 +55,9 @@ class SpellChecker():
         if not self.has_possible_misspelling_correction(word): return None
         return self.create_error_message(word, self.spelling_errors[word], words, index)
 
-    def correct(self, input, pos_tags, ner_tags):
-        words = prepare_sentence(input)
-        cleaned_words = prepare_sentence(self.partly_clean_sentence(input), lowercase=True)
+    def correct(self, sentence, pos_tags, ner_tags, index_finder):
+        self.index_finder = index_finder
+        words = prepare_sentence(sentence)
+        cleaned_words = prepare_sentence(self.partly_clean_sentence(sentence), lowercase=True)
         errors = ErrorList([self.correct_word(word, index, words) for index, word in enumerate(cleaned_words)])
-        return errors
+        return move_index_based_on_br(errors, sentence)
