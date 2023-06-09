@@ -1,4 +1,4 @@
-from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br
+from Utilities.utils import prepare_sentence, find_index, move_index_based_on_br, get_pos_without_information
 from Utilities.error_handling import Error, ErrorList
 import pickle
 
@@ -60,20 +60,14 @@ class DeterminantCorrector():
         indexes = find_det_noun_pairs(pos, only_adj=True)
         error_messages = []
         for pair in indexes:
-            print(pair, pair[1] - pair[0])
             if pair[1] - pair[0] != 2: continue
             is_fællesskøn = self.is_adjective_fælleskøn(words[pair[0]+1])
-            print(is_fællesskøn)
             noun = words[pair[1]].lower()
             adjective = words[pair[0] + 1].lower()
             word_to_check = adjective if is_fællesskøn else adjective[:-1]
-            print(word_to_check, word_to_check in self.adjectiveList)
             if not word_to_check in self.adjectiveList: continue
-            print("hey")
             try: should_be_fælleskøn = self.genderDict[self.sbStemDict[noun]]
             except: continue
-            print("hey")
-            print(should_be_fælleskøn, is_fællesskøn)
             if should_be_fælleskøn != is_fællesskøn:
                 error_messages.append(self.create_adjective_error_message(adjective, noun, words, pair[0]+1, should_be_fælleskøn))
         return error_messages
@@ -92,10 +86,10 @@ class DeterminantCorrector():
                 error_messages.append(self.create_determinant_error_message(det, noun, uncleaned_words, pair[0], should_be_fælleskøn))
         return error_messages
 
-    def correct(self, sentence, pos_tag, ner_tags):
+    def correct(self, sentence, pos_tags, ner_tags):
         uncleaned_words = prepare_sentence(sentence)
         words = prepare_sentence(sentence, lowercase=False, clean=True)
-        pos = [x[0] for x in pos_tag]
+        pos = get_pos_without_information(pos_tags)
         adjective_errors = self.correct_adjective(words, pos)
         determinant_errors = self.correct_determinant(words, uncleaned_words, pos)
         return move_index_based_on_br(ErrorList(determinant_errors + adjective_errors), sentence)

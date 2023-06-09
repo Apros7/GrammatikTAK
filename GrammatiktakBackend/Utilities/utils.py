@@ -5,6 +5,9 @@ import re
 import string
 from Utilities.error_handling import Error, ErrorList
 
+
+def get_pos_without_information(pos): return [x[0] for x in pos]        
+
 # input json_data
 # returns (is_empty_or_feedback, feedback, input, potential output)
 # used in main to filter incoming traffic
@@ -95,7 +98,3 @@ def check_if_index_is_correct(errors, sentence, info=True):
         print("Instead, launch the GrammatikTAK website locally, hook it up to your backend, and try it out.")
         print("This is due to some features in the front that changes the html code to fit.")
     return all(states)
-
-# This function is used to test a new module:
-
-        
