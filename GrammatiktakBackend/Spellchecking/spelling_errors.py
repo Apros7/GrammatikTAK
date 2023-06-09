@@ -7,7 +7,7 @@ import pandas as pd
 
 NO_CORRECTION_IF_IN_WORD = "-_"
 PARTLY_CLEANING = ",.:;?!()[]{}'\""
-METERS = ["nano", "micro", "milli", "deci", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"]
+METERS_PREFIX = ["nano", "micro", "milli", "deci", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"]
 
 def load_spelling_errors(): # Faster to load keys and values seperately than the complete dictionary with pickle.
     return {k: v for k,v in zip(pickle.load(open("Datasets/spelling_errors_keys.pickle", "rb")), pickle.load(open("Datasets/spelling_errors_values.pickle", "rb")))}
@@ -23,6 +23,8 @@ class SpellChecker():
         self.composite_words = pickle.load(open("Datasets/composite_words.pickle", "rb"))
         self.dictionary = pickle.load(open("Datasets/dictionary.pickle", "rb"))
         self.spelling_errors = load_spelling_errors()
+        self.meter_errors = {k: v for k, v in zip([prefix + "met" for prefix in METERS_PREFIX], [prefix + "meter" for prefix in METERS_PREFIX])}
+        print(self.meter_errors)
 
     def is_word_in_dictionary(self, word): return word in self.dictionary
     def punctuation_in_word(self, word): return any([x in word for x in NO_CORRECTION_IF_IN_WORD])
@@ -49,6 +51,7 @@ class SpellChecker():
         if self.is_word_in_dictionary(word): return None
         is_composite_error, composite_word = self.composite_words_error(word)
         if is_composite_error: return self.create_error_message(word, composite_word, words, index)
+        if word in self.meter_errors: return self.create_error_message(word, self.meter_errors[word], words, index)
         if not self.has_possible_misspelling_correction(word): return None
         return self.create_error_message(word, self.spelling_errors[word], words, index)
 
