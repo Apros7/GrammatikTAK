@@ -16,6 +16,7 @@ class SpellChecker():
 
     """
     Built using the Misspeller class based on research on danish misspellings.
+    To improve the spelling_errors dict, improve the misspeller class
     """
 
     def __init__(self) -> None:
