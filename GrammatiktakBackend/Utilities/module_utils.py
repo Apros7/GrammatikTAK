@@ -5,7 +5,6 @@ class ModuleSequential():
         self.timeTracker = timeTracker
 
     def correct_module(self, module, sentence, pos_tags, ner_tags, index_finder):
-        print(f"Correcting for module {module.__class__.__name__}")
         errors = module.correct(sentence, pos_tags, ner_tags, index_finder)
         self.timeTracker.track(f"module {module.__class__.__name__}")
         return errors

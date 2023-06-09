@@ -19,7 +19,7 @@ def test_deployment(correct_input):
         errors = correct_input(message)
         if not check_if_index_is_correct(errors, message, info=False):
             raise IndexError("Index is not correct for message {}".format(message))
-        print("Indexes correct.")
-        print(f"{i+1}/{len(messages)} done.")
+    print("Indexes correct.")
+    print(f"{i+1}/{len(messages)} done.")
 
     print("SUCCESS")

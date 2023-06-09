@@ -166,6 +166,8 @@ class Error():
         """
         This function should be used on errors in concat_errors
         """
+        if isinstance(self.wrong_word, list) or isinstance(self.right_word, list):
+            return self.description
         if self.right_word[-1] in ",.!?":
             return self.description.replace("$wrong", self.wrong_word).replace("$right", self.right_word[:-1])
         return self.description.replace("$wrong", self.wrong_word).replace("$right", self.right_word)

@@ -119,6 +119,7 @@ message = "Håber du har en god dag. Har du en god dag? Har en god dag. Har du h
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 check_if_index_is_correct(errors1, message)
+test_deployment(correct_input)
 
 time_tracker.track2("end")
 time_tracker(.5)
