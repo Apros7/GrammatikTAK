@@ -6,11 +6,14 @@ from Punctuation.correct_punctuation import PunctuationCorrector
 from Helpers.tagger import Tagger
 from Spellchecking.capitalized import CapitalizationCorrector
 from Spellchecking.nutids_r import NutidsRCorrector
-from Spellchecking.determinant import determinantCorrector
+from Spellchecking.determinant import DeterminantCorrector
 from Spellchecking.spelling_errors import SpellChecker
-from Utilities.utils import check_empty_input_or_feedback, check_if_index_is_correct
+from SentenceStructure.missing_foundation import MissingFoundationChecker
+
+from Utilities.utils import check_empty_input_or_feedback, check_if_index_is_correct, prepare_sentence, IndexFinder
 from Utilities.error_handling import error_concatenator
 from Utilities.module_utils import ModuleSequential
+from Utilities.deployment_test import test_deployment
 
 from Storage.Firestore import FirestoreClient
 
@@ -21,35 +24,50 @@ time_tracker.track("import modules")
 
 tagger = Tagger()
 
-modules_to_project_onto_others = ModuleSequential([
-    PunctuationCorrector(),
+modules_pre_foundation = ModuleSequential([
     CapitalizationCorrector()
 ], timeTracker=time_tracker)
 
+modules_to_project_onto_others = ModuleSequential([
+    PunctuationCorrector()
+], timeTracker=time_tracker)
+
 modules_be_projected_on = ModuleSequential([
-    determinantCorrector(),
+    DeterminantCorrector(),
     NutidsRCorrector(),
     SpellChecker()
 ], timeTracker=time_tracker)
+
+# Modules that change sentence, pos or ner are idenpentially initialized and used
+missing_foundation_checker = MissingFoundationChecker()
 
 firestore_client = FirestoreClient()
 
 time_tracker.track("initialize correctors")
 
-def correct_input(input, save=False):
+def correct_input(input_sentence, save=False):
+    index_finder = IndexFinder()
 
-    pos_tags, ner_tags = tagger.get_tags(input)
+    pos_tags, ner_tags = tagger.get_tags(input_sentence)
     time_tracker.track("get tags")
 
-    errors_be_projected_on = modules_be_projected_on.correct(input, pos_tags, ner_tags)
-    errors_to_project_onto_others = modules_to_project_onto_others.correct(input, pos_tags, ner_tags)
+    errors_pre_foundation = modules_pre_foundation.correct(input_sentence, pos_tags, ner_tags, index_finder = IndexFinder(), ignore_indexes = True)
+
+    index_finder.ignore_indexes = True
+    foundation_errors, (sentence, pos_tags, ner_tags), index_finder = missing_foundation_checker.correct(input_sentence, pos_tags, ner_tags, index_finder)
+    # print("FOUNDATION ERRORS: ")
+    # print(*foundation_errors.to_list(finalize=True), sep="\n")
+    time_tracker.track("module FoundationChecker")
+
+    errors_be_projected_on = modules_be_projected_on.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
+    errors_to_project_onto_others = modules_to_project_onto_others.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
 
     if save:
-        firestore_client.save_input(input)
+        firestore_client.save_input(sentence)
         time_tracker.track("saving to firestore")
 
-    final_errors = error_concatenator(errors_be_projected_on, 
-                                        errors_to_project_onto_others=errors_to_project_onto_others)
+    final_errors = error_concatenator(errors_be_projected_on + [foundation_errors], 
+                                      errors_to_project_onto_others=errors_to_project_onto_others + errors_pre_foundation)
 
     return final_errors
 
@@ -93,13 +111,15 @@ time_tracker.complete_reset()
 # message = "Jeg håber ikke, at du skulle vente så lang tid på, at den blev færdig."
 # message = "Så er vi tilbage på 0 på annotate. Jeg har sendt billeder af statistics. Jeg har også lavet en PE med nogle fixes, flere static filtre og evnen til at specificere om en person faller på videoen, sover og hvorvidt patienten har dyne på. Jeg kan vise mere i morgen. Er du på kontoret i morgen?"
 # message = "9 mennesker boede på en gammel ø.. De havde en god ven"
-message = "idag har jeg fødseldag. Jeg har fødselsdag idag"
+# message = "idag har jeg fødseldag. Jeg har fødselsdag idag"
+# message = "jeg har en stor hus. Jeg har et stor hus. Jeg har en stort hund"
+# message = "jeg har en met til skole"
+
+message = "Håber du har en god dag. Har du en god dag? Har en god dag. Har du haft en god dag? Har du spist en banan? Håber du hygger."
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 check_if_index_is_correct(errors1, message)
 
 time_tracker.track2("end")
 time_tracker(.5)
-
-# print(len(message.split()))
 

@@ -27,10 +27,17 @@ def check_empty_input_or_feedback(json_data):
 
 # input all words from sentence, index (in words), word
 # output list of start and end index in sentence
-def find_index(all_words_from_sentence, index_of_word_in_all_words, word):
-    start_index = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence[:index_of_word_in_all_words])
-    end_index = start_index + len(word)
-    return [start_index, end_index]
+# This needs more work if any other modules that change the indexes of the original sentence
+
+class IndexFinder():
+    def __init__(self) -> None: self.added_indexes_from_input_words = []; self.ignore_indexes = False
+    def add_index(self, index): self.added_indexes_from_input_words.append(index)
+
+    def find_index(self, all_words_from_sentence, index_of_word_in_all_words, word):
+        start_index = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence[:index_of_word_in_all_words])
+        if not self.ignore_indexes: start_index = start_index - 4 * len([index for index in self.added_indexes_from_input_words if index <= start_index])
+        end_index = start_index + len(word)
+        return [start_index, end_index]
 
 # input sentence
 # output lowercased words with <br> removed
@@ -90,7 +97,7 @@ def check_if_index_is_correct(errors, sentence, info=True):
     states = []
     for i in range(len(should_be)):
         states.append(should_be[i].lower() == actual[i].lower())
-        if info: print("Should be: ", should_be[i], ". Actual: ", actual[i], ". Equal?: ", should_be[i] == actual[i])
+        if info: print("Should be: ", should_be[i].lower(), ". Actual: ", actual[i].lower(), ". Equal?: ", should_be[i].lower() == actual[i].lower())
 
     if info:
         print("BE AWARE:")

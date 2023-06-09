@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", "spellcheck"]
+approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", "spellcheck", "foundation"]
 error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap"]
 
 def init_dict():
@@ -98,11 +98,12 @@ def error_concatenator(errors, errors_to_project_onto_others, include_type=False
     return ErrorList(final_errors).to_list(include_type=include_type, finalize=True)
 
 class ErrorList():
-    def __init__(self, lst) -> None:
+    def __init__(self, lst = []) -> None:
+        if isinstance(lst, ErrorList): lst = lst.errors; print("You passed a ErrorList instead of a list.")
+        elif not isinstance(lst, list): raise ValueError("Parameter has to be a list.")
         self.errors = lst
         self.convert_lists_to_errors()
-        if not self.is_healthy():
-            raise ValueError(f"ErrorList is not healthy. Some errors have missing values.")
+        self.is_healthy()
 
     def convert_lists_to_errors(self):
         self.errors = [error for error in self.errors if error is not None] 
@@ -114,29 +115,24 @@ class ErrorList():
 
     def is_healthy(self):
         healthy_errors = [error.is_healthy() for error in self.errors]
-        if len(healthy_errors) == 0:
-            return True
-        return any([error.is_healthy() for error in self.errors])
+        if len(healthy_errors) == 0: return True
+        if not any([error.is_healthy() for error in self.errors]): raise ValueError(f"ErrorList is not healthy. Some errors have missing values.")
+        return True
 
-    def sort(self, errors):
-        return sorted(errors, key=lambda x: x[2][1])
+    def sort(self, errors): return sorted(errors, key=lambda x: x[2][1])
+    def append(self, error): self.errors.append(error); self.is_healthy()
 
     def init_dict(self):
-        def def_value():
-            return []
+        def def_value(): return []
         return defaultdict(def_value)
     
     def concat_errors(self, errors):
         concated_errors = []
         dict = self.init_dict()
-        for error in errors:
-            dict[error[2]] += error
+        for error in errors: dict[error[2]] += error
         for lst_of_errors in dict.values():
-            if len(lst_of_errors) < 2:
-                continue
-            for error in lst_of_errors:
-
-                concated_errors.append(error)
+            if len(lst_of_errors) < 2: continue
+            for error in lst_of_errors: concated_errors.append(error)
 
     def __add__(self, other):
         if not isinstance(other, ErrorList):
@@ -150,23 +146,21 @@ class ErrorList():
         return list(self.sort(true_errors))
 
 class Error():
-    def __init__(self, wrong_word: str = None, right_word: str = None, indexes: list = None, description: str = None, type: str = None) -> None:
+    def __init__(self, wrong_word: str = None, right_word: str = None, indexes: list = None, 
+                       description: str = None, type: str = None) -> None:
         self.wrong_word = wrong_word
         self.right_word = right_word
         self.indexes = indexes
         self.description = description
         self.set_type(type)
     
-    def from_list(self, lst):
-        return Error(lst[0], lst[1], lst[2], lst[3], lst[4])
+    def from_list(self, lst): return Error(lst[0], lst[1], lst[2], lst[3], lst[4])
+    def get_type(self): return self.__type
 
     def set_type(self, type):
         if type is None: pass
         elif type not in approved_types: raise ValueError(f"Type must be in {approved_types}")
         self.__type = type
-
-    def get_type(self):
-        return self.__type
 
     def get_description(self):
         """
@@ -188,6 +182,5 @@ class Error():
         missing_instance_variables = [var_name for var_name, var_value in self.__dict__.items() if var_value is None]
         raise NotImplementedError(f"Error is not healthy. Please fill these variables: {[missing_instance_variables]}")
 
-    def to_finalized_list(self):
-        return [self.wrong_word, self.right_word, self.indexes, self.get_description()]
+    def to_finalized_list(self): return [self.wrong_word, self.right_word, self.indexes, self.get_description()]
         
