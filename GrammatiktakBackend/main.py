@@ -115,11 +115,11 @@ time_tracker.complete_reset()
 # message = "jeg har en stor hus. Jeg har et stor hus. Jeg har en stort hund"
 # message = "jeg har en met til skole"
 
-message = "Håber du har en god dag. Har du en god dag? Har en god dag. Har du haft en god dag? Har du spist en banan? Håber du hygger."
+message = "håber du har en god dag. Har du en god dag? Har en god dag. Har du haft en god dag? Har du spist en banan? Håber du hygger."
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 check_if_index_is_correct(errors1, message)
-test_deployment(correct_input)
+#test_deployment(correct_input)
 
 time_tracker.track2("end")
 time_tracker(.5)
