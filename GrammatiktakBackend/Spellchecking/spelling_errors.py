@@ -5,7 +5,7 @@ import pickle
 import pandas as pd
 
 
-NO_CORRECTION_IF_IN_WORD = "-_"
+NO_CORRECTION_IF_IN_WORD = "-_/"
 PARTLY_CLEANING = ",.:;?!()[]{}'\""
 METERS_PREFIX = ["nano", "micro", "milli", "", "deci", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"]
 
@@ -25,6 +25,7 @@ class SpellChecker():
         self.dictionary = pickle.load(open("Datasets/dictionary.pickle", "rb"))
         self.spelling_errors = load_spelling_errors()
         self.meter_errors = {k: v for k, v in zip([prefix + "met" for prefix in METERS_PREFIX], [prefix + "meter" for prefix in METERS_PREFIX])}
+        print(self.composite_words[:10])
 
     def is_word_in_dictionary(self, word): return word in self.dictionary
     def punctuation_in_word(self, word): return any([x in word for x in NO_CORRECTION_IF_IN_WORD])

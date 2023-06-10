@@ -116,6 +116,8 @@ time_tracker.complete_reset()
 # message = "jeg har en met til skole"
 
 message = "håber du har en god dag. Har du en god dag? Har en god dag. Har du haft en god dag? Har du spist en banan? Håber du hygger."
+message = "jeg kører 30 km/t"
+message = "jeg ser en action film"
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 check_if_index_is_correct(errors1, message)
