@@ -14,7 +14,7 @@ class MissingFoundationChecker():
 
     def create_error_message(self, wrong_word, correct_word, all_words_from_sentence, index_of_word_in_all_words) -> list:
         error_type = "foundation"
-        error_description = "Det ligner, at der mangler et subjekt i denne sætning."
+        error_description = "Det ligner, at der mangler et subjekt i denne sætning. Måske kan du indsætte 'Jeg'?"
         prev_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, prev_index, error_description, error_type)
 
