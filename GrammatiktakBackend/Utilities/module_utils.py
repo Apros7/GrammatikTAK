@@ -23,7 +23,7 @@ class ModuleSequentialWhenSentenceManipulation():
         all_errors = [] # list of ErrorLists
         for module in self.modules:
             index_finder.freeze()
-            module_errors, (sentence, pos_tags, ner_tags), index_finder = module.correct(sentence, pos_tags, ner_tags, index_finder)
+            module_errors, (sentence, pos_tags, ner_tags) = module.correct(sentence, pos_tags, ner_tags, index_finder)
             all_errors.append(module_errors)
             self.timeTracker.track(f"module {module.__class__.__name__}")
-        return all_errors, (sentence, pos_tags, ner_tags), index_finder
+        return all_errors, (sentence, pos_tags, ner_tags)

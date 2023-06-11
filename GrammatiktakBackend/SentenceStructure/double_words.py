@@ -58,4 +58,4 @@ class DoubleWordsChecker():
         self.index_finder = index_finder
         words = prepare_sentence(sentence, lowercase=False)
         errors, words, ner_tags = self.correct_double_words(words, ner_tags)
-        return move_index_based_on_br(errors, sentence), (" ".join(words), pos_tags, ner_tags), index_finder
+        return move_index_based_on_br(errors, sentence), (" ".join(words), pos_tags, ner_tags)

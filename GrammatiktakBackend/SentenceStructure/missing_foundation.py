@@ -42,4 +42,4 @@ class MissingFoundationChecker():
         self.index_finder = index_finder
         words = prepare_sentence(sentence, lowercase=False)
         errors, (new_words, new_pos, ner_tags) = self.get_foundation_errors(words, pos_tags, ner_tags)
-        return move_index_based_on_br(errors, sentence), (" ".join(new_words), new_pos, ner_tags), index_finder
+        return move_index_based_on_br(errors, sentence), (" ".join(new_words), new_pos, ner_tags)
