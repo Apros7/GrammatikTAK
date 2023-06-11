@@ -73,8 +73,28 @@ class Tagger():
         namedEntities = [[ent["word"], [ent["start"], ent["end"]]] for ent in result]
         no_misc_entities = [namedEntity for i, namedEntity in enumerate(namedEntities) if result[i]["entity_group"] != "MISC"]
         emoji_corrected_entities = self.move_ner_tags_by_emoji(no_misc_entities, sentence)
-        return emoji_corrected_entities
-    
+        ner_word_indexes = self.ner_character_index_to_word_index(sentence, emoji_corrected_entities)
+        return ner_word_indexes
+
+    def ner_character_index_to_word_index(self, sentence, ner_tags):
+        words_indexes = []
+        words = sentence.split(" ")
+        for (word, indexes) in ner_tags:
+            start_index, end_index = 0, 0
+            for i, word in enumerate(words):
+                if start_index >= indexes[0]:
+                    end_index += start_index
+                    break
+                start_index += len(word) + 1
+            for word in words[i:]:
+                words_indexes.append(i)
+                end_index += len(word)
+                if end_index >= indexes[1]:
+                    break
+                i += 1
+                end_index += 1
+        return words_indexes
+                
     # run this function to get all tags
     def get_tags(self, sentence):
         pos = self.get_pos_tags(sentence)
