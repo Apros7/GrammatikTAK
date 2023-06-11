@@ -116,7 +116,7 @@ class ErrorList():
     def is_healthy(self):
         healthy_errors = [error.is_healthy() for error in self.errors]
         if len(healthy_errors) == 0: return True
-        if not any([error.is_healthy() for error in self.errors]): raise ValueError(f"ErrorList is not healthy. Some errors have missing values.")
+        for error in self.errors: error.is_healthy()
         return True
 
     def sort(self, errors): return sorted(errors, key=lambda x: x[2][1])
@@ -135,8 +135,7 @@ class ErrorList():
             for error in lst_of_errors: concated_errors.append(error)
 
     def __add__(self, other):
-        if not isinstance(other, ErrorList):
-            return NotImplementedError("Can only add ErrorList + ErrorList")
+        if not isinstance(other, ErrorList): return NotImplementedError("Can only add ErrorList + ErrorList")
         return ErrorList(self.errors + other.errors)
     
     def to_list(self, include_type=False, finalize=False):
@@ -173,16 +172,14 @@ class Error():
         return self.description.replace("$wrong", self.wrong_word).replace("$right", self.right_word)
     def is_healthy(self):
         if len([var_name for var_name, var_value in self.__dict__.items() if var_value is None]) == 0: return True
-        return False
-
-    def to_list(self, include_type=False):
-        if self.is_healthy():
-            if self.wrong_word == self.right_word: return None
-            if include_type:
-                return [self.wrong_word, self.right_word, self.indexes, self.description, self.get_type()]
-            return [self.wrong_word, self.right_word, self.indexes, self.description]
         missing_instance_variables = [var_name for var_name, var_value in self.__dict__.items() if var_value is None]
         raise NotImplementedError(f"Error is not healthy. Please fill these variables: {[missing_instance_variables]}")
+
+    def to_list(self, include_type=False):
+        self.is_healthy()
+        if self.wrong_word == self.right_word: print("ALERT: Error has the same wrong and right word, therefore skipped"); return None
+        if include_type: return [self.wrong_word, self.right_word, self.indexes, self.description, self.get_type()]
+        return [self.wrong_word, self.right_word, self.indexes, self.description]
 
     def to_finalized_list(self): return [self.wrong_word, self.right_word, self.indexes, self.get_description()]
         

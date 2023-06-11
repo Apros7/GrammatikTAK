@@ -79,11 +79,11 @@ class PunctuationCorrector():
         already_comma = [True if checked_words[i][-1] == "," else False for i in range(len(checked_words))]
         # where there should be a comma but isnt
         error_new_comma = [True if predicted_comma[i] and (not already_punctuated[i]) and (not already_comma[i]) else False for i in range(len(predicted_comma))]
-        error_messages_new_comma = [self.create_comma_error_message(checked_words[i], words, i, False) for i in range(len(checked_words)) if error_new_comma[i]]
+        error_messages_new_comma = [(self.create_comma_error_message(checked_words[i], words, i, False), i) for i in range(len(checked_words)) if error_new_comma[i]]
         # where there should not be a comma but is
         error_remove_comma = [True if (not predicted_comma[i]) and (not already_punctuated[i]) and already_comma[i] else False for i in range(len(predicted_comma))]
-        error_messages_remove_comma = [self.create_comma_error_message(checked_words[i], words, i, True) for i in range(len(checked_words)) if error_remove_comma[i]]
-        comma_errors = ErrorList(error_messages_new_comma + error_messages_remove_comma)
+        error_messages_remove_comma = [(self.create_comma_error_message(checked_words[i], words, i, True), i) for i in range(len(checked_words)) if error_remove_comma[i]]
+        comma_errors = error_messages_new_comma + error_messages_remove_comma
         final_errors = self.ignore_mistakes_in_ner_objects(comma_errors)
         return final_errors
 
@@ -96,15 +96,11 @@ class PunctuationCorrector():
         return error_messages_full_stop
 
     def ignore_mistakes_in_ner_objects(self, mistakes: ErrorList):
-        mistakes_list = mistakes.to_list(include_type=True)
-        ner_indexes = [index for (name, index) in self.ner_tags]
-
         filtered_mistakes = ErrorList()
-        for mistake in mistakes_list:
-            mistake_indexes = mistake[2]
-            if not any(start <= mistake_indexes[0] <= end or start <= mistake_indexes[1] <= end for (start, end) in ner_indexes):
-                filtered_mistakes.append(Error().from_list(mistake))
-
+        for mistake in mistakes:
+            mistake_index = mistake[1]
+            if mistake_index not in self.ner_tags:
+                filtered_mistakes.append(mistake[0])
         return filtered_mistakes
 
     # this model should be retrained to used character based inputs

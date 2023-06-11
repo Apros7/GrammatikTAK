@@ -43,7 +43,7 @@ class TimeTracker():
     @check_inactive
     def __call__(self, bound=.5):
         time_taken = ["HIGH" if value > bound else "LOW " for value in self.time_dict.values()]
-        print(*zip(time_taken, [item for item in self.time_dict.items()]), sep="\n")
+        print(*[f"{bound}: Took {round(time, 5)} \t sec for {module}." for bound, (module, time) in zip(time_taken, [item for item in self.time_dict.items()])], sep="\n")
         print("Full Function", *[item for item in self.time_dict2.items()], sep="\n")
         print("Excess time:", *[item for item in self.excess_time.items()], sep="\n")
     

@@ -30,12 +30,22 @@ def check_empty_input_or_feedback(json_data):
 # This needs more work if any other modules that change the indexes of the original sentence
 
 class IndexFinder():
-    def __init__(self) -> None: self.added_indexes_from_input_words = []; self.ignore_indexes = False
-    def add_index(self, index): self.added_indexes_from_input_words.append(index)
+    """
+    Effect should be the number of character you add to the sentence (can also be negative)
+    Frozen should be true if used in a module where indexes are also added
+    """
+    def __init__(self) -> None: self.indexes_changed_from_input_words = []; self.frozen = False
+    def add_index(self, index, effect): self.indexes_changed_from_input_words.append((index, self.true_effect(effect)))
+    def add_index_list(self, indexes, effect): self.indexes_changed_from_input_words.extend([(index, self.true_effect(effect)) for index in indexes])
+    def true_effect(self, effect): return -(self.take_space_into_account(effect))
+    def take_space_into_account(self, effect): return effect - 1 if effect < 0 else effect + 1
+    def freeze(self): self.frozen = True; self.frozen_lst = self.indexes_changed_from_input_words
+    def unfreeze(self): self.fronen = False; 
 
     def find_index(self, all_words_from_sentence, index_of_word_in_all_words, word):
         start_index = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence[:index_of_word_in_all_words])
-        if not self.ignore_indexes: start_index = start_index - 4 * len([index for index in self.added_indexes_from_input_words if index <= start_index])
+        if self.frozen: start_index += sum([effect for (index, effect) in self.frozen_lst if index <= start_index])
+        else: start_index += start_index + sum([effect for (index, effect) in self.indexes_changed_from_input_words if index <= start_index])
         end_index = start_index + len(word)
         return [start_index, end_index]
 
