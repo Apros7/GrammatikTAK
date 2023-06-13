@@ -1,5 +1,4 @@
 from Utilities.utils import check_if_index_is_correct
-from tqdm import tqdm
 import numpy as np
 import time
 
@@ -12,7 +11,6 @@ def test_deployment(correct_input, manual_check=False):
         "den hus er rigtig stor. Rigtig mange glæde sig til at ser og inviterer familie og venner.",
         "Dertil er der også dobbeltblinding hvor hverken patienten eller personalet ved om den behandling de får/giver er den faktiske behandling eller blot placebo. Jeg ved godt at jeg burde vide det.",
         "Her bruges billedsprog til at sammenligne det lyriske jeg med træerne. Det lyriske jeg spejler sig altså i træerne, idet han forestiller sig sine hænder som grene. Forestillingen om, at træerne næsten ikke kan nå hinanden med deres grene, kan altså overføres på det lyriske jeg. Måske har det lyriske jeg selv svært ved at nå nogen. Måske føler det lyriske jeg, at han ikke kan nå kærligheden. Måske føler det lyriske jeg, at han glider væk fra en elsket. Netop denne ide, hvor naturen bruges som en analogi til mennesket selv, fremsættes i den danske litteraturhistoriker Erik Skyum-Nielsens artikel ”Nu er det tid til naturdigte”. Her forklarer han, at ”så snart en digter beskrev og besang naturen, kom digtet også altid til at handle om digteren selv. I den forstand fungerer naturen uundgåeligt som menneskets spejl.” Netop pga. Erik Skyum-Nielsens baggrund som lektor på institut for Nordiske Studier og Sprogvidenskab på Københavns Universitet kan denne betragtning ses som troværdig. Naturen i digte er altså en måde, hvorpå digteren indirekte kan reflektere og skrive om sig selv.",
-        "hey Christian<br>tak for Det. Jeg er desværre I skole til, kl 18, så det har Lucas ikke mulighed for.<br>Jeg håber, at i får en dejlig aften :smile:.",
         "Jeg kigger op og ser solens første svage stråler, som titter frem mellem bøgetræerne og varmer den kolde jord. De første spæde og grønne blade pynter på bøgetræernes ellers nøgne grene. Skoven er som et eventyr, hvor fuglene synger med på forårets melodi. Solens stråler varmer mine kinder, og jeg mærker, hvordan lyset og den positive energi gennemstrømmer min krop. Det er som om, at vinterens mørke og kulde forlader mig med et dybt suk. Mine tanker ledes hen på naturens store betydning for ikke blot mig, men for mange mennesker her på jorden. Specielt i digte kan man finde mange afskygninger af naturens rolle i livet hos mennesker. Der findes netop mange digtere, som i tidens løb har skrevet og reflekteret over naturen. Nogen kan spejle sig eller finde en del af sig selv i naturen. Andre finder måske en ensomhed i naturens store pragt. Det får mig til at undres, for hvorfor opstilles naturen som motiv i mange digte? Hvilken betydning har naturen for mennesket, og hvordan kommer dette til udtryk i digte?",
         "Det er som om, at vinterens mørke og kulde forlader mig med et dybt suk.",
         "min and spiser massere af rødbedesaft og den løbe popcorn",
@@ -27,7 +25,6 @@ def test_deployment(correct_input, manual_check=False):
         "Hej jeg hedder lucas. Jeg havde engang en hund. Den har jeg ikke mere. Den er nu i Silkeborg. Jeg går på Silkeborg Gymnasium.",
         "jeg heder lucas. jeg har fødseldag idag",
         "jeg kører 30 km/t",
-        "hey Christian<br>håber du har en god dag på silkeborg silkeborg gymnasium"
         "håber du har en god dag på silkeborg silkeborg gymnasium",
         "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. Lars Lars har det godt. Jeg er fra fra fra silkeborg. Jeg har skole imorgen. Jeg er er er er er",
         "Jeg skal på arbejde d. 9. august 2022.",
@@ -40,9 +37,16 @@ def test_deployment(correct_input, manual_check=False):
         "Så er vi tilbage på 0 på annotate. Jeg har sendt billeder af statistics. Jeg har også lavet en PE med nogle fixes, flere static filtre og evnen til at specificere om en person faller på videoen, sover og hvorvidt patienten har dyne på. Jeg kan vise mere i morgen. Er du på kontoret i morgen?",
     ]
 
+    ## TO TEST MANUALLY IN WEBPAGE:
+    message_web = [
+        "hey Christian<br>tak for Det. Jeg er desværre I skole til, kl 18, så det har Lucas ikke mulighed for.<br>Jeg håber, at i får en dejlig aften :smile:.",
+        "hey Christian<br>håber du har en god dag på silkeborg silkeborg gymnasium"
+
+    ]
+
     average_time_per_word = []
 
-    for i in tqdm(range(len(messages))):
+    for i in range(len(messages)):
         start_time = time.time()
         message = messages[i]
         errors = correct_input(message)
@@ -54,9 +58,14 @@ def test_deployment(correct_input, manual_check=False):
             if input_statement == "q":
                 raise KeyboardInterrupt
         if not check_if_index_is_correct(errors, message, info=False):
-            raise IndexError("Index is not correct for message {}".format(message))
+            print("Errors: ", *errors, sep="\n")
+            check_if_index_is_correct(errors, message)
+            raise IndexError(f"Index is not correct for message {message}")
+        print(f"{i+1}/{len(messages)} done.")
     print("Indexes correct.")
-    print(f"{i+1}/{len(messages)} done.")
     print("Average time per word: ", np.mean(average_time_per_word), " sec/word.")
 
-    print("SUCCESS")
+    print("\n\n## SUCCESS ##")
+
+    print("You should check these manully on the webpage:")
+    print(*message_web, sep="\n")

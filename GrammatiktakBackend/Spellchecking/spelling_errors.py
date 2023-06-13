@@ -25,13 +25,12 @@ class SpellChecker():
         self.dictionary = pickle.load(open("Datasets/dictionary.pickle", "rb"))
         self.spelling_errors = load_spelling_errors()
         self.meter_errors = {k: v for k, v in zip([prefix + "met" for prefix in METERS_PREFIX], [prefix + "meter" for prefix in METERS_PREFIX])}
-        print(self.composite_words[:10])
 
     def is_word_in_dictionary(self, word): return word in self.dictionary
     def punctuation_in_word(self, word): return any([x in word for x in NO_CORRECTION_IF_IN_WORD])
     def partly_clean_sentence(self, sent): return ''.join(char for char in sent if char not in PARTLY_CLEANING)
     def has_possible_misspelling_correction(self, word): return word in self.spelling_errors
-    def word_in_ner_tags(self, word, ner_tags): return any([word in ner[0].lower() for ner in ner_tags]) # Should probably be changed
+    def word_in_ner_tags(self, word_index, ner_tags): return any([word_index == ner_index for ner_index in ner_tags]) # Should probably be changed
 
     def get_composite_combinations(self, word): 
         return [word[:i] + word[i+1:] for i in range(len(word)) if word[i] == " "] + [word[:i] + " " + word[i:] for i in range(len(word))]
@@ -52,7 +51,7 @@ class SpellChecker():
     def correct_spelling_mistakes(self, word, index, words, ner_tags):
         if self.punctuation_in_word(word): return None
         if self.is_word_in_dictionary(word): return None
-        if self.word_in_ner_tags(word, ner_tags): return None
+        if self.word_in_ner_tags(index, ner_tags): return None
         if word in self.meter_errors: return self.create_spellchecking_error_message(word, self.meter_errors[word], words, index)
         if not self.has_possible_misspelling_correction(word): return None
         return self.create_spellchecking_error_message(word, self.spelling_errors[word], words, index)
