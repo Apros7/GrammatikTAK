@@ -57,31 +57,6 @@ class IndexFinder():
         end_index = start_index + len(word)
         return [start_index, end_index]
 
-class IndexFinder2():
-    """
-    Effect should be the number of character you add to the sentence (can also be negative)
-    Frozen should be true if used in a module where indexes are also added
-    """
-    def __init__(self, original_sentence) -> None: 
-        self.original_sentence = original_sentence; self.original_words = original_sentence.split()
-        self.indexes_changed_from_input_words = []; self.words_information = [None for i in range(len(self.original_words))]
-    def add_index(self, index, effect): self.indexes_changed_from_input_words.append((index, self.true_effect(effect)))
-    def add_index_list(self, indexes, effect): self.indexes_changed_from_input_words.extend([(index, self.true_effect(effect)) for index in indexes])
-    def true_effect(self, effect): return -(self.take_space_into_account(effect))
-    def take_space_into_account(self, effect): return effect - 1 if effect < 0 else effect + 1
-    def freeze(self): self.frozen_lst = self.indexes_changed_from_input_words
-    def index_in_original_words(self, index): pass
-
-    def find_index(self, all_words_from_sentence, index_of_word_in_all_words, word):
-        print(all_words_from_sentence, index_of_word_in_all_words, word)
-        start_index = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence[:index_of_word_in_all_words])
-        print(" ".join(all_words_from_sentence)[start_index:start_index + len(word)])
-        print(self.frozen_lst)
-        start_index += sum([effect for (index, effect) in self.frozen_lst if index <= start_index])
-        end_index = start_index + len(word)
-        print(self.original_sentence[start_index:end_index])
-        return [start_index, end_index]
-
 # input sentence
 # output lowercased words with <br> removed
 # if split_sentence then always lowercase = Falses

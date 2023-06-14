@@ -20,7 +20,6 @@ class DoubleWordsChecker():
     def cut_ouf_indexes(self, words, indexes_to_cut_out):
         return [words[i] for i in range(len(words)) if i not in indexes_to_cut_out]
     def delete_pos_indexes(self, pos_tags, indexes_to_delete):
-        print(len(pos_tags), len(indexes_to_delete), len([pos_tags[i] for i in range(len(pos_tags)) if i not in indexes_to_delete]))
         return [pos_tags[i] for i in range(len(pos_tags)) if i not in indexes_to_delete]
 
     def pull_ner_tags_back(self, index, ner_tags, amount):
@@ -54,7 +53,6 @@ class DoubleWordsChecker():
                     self.index_finder.add_index(k, "")
         new_words = self.cut_ouf_indexes(words, indexes_to_cut_out)     
         pos_tags = self.delete_pos_indexes(pos_tags, indexes_to_cut_out) 
-        print(len(pos_tags))
         return errors, new_words, ner_tags, pos_tags
 
     def correct_composite_words(self, words):

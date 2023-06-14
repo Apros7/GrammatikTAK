@@ -25,9 +25,6 @@ class NutidsRCorrector():
         self.cutoff_value = model_cutoff_value
 
     def verbs_to_check(self, words, pos):
-        print(len(words), len(pos))
-        print(words)
-        print([x[0] for x in pos])
         verbs = []
         for i in range(len(pos)):
             if pos[i][0] != "VERB":                 verbs.append(False)
