@@ -41,7 +41,6 @@ def test_deployment(correct_input, manual_check=False):
     message_web = [
         "hey Christian<br>tak for Det. Jeg er desværre I skole til, kl 18, så det har Lucas ikke mulighed for.<br>Jeg håber, at i får en dejlig aften :smile:.",
         "hey Christian<br>håber du har en god dag på silkeborg silkeborg gymnasium"
-
     ]
 
     average_time_per_word = []
@@ -62,10 +61,11 @@ def test_deployment(correct_input, manual_check=False):
             check_if_index_is_correct(errors, message)
             raise IndexError(f"Index is not correct for message {message}")
         print(f"{i+1}/{len(messages)} done.")
-    print("Indexes correct.")
-    print("Average time per word: ", np.mean(average_time_per_word), " sec/word.")
+    print("Indexes correct.\n")
+    print("Average time per word: ", round(np.mean(average_time_per_word), 5), " sec/word.")
+    print("Than means: ", round(1/round(np.mean(average_time_per_word), 5), 2), "word/min.")
 
-    print("\n\n## SUCCESS ##")
+    print("\n\n## SUCCESS ##\n\n")
 
     print("You should check these manully on the webpage:")
-    print(*message_web, sep="\n")
+    print("\n", *message_web, "\n", sep="\n")

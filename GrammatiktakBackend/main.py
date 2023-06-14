@@ -92,9 +92,9 @@ message = "jeg jeg har en stor hus. jeg går på silkeborg silkeborg gymnasium. 
 message = "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. Lars Lars har det godt. Jeg er fra fra fra silkeborg. Jeg har skole imorgen. Jeg er er er er er"
 
 errors1 = correct_input(message)
-print(*errors1, sep="\n")
-check_if_index_is_correct(errors1, message)
-# test_deployment(correct_input)
+# print(*errors1, sep="\n")
+# check_if_index_is_correct(errors1, message)
+test_deployment(correct_input)
 
 time_tracker.track2("end")
 time_tracker(.5)
