@@ -43,7 +43,7 @@ class DeterminantCorrector():
         gender = "fælleskøn." if fælleskøn else "intetkøn."
         error_type = "det"
         error_description = f"{word_to_correct} ser ikke ud til at være bøjet korrekt. Der skal skrives '{correct_word}' foran {noun}, da {noun} er {gender}"
-        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        previous_index = self.index_finder.find_index(index_of_word_in_all_words, word_to_correct)
         wrong_word = word_to_correct
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
     
@@ -52,7 +52,7 @@ class DeterminantCorrector():
         gender = "fælleskøn." if fælleskøn else "intetkøn."
         error_type = "det"
         error_description = f"Der skal skrives '{correct_word}' foran {noun}, da {noun} er {gender}"
-        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        previous_index = self.index_finder.find_index(index_of_word_in_all_words, word_to_correct)
         wrong_word = word_to_correct
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
 

@@ -9,8 +9,8 @@ class ModuleSequential():
         self.timeTracker.track(f"module {module.__class__.__name__}")
         return errors
     
-    def correct(self, sentence, pos_tags, ner_tags, index_finder, freeze_index_finder = False):
-        index_finder.freeze() if freeze_index_finder else index_finder.unfreeze()
+    def correct(self, sentence, pos_tags, ner_tags, index_finder):
+        index_finder.freeze()
         return [self.correct_module(module, sentence, pos_tags, ner_tags, index_finder) for module in self.modules]
 
 # Used if the module changes sentence, pos and ner

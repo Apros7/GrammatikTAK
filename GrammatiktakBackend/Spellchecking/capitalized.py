@@ -12,7 +12,7 @@ class CapitalizationCorrector:
     def create_capitalization_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
         error_description = "'$right' skal starte med stort, da det er starten på en ny sætning." if missing_capitalization else "'$right' skal ikke starte med stort."
         error_type = "add_cap" if missing_capitalization else "del_cap"
-        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        previous_index = self.index_finder.find_index(index_of_word_in_all_words, word_to_correct)
         if missing_capitalization:
             wrong_word, right_word = word_to_correct, word_to_correct.title()
         else:
@@ -23,7 +23,7 @@ class CapitalizationCorrector:
     def create_i_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
         error_description = "'$right' skal starte med stort, da det står i stedet for nogen." if missing_capitalization else "'$right' skal ikke starte med stort."
         error_type = "add_cap" if missing_capitalization else "del_cap"
-        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        previous_index = self.index_finder.find_index(index_of_word_in_all_words, word_to_correct)
         if missing_capitalization:
             wrong_word, right_word = word_to_correct, word_to_correct.title()
         else:
@@ -68,7 +68,7 @@ class CapitalizationCorrector:
     def find_ner_errors(self, sentence, ner_tags) -> list:
         words = prepare_sentence(sentence, lowercase=False)
         previous_capitalization = [True if word[0].isupper() else False for word in words]
-        ner_words = [(True, (self.index_finder.find_index(words, i, words[i]))) if self.check_ner_interval(i, ner_tags) else (False, []) for i in range(len(words))]
+        ner_words = [(True, (self.index_finder.find_index(i, words[i]))) if self.check_ner_interval(i, ner_tags) else (False, []) for i in range(len(words))]
         error_messages_missing_capitalization = [self.create_ner_error_message(words[i], ner_words[i][1]) for i in range(len(words)) if ner_words[i][0] and not previous_capitalization[i]]
         return ErrorList(error_messages_missing_capitalization)
 

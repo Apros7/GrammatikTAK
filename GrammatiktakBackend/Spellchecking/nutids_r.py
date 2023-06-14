@@ -25,6 +25,9 @@ class NutidsRCorrector():
         self.cutoff_value = model_cutoff_value
 
     def verbs_to_check(self, words, pos):
+        print(len(words), len(pos))
+        print(words)
+        print([x[0] for x in pos])
         verbs = []
         for i in range(len(pos)):
             if pos[i][0] != "VERB":                 verbs.append(False)
@@ -145,7 +148,7 @@ class NutidsRCorrector():
 
     def make_nutids_r_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, correct_word, to_nutids_r):
         if word_to_correct == correct_word: return None
-        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, word_to_correct)
+        previous_index = self.index_finder.find_index(index_of_word_in_all_words, word_to_correct)
         error_type = "nutids-r"
         nutidsr_form, nutidsr_comment = self.get_nutidsr_comment(word_to_correct, correct_word, to_nutids_r)
         description = f"'{word_to_correct}' skal være bøjet i {nutidsr_form}{nutidsr_comment}, så der står '{correct_word}'."

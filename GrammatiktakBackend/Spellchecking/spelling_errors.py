@@ -45,7 +45,7 @@ class SpellChecker():
         ## When frontend can take lists change this:
         correct_word = correct_word[0] if len(correct_word) == 1 else correct_word
         error_description = f"{wrong_word} er ikke ordbogen. Mente du en af disse ord?" if isinstance(correct_word, list) else f"{wrong_word} er ikke ordbogen. Mente du '{correct_word}'?"
-        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, wrong_word)
+        previous_index = self.index_finder.find_index(index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
     
     def correct_spelling_mistakes(self, word, index, words, ner_tags):
