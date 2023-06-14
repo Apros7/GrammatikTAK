@@ -5,7 +5,7 @@ from Utilities.error_handling import Error, ErrorList
 class DoubleWordsChecker():
     """
     Corrects double words in a sentence
-    Corrects composite words
+    Corrects composite words (not yet!)
     """
     def __init__(self):
         pass
@@ -14,11 +14,14 @@ class DoubleWordsChecker():
         error_type = "spellcheck"
         correct_word = wrong_word.split()[0]
         error_description = f"Det ser ud til, at du er kommet til at skrive '{correct_word}' {len(wrong_word.split())} gange."
-        previous_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, wrong_word)
+        previous_index = self.index_finder.find_index(index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
 
     def cut_ouf_indexes(self, words, indexes_to_cut_out):
         return [words[i] for i in range(len(words)) if i not in indexes_to_cut_out]
+    def delete_pos_indexes(self, pos_tags, indexes_to_delete):
+        print(len(pos_tags), len(indexes_to_delete), len([pos_tags[i] for i in range(len(pos_tags)) if i not in indexes_to_delete]))
+        return [pos_tags[i] for i in range(len(pos_tags)) if i not in indexes_to_delete]
 
     def pull_ner_tags_back(self, index, ner_tags, amount):
         new_tags = []
@@ -28,7 +31,7 @@ class DoubleWordsChecker():
             else: new_tags.append(tag)
         return new_tags
 
-    def correct_double_words(self, words, ner_tags):
+    def correct_double_words(self, words, ner_tags, pos_tags):
         """
         Check if this hard-coding is correct: Is "så" the only word that will show up after each other?
         """
@@ -46,10 +49,13 @@ class DoubleWordsChecker():
                 errors.append(self.create_double_word_error_message(" ".join(temp), words, i))
                 indexes_to_cut_out.extend(range(i+1, j))
                 ner_tags = self.pull_ner_tags_back(i, ner_tags, len(temp) - 1)
-                characters_added_to_sentence = -len(" ".join(temp)) + len(temp[0]) + 1
-                self.index_finder.add_index_list(list(range(i+1, j)), effect = characters_added_to_sentence)
-        new_words = self.cut_ouf_indexes(words, indexes_to_cut_out)      
-        return errors, new_words, ner_tags
+                #pos_tags = self.delete_pos_indexes(pos_tags, list(range(i+1, j)))
+                for k in range(i+1, j):
+                    self.index_finder.add_index(k, "")
+        new_words = self.cut_ouf_indexes(words, indexes_to_cut_out)     
+        pos_tags = self.delete_pos_indexes(pos_tags, indexes_to_cut_out) 
+        print(len(pos_tags))
+        return errors, new_words, ner_tags, pos_tags
 
     def correct_composite_words(self, words):
         pass
@@ -57,5 +63,5 @@ class DoubleWordsChecker():
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
         self.index_finder = index_finder
         words = prepare_sentence(sentence, lowercase=False)
-        errors, words, ner_tags = self.correct_double_words(words, ner_tags)
+        errors, words, ner_tags, pos_tags = self.correct_double_words(words, ner_tags, pos_tags)
         return move_index_based_on_br(errors, sentence), (" ".join(words), pos_tags, ner_tags)

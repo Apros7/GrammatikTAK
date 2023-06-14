@@ -15,7 +15,7 @@ class MissingFoundationChecker():
     def create_error_message(self, wrong_word, correct_word, all_words_from_sentence, index_of_word_in_all_words) -> list:
         error_type = "foundation"
         error_description = "Det ligner, at der mangler et subjekt i denne sætning. Måske kan du indsætte 'Jeg'?"
-        prev_index = self.index_finder.find_index(all_words_from_sentence, index_of_word_in_all_words, wrong_word)
+        prev_index = self.index_finder.find_index(index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, prev_index, error_description, error_type)
 
     def push_ner_tags(self, index, ner_tags):
@@ -32,10 +32,10 @@ class MissingFoundationChecker():
             if pos[index:index+3] != ["VERB", "PRON", "VERB"]: continue
             errors.append(self.create_error_message(words[index], "Jeg " + words[index], words, index))
             new_words = new_words[:index] + ["Jeg"] + new_words[index:]
-            indexes = self.index_finder.find_index(words, index, words[index])
+            indexes = self.index_finder.find_index(index, words[index])
             new_pos = new_pos[:index] + [["PRON", [indexes[0], indexes[0]], {}]] + new_pos[index:]
             ner_tags = self.push_ner_tags(index, ner_tags)
-            self.index_finder.add_index(index, effect = 3)
+            self.index_finder.add_index(index, "Jeg", add=True)
         return errors, (new_words, new_pos, ner_tags)
 
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
