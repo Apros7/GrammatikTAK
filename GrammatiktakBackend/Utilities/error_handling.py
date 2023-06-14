@@ -177,7 +177,7 @@ class Error():
 
     def to_list(self, include_type=False):
         self.is_healthy()
-        if self.wrong_word == self.right_word: print("ALERT: Error has the same wrong and right word, therefore skipped"); return None
+        if self.wrong_word == self.right_word: print("ALERT: Error has the same wrong and right word, therefore skipped"); print(self.to_finalized_list()); return None
         if include_type: return [self.wrong_word, self.right_word, self.indexes, self.description, self.get_type()]
         return [self.wrong_word, self.right_word, self.indexes, self.description]
 
