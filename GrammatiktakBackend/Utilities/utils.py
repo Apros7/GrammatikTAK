@@ -31,22 +31,55 @@ def check_empty_input_or_feedback(json_data):
 
 class IndexFinder():
     """
+    Whenever you manipulate the sentence, you should tell indexfinder which index you change, and what you changed it to
+    You can then use find_index to find the index giving it the index of the manipulated sentence.
+    Freeze index finder before each module
+    """
+
+    def __init__(self, original_sentence) -> None: 
+        self.original_sentence = original_sentence; self.original_words = original_sentence.split()
+        self.indexes_changed_from_input_words = []; self.changed_to = [(self.original_words[i], False) for i in range(len(self.original_words))]
+
+    def add_index(self, index, changed_to, add=False):
+        if add: self.changed_to.insert(self.true_index(index), (changed_to, True))
+        else: self.changed_to[self.true_index(index)] = (changed_to, False)
+
+    def true_index(self, index): 
+        for i, word in enumerate(self.frozen_lst):
+            if word[0] == "" and i <= index: index += 1
+            if word[1] and i <= index: index -= 1
+        return index
+
+    def freeze(self): self.frozen_lst = self.changed_to.copy()
+
+    def find_index(self, index_of_word_in_all_words, word):
+        start_index = sum([len(word) for word in self.original_words[:self.true_index(index_of_word_in_all_words)]]) + len(self.original_words[:self.true_index(index_of_word_in_all_words)])
+        end_index = start_index + len(word)
+        return [start_index, end_index]
+
+class IndexFinder2():
+    """
     Effect should be the number of character you add to the sentence (can also be negative)
     Frozen should be true if used in a module where indexes are also added
     """
-    def __init__(self) -> None: self.indexes_changed_from_input_words = []; self.frozen = False
+    def __init__(self, original_sentence) -> None: 
+        self.original_sentence = original_sentence; self.original_words = original_sentence.split()
+        self.indexes_changed_from_input_words = []; self.words_information = [None for i in range(len(self.original_words))]
     def add_index(self, index, effect): self.indexes_changed_from_input_words.append((index, self.true_effect(effect)))
     def add_index_list(self, indexes, effect): self.indexes_changed_from_input_words.extend([(index, self.true_effect(effect)) for index in indexes])
     def true_effect(self, effect): return -(self.take_space_into_account(effect))
     def take_space_into_account(self, effect): return effect - 1 if effect < 0 else effect + 1
-    def freeze(self): self.frozen = True; self.frozen_lst = self.indexes_changed_from_input_words
-    def unfreeze(self): self.fronen = False; 
+    def freeze(self): self.frozen_lst = self.indexes_changed_from_input_words
+    def index_in_original_words(self, index): pass
 
     def find_index(self, all_words_from_sentence, index_of_word_in_all_words, word):
+        print(all_words_from_sentence, index_of_word_in_all_words, word)
         start_index = sum([len(word) for word in all_words_from_sentence[:index_of_word_in_all_words]]) + len(all_words_from_sentence[:index_of_word_in_all_words])
-        if self.frozen: start_index += sum([effect for (index, effect) in self.frozen_lst if index <= start_index])
-        else: start_index += start_index + sum([effect for (index, effect) in self.indexes_changed_from_input_words if index <= start_index])
+        print(" ".join(all_words_from_sentence)[start_index:start_index + len(word)])
+        print(self.frozen_lst)
+        start_index += sum([effect for (index, effect) in self.frozen_lst if index <= start_index])
         end_index = start_index + len(word)
+        print(self.original_sentence[start_index:end_index])
         return [start_index, end_index]
 
 # input sentence
