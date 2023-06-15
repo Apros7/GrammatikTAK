@@ -90,8 +90,11 @@ message = "Hvordan har du det? Det går godt her."
 message = "jeg jeg har har et et sødt sødt hund hund"
 message = "jeg jeg har en stor hus. jeg går på silkeborg silkeborg gymnasium. Jeg har et stor hus. Jeg har en stort hund."
 message = "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. Lars Lars har det godt. Jeg er fra fra fra silkeborg. Jeg har skole imorgen. Jeg er er er er er"
+message = "imorgen skal jeg i skole i morgen"
+message = "imorgen kan jeg aller bedst lide bananer ala carte"
+message = "Hej jeg hedder lucas. Jeg havde engang en hund. Den har jeg ikke mere. Den er nu i Silkeborg. Jeg går på Silkeborg Gymnasium."
 
-errors1 = correct_input(message)
+# errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # check_if_index_is_correct(errors1, message)
 test_deployment(correct_input)
