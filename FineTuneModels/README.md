@@ -21,7 +21,7 @@ Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test acc
 ## Nutids-r Models
 Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Test F1 | Cutoff
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-10-Bert | 07-06-2023 | 2.6 mil | 2 | 32 | 2e-5 | 15-5 | % | ___ | ___ | 0
+10-Bert | 07-06-2023 | 2.100.000 | 2 | 32 | 2e-5 | 15-5 | % | ___ | ___ | 0
 9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | **96.62%** | 00.46% | **0.990** | 0.95
 9-Bert | 25-05-2023 | 1.100.000 | 3 | 32 | 2e-5 | 15-5 | 98.87% | 01.13% | **0.990** | 0
 5-Bert | 04-04-2023 | 200.000 | 4 | 16 | 1e-5 | 5-5 | 75.53% | 02.66% | Unknown | 0.95
@@ -38,6 +38,7 @@ SimpleNN | 07-06-2023 | 2.6 mil | 10 | 64 | 2e-6 | 15-5 | 97.56% | ___ | ___ | 0
   - guess "infinitiv" if "at" right before.
 - Hard coded improved accuracy with ~.3%. Ideally these should be deleted for later models.
 - SimpleNN in pytorch: can't seem to get above 97.5%
+- Model 11 had all data manually cleaned before testing, hence the same dataset size as model 10, but better performance.
 
 ## Road to 99% Comma Model
 - Multiple epochs?
