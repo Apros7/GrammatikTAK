@@ -21,7 +21,6 @@ class SpellChecker():
 
     def __init__(self) -> None:
         print("Loading spellchecking dictionaries...")
-        self.composite_words = pickle.load(open("Datasets/composite_words.pickle", "rb"))
         self.dictionary = pickle.load(open("Datasets/dictionary.pickle", "rb"))
         self.spelling_errors = load_spelling_errors()
         self.meter_errors = {k: v for k, v in zip([prefix + "met" for prefix in METERS_PREFIX], [prefix + "meter" for prefix in METERS_PREFIX])}
