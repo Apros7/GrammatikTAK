@@ -39,7 +39,3 @@ SimpleNN | 07-06-2023 | 2.6 mil | 10 | 64 | 2e-6 | 15-5 | 97.56% | ___ | ___ | 0
 - Hard coded improved accuracy with ~.3%. Ideally these should be deleted for later models.
 - SimpleNN in pytorch: can't seem to get above 97.5%
 - Model 11 had all data manually cleaned before testing, hence the same dataset size as model 10, but better performance.
-
-## Road to 99% Comma Model
-- Multiple epochs?
-- Maybe another structure? Full sentences as input?
