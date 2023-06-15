@@ -27,3 +27,5 @@ class ModuleSequentialWhenSentenceManipulation():
             all_errors.append(module_errors)
             self.timeTracker.track(f"module {module.__class__.__name__}")
         return all_errors, (sentence, pos_tags, ner_tags)
+
+# Useful functions that is used in multiple modules:

@@ -48,6 +48,7 @@ def test_deployment(correct_input, manual_check=False):
     for i in range(len(messages)):
         start_time = time.time()
         message = messages[i]
+        print("Correcting this text: ", f"\"{message}\"")
         errors = correct_input(message)
         average_time_per_word.append((time.time() - start_time)/len(message.split()))
         if manual_check:
