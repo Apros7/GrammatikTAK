@@ -61,6 +61,17 @@ def test_deployment(correct_input, manual_check=False):
             print("Errors: ", *errors, sep="\n")
             check_if_index_is_correct(errors, message)
             raise IndexError(f"Index is not correct for message {message}")
+        for j in range(len(errors)):
+            for k in range(len(errors)):
+                if j == k: continue
+                j_indexes = errors[j][2]
+                k_indexes = errors[k][2]
+                if j_indexes[0] == k_indexes[0] or j_indexes[1] == k_indexes[1]: 
+                    print(f"Index {j} and {k} are the same:")
+                    print("Error[j] = ", errors[j])
+                    print("Error[k] = ", errors[k])
+
+        # Should also display if some word is corrected by multiple correctors ie. index[0] == index[0] or index[1] == index[1]
         print(f"{i+1}/{len(messages)} done.")
     print("Indexes correct.\n")
     print("Average time per word: ", round(np.mean(average_time_per_word), 5), " sec/word.")

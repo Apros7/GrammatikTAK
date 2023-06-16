@@ -15,14 +15,14 @@ class DoubleWordsChecker():
     # other error_type??
 
     def create_double_word_error_message(self, wrong_word, all_words_from_sentence, index_of_word_in_all_words):
-        error_type = "spellcheck"
+        error_type = "doublewords"
         correct_word = wrong_word.split()[0]
         error_description = f"Det ser ud til, at du er kommet til at skrive '{correct_word}' {len(wrong_word.split())} gange."
         previous_index = self.index_finder.find_index(index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
 
     def create_composite_error_message(self, wrong_word, correct_word, index_of_word_in_all_words):
-        error_type = "spellcheck"
+        error_type = "doublewords"
         error_description = f"Det ligner, at du har skrevet '{wrong_word}' forkert. Den rigtige måde er: '{correct_word}'."
         previous_index = self.index_finder.find_index(index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)

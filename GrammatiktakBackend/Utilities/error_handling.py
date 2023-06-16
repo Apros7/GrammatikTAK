@@ -1,54 +1,44 @@
 from collections import defaultdict
 
-approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", "spellcheck", "foundation"]
+approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", "spellcheck", "foundation", "doublewords"]
 error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap"]
 
 def init_dict():
-    def def_value():
-        return []
+    def def_value(): return []
     return defaultdict(def_value)
 
 def errors_to_index_dict(errors):
     dict = init_dict()
-    if not isinstance(errors, list):
-        errors = list(errors)
+    if not isinstance(errors, list): errors = list(errors)
     for errorList in errors:
         for error in errorList.errors:
             dict[tuple(error.indexes)].append(error)
     return dict
 
 def add_punc(error, error2):
-    wrong_word = error.wrong_word
     right_word = error.right_word + error2.right_word[-1]
-    indexes = error.indexes
     description = error.description + " " + error2.description
-    return Error(wrong_word, right_word, indexes, description, error.get_type())
+    return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def del_punc(error, error2):
-    wrong_word = error.wrong_word
     right_word = error.right_word[:-1]
-    indexes = error.indexes
     description = error.description + " " + error2.description
-    return Error(wrong_word, right_word, indexes, description, error.get_type())
+    return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def add_cap(error, error2):
-    wrong_word = error.wrong_word
     right_word = error.right_word.capitalize()
-    indexes = error.indexes
     description = error.description + " " + error2.description
-    return Error(wrong_word, right_word, indexes, description, error.get_type())
+    return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def del_cap(error, error2):
-    wrong_word = error.wrong_word
     right_word = error.right_word.lower()
-    indexes = error.indexes
     description = error.description + " " + error2.description
-    return Error(wrong_word, right_word, indexes, description, error.get_type())
+    return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def project_error(errors, error_to_project):
     project_type = error_to_project.get_type()
     if project_type not in error_types_to_concat:
-        raise NotImplementedError("Trying to project an error of type {}, which is not allowed.".format(project_type))
+        raise NotImplementedError(f"Trying to project an error of type {project_type}, which is not allowed.")
 
     error_projectors = {
         "add_punc": add_punc,
@@ -80,12 +70,22 @@ def error_concatenator(errors, errors_to_project_onto_others, include_type=False
     errors_to_project_dict = errors_to_index_dict(errors_to_project_onto_others)
 
     for key in errors_to_project_dict.keys():
-        if key not in errors_dict.keys():
-            errors_dict[key] = errors_to_project_dict[key]
-        else:
+        if key[0] in [k[0] for k in errors_dict.keys()]:
+            for k in errors_dict.keys():
+                if key[0] == k[0]:
+                    adjusted_key = k; break
             for error_to_project in errors_to_project_dict[key]:
-                projected_errors = project_error(errors_dict[key], error_to_project)
-                errors_dict[key] = projected_errors
+                projected_errors = project_error(errors_dict[adjusted_key], error_to_project)
+                errors_dict[adjusted_key] = projected_errors
+        elif key[1] in [k[1] for k in errors_dict.keys()]:
+            for k in errors_dict.keys():
+                if key[1] == k[1]:
+                    adjusted_key = k; break
+            for error_to_project in errors_to_project_dict[key]:
+                projected_errors = project_error(errors_dict[adjusted_key], error_to_project)
+                errors_dict[adjusted_key] = projected_errors
+        else:
+            errors_dict[key] = errors_to_project_dict[key]
 
     # In case of multiple errors_to_project on same indexes:
     final_errors = []
