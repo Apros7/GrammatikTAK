@@ -73,17 +73,17 @@ def error_concatenator(errors, errors_to_project_onto_others, include_type=False
         if key[0] in [k[0] for k in errors_dict.keys()]:
             for k in errors_dict.keys():
                 if key[0] == k[0]:
-                    adjusted_key = k; break
+                    matching_key = k; break
             for error_to_project in errors_to_project_dict[key]:
-                projected_errors = project_error(errors_dict[adjusted_key], error_to_project)
-                errors_dict[adjusted_key] = projected_errors
+                projected_errors = project_error(errors_dict[matching_key], error_to_project)
+                errors_dict[matching_key] = projected_errors
         elif key[1] in [k[1] for k in errors_dict.keys()]:
             for k in errors_dict.keys():
                 if key[1] == k[1]:
-                    adjusted_key = k; break
+                    matching_key = k; break
             for error_to_project in errors_to_project_dict[key]:
-                projected_errors = project_error(errors_dict[adjusted_key], error_to_project)
-                errors_dict[adjusted_key] = projected_errors
+                projected_errors = project_error(errors_dict[matching_key], error_to_project)
+                errors_dict[matching_key] = projected_errors
         else:
             errors_dict[key] = errors_to_project_dict[key]
 
