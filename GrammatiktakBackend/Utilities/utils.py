@@ -6,7 +6,8 @@ import string
 from Utilities.error_handling import Error, ErrorList
 
 
-def get_pos_without_information(pos): return [x[0] for x in pos]        
+def get_pos_without_information(pos): return [x[0] for x in pos]
+def clean_excessive_spaces(sentence): return " ".join([x for x in sentence.split(" ") if len(x) > 0])        
 
 # input json_data
 # returns (is_empty_or_feedback, feedback, input, potential output)
@@ -39,6 +40,7 @@ class IndexFinder():
     def __init__(self, original_sentence) -> None: 
         self.original_sentence = original_sentence; self.original_words = original_sentence.split()
         self.indexes_changed_from_input_words = []; self.changed_to = [(self.original_words[i], False) for i in range(len(self.original_words))]
+        self.freeze()
 
     def add_index(self, index, changed_to, add=False):
         if add: self.changed_to.insert(self.true_index(index), (changed_to, True))
@@ -61,6 +63,12 @@ class IndexFinder():
 # output lowercased words with <br> removed
 # if split_sentence then always lowercase = Falses
 def prepare_sentence(sentence, lowercase=True, split_sentences=False, clean=False) -> str:
+    """
+    Will always replace <br> with " " unless split_sentences = True, which will then give list of lists of words
+    Clean: replace <br> with " " and remove all punctuation.
+    Lowercase: lowercase
+    Returns list of words
+    """
     if clean:
         sentence = clean_sentence(sentence)
     if split_sentences:

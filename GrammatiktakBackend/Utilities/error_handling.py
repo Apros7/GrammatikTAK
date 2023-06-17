@@ -1,6 +1,7 @@
 from collections import defaultdict
 
-approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", "spellcheck", "foundation", "doublewords"]
+approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", 
+                  "spellcheck", "foundation", "doublewords", "spaces"]
 error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap"]
 
 def init_dict():

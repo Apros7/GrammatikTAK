@@ -37,10 +37,10 @@ class DoubleWordsChecker():
 
     def correct_double_words(self, words, ner_tags, pos_tags):
         """
-        Check if this hard-coding is correct: Is "så" the only word that will show up after each other?
         Needs refactoring
         """
         indexes_to_cut_out = []
+        words_allowed = ["så", "i"]
         errors = ErrorList()
         for i in range(len(words)):
             if i > 0 and words[i] == words[i-1]:
@@ -50,7 +50,7 @@ class DoubleWordsChecker():
             while j < len(words) and words[i] == words[j]:
                 temp.append(words[j])
                 j += 1
-            if len(temp) > 1 and words[i].lower() != "så":
+            if len(temp) > 1 and words[i].lower() not in words_allowed:
                 errors.append(self.create_double_word_error_message(" ".join(temp), words, i))
                 indexes_to_cut_out.extend(range(i+1, j))
                 ner_tags = self.push_ner_tags(i, ner_tags, -len(temp) + 1)
@@ -94,7 +94,7 @@ class DoubleWordsChecker():
         all_errors = ErrorList()
         for i in range(1, 4):
             self.index_finder.freeze() # Needs to freeze because next self.check_composite_words works on return value from prev state, which could have been changed
-            errors, words, ner_tags, pos_tags = self.check_composite_words(words, ner_tags, pos_tags, 1)
+            errors, words, ner_tags, pos_tags = self.check_composite_words(words, ner_tags, pos_tags, number_of_words_at_a_time=i)
             all_errors += errors
         return all_errors, words, ner_tags, pos_tags
 
