@@ -70,11 +70,9 @@ class Tagger():
     def get_ner_tags(self, sentence):
         emoji_free_sentence = strip_emojis(sentence)
         result = self.ner_tagger.predict(emoji_free_sentence)
-        print(result)
         namedEntities = [[ent["word"], [ent["start"], ent["end"]]] for ent in result]
         no_misc_entities = [namedEntity for i, namedEntity in enumerate(namedEntities) if result[i]["entity_group"] != "MISC"]
         emoji_corrected_entities = self.move_ner_tags_by_emoji(no_misc_entities, sentence)
-        print(emoji_corrected_entities)
         ner_word_indexes = self.ner_character_index_to_word_index(sentence, emoji_corrected_entities)
         return ner_word_indexes
 
