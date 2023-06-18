@@ -10,6 +10,7 @@ from Spellchecking.determinant import DeterminantCorrector
 from Spellchecking.spelling_errors import SpellChecker
 from SentenceStructure.missing_foundation import MissingFoundationChecker
 from SentenceStructure.double_words import DoubleWordsChecker
+from Punctuation.excessive_spaces import ExcessiveSpacesCorrector
 
 from Utilities.utils import check_empty_input_or_feedback, check_if_index_is_correct, IndexFinder
 from Utilities.error_handling import error_concatenator
@@ -26,6 +27,7 @@ time_tracker.track("import modules")
 tagger = Tagger()
 
 modules_to_manipulate_sentence = ModuleSequentialWhenSentenceManipulation([
+    ExcessiveSpacesCorrector(),
     MissingFoundationChecker(),
     DoubleWordsChecker()
 ], timeTracker=time_tracker)
@@ -93,7 +95,8 @@ message = "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. 
 message = "imorgen skal jeg i skole i morgen"
 message = "imorgen kan jeg aller bedst lide bananer ala carte"
 message = "Hej jeg hedder lucas. Jeg havde engang en hund. Den har jeg ikke mere. Den er nu i Silkeborg. Jeg går på Silkeborg Gymnasium."
-
+message = "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. Lars Lars har det godt. Jeg er fra fra fra silkeborg. Jeg har skole imorgen. Jeg er er er er er"
+message = "hej jeg hedder lucas. hej jeg hedder  lucas. hej jeg hedder      lucas."
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # check_if_index_is_correct(errors1, message)

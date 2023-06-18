@@ -6,8 +6,7 @@ import string
 from Utilities.error_handling import Error, ErrorList
 
 
-def get_pos_without_information(pos): return [x[0] for x in pos]
-def clean_excessive_spaces(sentence): return " ".join([x for x in sentence.split(" ") if len(x) > 0])        
+def get_pos_without_information(pos): return [x[0] for x in pos]        
 
 # input json_data
 # returns (is_empty_or_feedback, feedback, input, potential output)
@@ -38,7 +37,7 @@ class IndexFinder():
     """
 
     def __init__(self, original_sentence) -> None: 
-        self.original_sentence = original_sentence; self.original_words = original_sentence.split()
+        self.original_sentence = original_sentence; self.original_words = original_sentence.split(" ")
         self.indexes_changed_from_input_words = []; self.changed_to = [(self.original_words[i], False) for i in range(len(self.original_words))]
         self.freeze()
 
@@ -53,6 +52,7 @@ class IndexFinder():
         return index
 
     def freeze(self): self.frozen_lst = self.changed_to.copy()
+    def __call__(self): return self.frozen_lst
 
     def find_index(self, index_of_word_in_all_words, word):
         start_index = sum([len(word) for word in self.original_words[:self.true_index(index_of_word_in_all_words)]]) + len(self.original_words[:self.true_index(index_of_word_in_all_words)])
