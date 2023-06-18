@@ -26,7 +26,7 @@ def test_deployment(correct_input, manual_check=False):
         "9 mennesker boede på en gammel ø.. De havde en god ven",
         "jeg jeg har en stor hus. jeg går på silkeborg silkeborg gymnasium. Jeg har et stor hus. Jeg har en stort hund.",
         "jeg jeg har en met til skole",
-        "håber du har en god dag på silkeborg gymnasium. Har du en god dag? Har en god dag. Har du haft en god dag? Har du spist en banan? Håber du hygger.",
+        " håber du har en god dag på silkeborg gymnasium. Har du en god dag? Har en god dag. Har du haft en god dag? Har du spist en banan? Håber du hygger.",
         "Hej jeg hedder lucas. Jeg havde engang en hund. Den har jeg ikke mere. Den er nu i Silkeborg. Jeg går på Silkeborg Gymnasium.",
         "jeg heder lucas. jeg har fødseldag idag  ",
         "jeg kører 30 km/t",
@@ -63,6 +63,7 @@ def test_deployment(correct_input, manual_check=False):
             if input_statement == "q":
                 raise KeyboardInterrupt
         if not check_if_index_is_correct(errors, message, info=False):
+            print("MESSAGE: ", message)
             print("Errors: ", *errors, sep="\n")
             check_if_index_is_correct(errors, message)
             raise IndexError(f"Index is not correct for message {message}")

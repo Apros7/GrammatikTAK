@@ -40,7 +40,7 @@ modules_to_project_onto_others = ModuleSequential([
 modules_be_projected_on = ModuleSequential([
     DeterminantCorrector(),
     NutidsRCorrector(),
-    SpellChecker()
+    #SpellChecker()
 ], timeTracker=time_tracker)
 
 firestore_client = FirestoreClient()
@@ -83,7 +83,7 @@ def index():
 
 time_tracker.complete_reset()
 
-message = "hej jeg hedder lucas. hej jeg hedder  lucas. hej jeg hedder      lucas."
+message = "håber du har en god  dag på silkeborg silkeborg gymnasium "
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # check_if_index_is_correct(errors1, message)

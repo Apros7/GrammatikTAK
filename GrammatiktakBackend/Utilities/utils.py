@@ -55,8 +55,20 @@ class IndexFinder():
     def __call__(self): return self.frozen_lst
 
     def find_index(self, index_of_word_in_all_words, word):
-        start_index = sum([len(word) for word in self.original_words[:self.true_index(index_of_word_in_all_words)]]) + len(self.original_words[:self.true_index(index_of_word_in_all_words)])
-        end_index = start_index + len(word)
+        true_index = self.true_index(index_of_word_in_all_words)
+        start_index = sum([len(word) for word in self.original_words[:true_index]]) + len(self.original_words[:true_index])
+        number_of_words_to_consider = len(word.split())
+        true_word_length = -1
+        non_added_lst = [el for el in self.frozen_lst if not el[1]]
+        while number_of_words_to_consider > 0:
+            true_word_length += len(non_added_lst[true_index][0]) + 1
+            if non_added_lst[true_index][0] != "":
+                number_of_words_to_consider -= 1
+            true_index += 1
+
+        if word[-1] not in string.punctuation and non_added_lst[true_index-1][0][-1] in string.punctuation:
+            true_word_length -= 1
+        end_index = start_index + true_word_length
         return [start_index, end_index]
 
 # input sentence
@@ -119,11 +131,15 @@ def count_spaces_before_after_br(br_indexes, sentence):
 # This function is used to check if the index from a module is correct
 def check_if_index_is_correct(errors, sentence, info=True):
     should_be = [errors[i][0] for i in range(len(errors))]
-    actual = [sentence[errors[i][2][0]:errors[i][2][1]] for i in range(len(errors))]
+    actual = []
+    for i in range(len(errors)):
+        words = sentence[errors[i][2][0]:errors[i][2][1]]
+        if not all(x == "" for x in words.split()): words = " ".join(words.split())
+        actual.append(words)
     states = []
     for i in range(len(should_be)):
         states.append(should_be[i].lower() == actual[i].lower())
-        if info: print("Should be: ", should_be[i].lower(), ". Actual: ", actual[i].lower(), ". Equal?: ", should_be[i].lower() == actual[i].lower())
+        if info: print("Should be: ", should_be[i].lower(), ". Actual: ", actual[i].lower(), ". Equal?: ", states[-1])
 
     if info:
         print("BE AWARE:")
