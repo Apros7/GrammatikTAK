@@ -131,19 +131,18 @@ def count_spaces_before_after_br(br_indexes, sentence):
 # This function is used to check if the index from a module is correct
 def check_if_index_is_correct(errors, sentence, info=True):
     should_be = [errors[i][0] for i in range(len(errors))]
-    actual = []
-    for i in range(len(errors)):
-        words = sentence[errors[i][2][0]:errors[i][2][1]]
-        if not all(x == "" for x in words.split()): words = " ".join(words.split())
-        actual.append(words)
+    actual = [sentence[errors[i][2][0]:errors[i][2][1]] for i in range(len(errors))]
+    # actual = []
+    # for i in range(len(errors)):
+    #     words = sentence[errors[i][2][0]:errors[i][2][1]]
+    #     if not all(x == "" for x in words.split()): words = " ".join(words.split())
+    #     actual.append(words)
     states = []
     for i in range(len(should_be)):
         states.append(should_be[i].lower() == actual[i].lower())
-        if info: print("Should be: ", should_be[i].lower(), ". Actual: ", actual[i].lower(), ". Equal?: ", states[-1])
+        if info: print("Error says: ", should_be[i].lower(), ". Actual in sentence: ", actual[i].lower(), ". Equal?: ", states[-1], ". Lengths: ", len(should_be[i]), " ", len(actual[i]))
 
     if info:
         print("BE AWARE:")
-        print("If you use this function directly in your script it might return False even though your function works perfectly!")
-        print("Instead, launch the GrammatikTAK website locally, hook it up to your backend, and try it out.")
-        print("This is due to some features in the front that changes the html code to fit.")
+        print("Make sure to test with <br> on the frontend side of things!")
     return all(states)

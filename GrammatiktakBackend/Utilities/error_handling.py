@@ -2,7 +2,7 @@ from collections import defaultdict
 
 approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", 
                   "spellcheck", "foundation", "doublewords", "spaces"]
-error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap"]
+error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap", "spaces"]
 
 def init_dict():
     def def_value(): return []
@@ -36,6 +36,15 @@ def del_cap(error, error2):
     description = error.description + " " + error2.description
     return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
+def spaces(error, error2):
+    error_one_first_index = error.indexes[0]
+    error_two_first_index = error2.indexes[0]
+    relative_index = error_two_first_index - error_one_first_index
+    wrong_word = list(error.wrong_word)
+    wrong_word[relative_index] = error2.wrong_word
+    description = error.description + " " + error2.description
+    return Error("".join(wrong_word), error.right_word, error.indexes, description, error.get_type())
+
 def project_error(errors, error_to_project):
     project_type = error_to_project.get_type()
     if project_type not in error_types_to_concat:
@@ -46,6 +55,7 @@ def project_error(errors, error_to_project):
         "del_punc": del_punc,
         "add_cap": add_cap,
         "del_cap": del_cap,
+        "spaces": spaces
     }
 
     projected_errors = []
@@ -85,6 +95,11 @@ def error_concatenator(errors, errors_to_project_onto_others, include_type=False
             for error_to_project in errors_to_project_dict[key]:
                 projected_errors = project_error(errors_dict[matching_key], error_to_project)
                 errors_dict[matching_key] = projected_errors
+        for k in errors_dict.keys():
+            if key[0] > k[0] and key[1] < k[1]:
+                for error_to_project in errors_to_project_dict[key]:
+                    projected_errors = project_error(errors_dict[k], error_to_project)
+                    errors_dict[k] = projected_errors
         else:
             errors_dict[key] = errors_to_project_dict[key]
 

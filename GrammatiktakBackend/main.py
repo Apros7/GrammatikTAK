@@ -27,9 +27,12 @@ time_tracker.track("import modules")
 tagger = Tagger()
 
 modules_to_manipulate_sentence = ModuleSequentialWhenSentenceManipulation([
-    ExcessiveSpacesCorrector(),
     MissingFoundationChecker(),
     DoubleWordsChecker()
+], timeTracker=time_tracker)
+
+modules_to_manipulate_and_project = ModuleSequentialWhenSentenceManipulation([
+    ExcessiveSpacesCorrector(),
 ], timeTracker=time_tracker)
 
 modules_to_project_onto_others = ModuleSequential([
@@ -40,7 +43,7 @@ modules_to_project_onto_others = ModuleSequential([
 modules_be_projected_on = ModuleSequential([
     DeterminantCorrector(),
     NutidsRCorrector(),
-    #SpellChecker()
+    #$SpellChecker()
 ], timeTracker=time_tracker)
 
 firestore_client = FirestoreClient()
@@ -53,6 +56,7 @@ def correct_input(input_sentence, save=False):
     pos_tags, ner_tags = tagger.get_tags(input_sentence)
     time_tracker.track("get tags")
 
+    sentence_manipulation_project_errors, (sentence, pos_tags, ner_tags) = modules_to_manipulate_and_project.correct(input_sentence, pos_tags, ner_tags, index_finder=index_finder)
     sentence_manipulation_errors, (sentence, pos_tags, ner_tags) = modules_to_manipulate_sentence.correct(input_sentence, pos_tags, ner_tags, index_finder=index_finder)
     errors_be_projected_on = modules_be_projected_on.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
     errors_to_project_onto_others = modules_to_project_onto_others.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
@@ -62,7 +66,7 @@ def correct_input(input_sentence, save=False):
         time_tracker.track("saving to firestore")
 
     final_errors = error_concatenator(errors_be_projected_on + sentence_manipulation_errors, 
-                                      errors_to_project_onto_others=errors_to_project_onto_others)
+                                      errors_to_project_onto_others=errors_to_project_onto_others + sentence_manipulation_project_errors)
 
     return final_errors
 
@@ -84,10 +88,11 @@ def index():
 time_tracker.complete_reset()
 
 message = "håber du har en god  dag på silkeborg silkeborg gymnasium "
-# errors1 = correct_input(message)
-# print(*errors1, sep="\n")
-# check_if_index_is_correct(errors1, message)
-test_deployment(correct_input)
+errors1 = correct_input(message)
+print(*errors1, sep="\n")
+check_if_index_is_correct(errors1, message)
+# test_deployment(correct_input)
+# needs to delete project errors
 
 time_tracker.track2("end")
 time_tracker(.5)

@@ -35,6 +35,7 @@ class ExcessiveSpacesCorrector():
                         break
                 if all([words[k] == "" for k in range(0, i+1)]) or all([words[k] == "" for k in range(i, len(words))]):
                     number_of_spaces -= 1
+                if number_of_spaces < 2: continue
                 errors.append(self.create_full_stop_error_message(number_of_spaces, i, words))
         return move_index_based_on_br(errors, sentence), (" ".join(words), pos_tags, ner_tags)
 
