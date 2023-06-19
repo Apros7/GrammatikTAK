@@ -81,26 +81,14 @@ def error_concatenator(errors, errors_to_project_onto_others, include_type=False
     errors_to_project_dict = errors_to_index_dict(errors_to_project_onto_others)
 
     for key in errors_to_project_dict.keys():
-        if key[0] in [k[0] for k in errors_dict.keys()]:
-            for k in errors_dict.keys():
-                if key[0] == k[0]:
-                    matching_key = k; break
-            for error_to_project in errors_to_project_dict[key]:
-                projected_errors = project_error(errors_dict[matching_key], error_to_project)
-                errors_dict[matching_key] = projected_errors
-        elif key[1] in [k[1] for k in errors_dict.keys()]:
-            for k in errors_dict.keys():
-                if key[1] == k[1]:
-                    matching_key = k; break
-            for error_to_project in errors_to_project_dict[key]:
-                projected_errors = project_error(errors_dict[matching_key], error_to_project)
-                errors_dict[matching_key] = projected_errors
+        applied = False
         for k in errors_dict.keys():
-            if key[0] > k[0] and key[1] < k[1]:
+            if key[0] == k[0] or key[1] == k[0] or (key[0] > k[0] and key[1] < k[1]):
+                applied = True
                 for error_to_project in errors_to_project_dict[key]:
                     projected_errors = project_error(errors_dict[k], error_to_project)
                     errors_dict[k] = projected_errors
-        else:
+        if not applied:
             errors_dict[key] = errors_to_project_dict[key]
 
     # In case of multiple errors_to_project on same indexes:

@@ -87,12 +87,11 @@ def index():
 
 time_tracker.complete_reset()
 
-message = "håber du har en god  dag på silkeborg silkeborg gymnasium "
-errors1 = correct_input(message)
-print(*errors1, sep="\n")
-check_if_index_is_correct(errors1, message)
-# test_deployment(correct_input)
-# needs to delete project errors
+# message = "håber du har en god  dag på silkeborg silkeborg gymnasium "
+# errors1 = correct_input(message)
+# print(*errors1, sep="\n")
+# check_if_index_is_correct(errors1, message)
+test_deployment(correct_input)
 
 time_tracker.track2("end")
 time_tracker(.5)
