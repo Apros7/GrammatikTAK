@@ -8,7 +8,7 @@ class DoubleWordsChecker():
     """
     Corrects double words in a sentence
     """
-    def __init__(self): self.composite_dict = pickle.load(open("Datasets/composite_dict.pickle", "rb"))
+    def __init__(self): self.composite_dict = pickle.load(open("Datasets/composite_dict.pickle", "rb")); self.dictionary = pickle.load(open("Datasets/dictionary.pickle", "rb"))
     def cut_ouf_indexes(self, lst, indexes_to_cut_out): return [lst[i] for i in range(len(lst)) if i not in indexes_to_cut_out]
     def word_in_ner_tags(self, word_index, ner_tags): return any([word_index == ner_index for ner_index in ner_tags])
 
@@ -65,6 +65,8 @@ class DoubleWordsChecker():
         for i in range(len(words) - number_of_words_at_a_time - 1):
             if self.word_in_ner_tags(i, ner_tags): continue
             true_words = " ".join(words[i:i+number_of_words_at_a_time])
+            if all([word in self.dictionary for word in true_words.split()]):
+                continue
             word = true_words.replace(" ", "")
             if word in self.composite_dict:
                 if true_words == self.composite_dict[word][0]:
