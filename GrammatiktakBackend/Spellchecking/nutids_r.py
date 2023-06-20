@@ -12,7 +12,7 @@ import string
 model_path = "models/nutidsrModel9-BERT"
 model_left_padding = 15
 model_right_padding = 5
-model_cutoff_value = 0
+model_cutoff_value = 0.95
 
 class NutidsRCorrector():
     def __init__(self) -> None:

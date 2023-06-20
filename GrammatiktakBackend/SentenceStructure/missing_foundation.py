@@ -30,8 +30,9 @@ class MissingFoundationChecker():
         for index in indexes_to_check:
             if index + 3 > len(words): break
             if pos[index:index+3] != ["VERB", "PRON", "VERB"]: continue
-            errors.append(self.create_error_message(words[index], "Jeg " + words[index], words, index))
-            new_words = new_words[:index] + ["Jeg"] + new_words[index:]
+            word_to_add = "Jeg"
+            errors.append(self.create_error_message(words[index], word_to_add + " " + words[index].lower(), words, index))
+            new_words = new_words[:index] + [word_to_add] + [new_words[index].lower()] + new_words[index+1:]
             indexes = self.index_finder.find_index(index, words[index])
             new_pos = new_pos[:index] + [["PRON", [indexes[0], indexes[0]], {}]] + new_pos[index:]
             ner_tags = self.push_ner_tags(index, ner_tags)
