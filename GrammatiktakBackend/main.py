@@ -12,7 +12,7 @@ from SentenceStructure.missing_foundation import MissingFoundationChecker
 from SentenceStructure.double_words import DoubleWordsChecker
 from Punctuation.excessive_spaces import ExcessiveSpacesCorrector
 
-from Utilities.utils import check_empty_input_or_feedback, check_if_index_is_correct, IndexFinder
+from Utilities import utils
 from Utilities.error_handling import error_concatenator
 from Utilities.module_utils import ModuleSequential, ModuleSequentialWhenSentenceManipulation
 from Utilities.deployment_test import test_deployment
@@ -43,7 +43,7 @@ modules_to_project_onto_others = ModuleSequential([
 modules_be_projected_on = ModuleSequential([
     DeterminantCorrector(),
     NutidsRCorrector(),
-    #$SpellChecker()
+    SpellChecker()
 ], timeTracker=time_tracker)
 
 firestore_client = FirestoreClient()
@@ -51,14 +51,17 @@ firestore_client = FirestoreClient()
 time_tracker.track("initialize correctors")
 
 def correct_input(input_sentence, save=False):
-    index_finder = IndexFinder(original_sentence=input_sentence) # Should reset every time, therefore here
+    index_finder = utils.IndexFinder(original_sentence=input_sentence) # Should reset every time, therefore here
 
     pos_tags, ner_tags = tagger.get_tags(input_sentence)
     time_tracker.track("get tags")
 
     sentence_manipulation_project_errors, (sentence, pos_tags, ner_tags) = modules_to_manipulate_and_project.correct(input_sentence, pos_tags, ner_tags, index_finder=index_finder)
+
     sentence_manipulation_errors, (sentence, pos_tags, ner_tags) = modules_to_manipulate_sentence.correct(input_sentence, pos_tags, ner_tags, index_finder=index_finder)
+    
     errors_be_projected_on = modules_be_projected_on.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
+    
     errors_to_project_onto_others = modules_to_project_onto_others.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
 
     if save:
@@ -77,21 +80,21 @@ CORS(app)
 
 def index():
     data = request.get_json()
-    empty_or_feedback, feedback, input, output = check_empty_input_or_feedback(data)
+    empty_or_feedback, feedback, input, output = utils.check_empty_input_or_feedback(data)
     if empty_or_feedback:
         firestore_client.save_feedback(feedback, input)
         return jsonify(output)
     input = data["sentence"]
-    output = correct_input(input, save=True)
+    output = correct_input(input)#, save=True)
     return jsonify(output)
 
 time_tracker.complete_reset()
 
-# message = "håber du har en god  dag på silkeborg silkeborg gymnasium "
-# errors1 = correct_input(message)
-# print(*errors1, sep="\n")
-# check_if_index_is_correct(errors1, message)
-test_deployment(correct_input)
+message = "skibet kom sejlene med alle sejlende sat. Hundende kommer løbene. Det bliver virkelig spændene"
+errors1 = correct_input(message)
+print(*errors1, sep="\n")
+utils.check_if_index_is_correct(errors1, message)
+# test_deployment(correct_input)
 
 time_tracker.track2("end")
 time_tracker(.5)
