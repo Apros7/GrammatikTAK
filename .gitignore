@@ -9,3 +9,4 @@ Keys
 simpleNNmodelsPT
 FineTuneModels/cache
 *.pyc
+*.cpython-311.pyc
