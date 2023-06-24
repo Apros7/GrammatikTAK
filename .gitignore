@@ -8,3 +8,4 @@ models
 Keys
 simpleNNmodelsPT
 FineTuneModels/cache
+*.pyc
