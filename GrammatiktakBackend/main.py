@@ -90,7 +90,7 @@ def index():
 
 time_tracker.complete_reset()
 
-message = "skibet kom sejlene med alle sejlende sat. Hundende kommer løbene. Det bliver virkelig spændene"
+message = "Jeg er ambassadør for dem, og vil fremadretet lave videoer hvor jeg viser hvordan du kan anvende denne mad på en sund, lækker og bæredygtig måde"
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 utils.check_if_index_is_correct(errors1, message)
