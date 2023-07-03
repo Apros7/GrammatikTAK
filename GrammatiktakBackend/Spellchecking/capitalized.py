@@ -83,7 +83,7 @@ class CapitalizationCorrector:
         words = prepare_sentence(sentence, lowercase=False)
         full_stop = [True if self.is_full_stop(word) else False for sent in words_for_every_sentence for word in sent]
         previous_capitalization = [True if word[0].isupper() else False for sent in words_for_every_sentence for word in sent]
-        first_word_in_sentence = [True if word == sent[0] else False for sent in words_for_every_sentence for word in sent]
+        first_word_in_sentence = [True if j == 0 else False for i in range(len(words_for_every_sentence)) for j in range(len(words_for_every_sentence[i]))]
         is_i = [True if word.lower() == "i" else False for sent in words_for_every_sentence for word in sent]
         # i and NER and all upper words should be skipped
         skip_word = [True if self.check_ner_interval(i, ner_tags) or (is_i[i] and not first_word_in_sentence[i]) or words[i].isupper() else False for i in range(len(words))]
@@ -101,7 +101,6 @@ class CapitalizationCorrector:
 
     # use this function to get errors
     def correct(self, sentence, pos_tags, ner_tags, index_finder) -> list:
-        print(pos_tags)
         self.index_finder = index_finder
         basic_errors = self.find_basic_errors(sentence, ner_tags)
         i_errors = self.correct_i(sentence, pos_tags)
