@@ -65,8 +65,7 @@ class DoubleWordsChecker():
         for i in range(len(words) - number_of_words_at_a_time - 1):
             if self.word_in_ner_tags(i, ner_tags): continue
             true_words = " ".join(words[i:i+number_of_words_at_a_time])
-            if all([word in self.dictionary for word in true_words.split()]):
-                continue
+            if all([word in self.dictionary for word in true_words.split()]): continue
             word = true_words.replace(" ", "")
             if word in self.composite_dict:
                 if true_words == self.composite_dict[word][0]:
@@ -90,6 +89,7 @@ class DoubleWordsChecker():
                         pos_tags.pop(index)
                         ner_tags = self.push_ner_tags(index, ner_tags, -1)
                         self.index_finder.add_index(index, "")
+                self.index_finder.freeze()
         return errors, words, ner_tags, pos_tags
 
     def correct_composite_words(self, words, ner_tags, pos_tags):
