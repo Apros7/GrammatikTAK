@@ -146,3 +146,10 @@ def check_if_index_is_correct(errors, sentence, info=True):
         print("BE AWARE:")
         print("Make sure to test with <br> on the frontend side of things!")
     return all(states)
+
+def print_list_of_ErrorList(*args):
+    print("ERRORS: ")
+    for lst in args:
+        for ErrorLst in lst:
+            print(ErrorLst.to_list())
+    print("END OF ERRORS")
