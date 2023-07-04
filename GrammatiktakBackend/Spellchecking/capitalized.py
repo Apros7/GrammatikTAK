@@ -3,10 +3,11 @@ from Utilities.error_handling import Error, ErrorList
 import numpy as np
 import emoji
 import string
+import pickle
 
 class CapitalizationCorrector:
     def __init__(self) -> None:
-        pass
+        self.abbreviations = pickle.load(open("Datasets/abbreviations_dict.pickle", "rb"))
 
     # creates comma error message
     def create_capitalization_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, missing_capitalization) -> list:
@@ -86,7 +87,9 @@ class CapitalizationCorrector:
         first_word_in_sentence = [True if j == 0 else False for i in range(len(words_for_every_sentence)) for j in range(len(words_for_every_sentence[i]))]
         is_i = [True if word.lower() == "i" else False for sent in words_for_every_sentence for word in sent]
         # i and NER and all upper words should be skipped
-        skip_word = [True if self.check_ner_interval(i, ner_tags) or (is_i[i] and not first_word_in_sentence[i]) or words[i].isupper() else False for i in range(len(words))]
+        should_be_skipped = [True if self.check_ner_interval(i, ner_tags) or (is_i[i] and not first_word_in_sentence[i]) or words[i].isupper() else False for i in range(len(words))]
+        is_abbreviation = [False] + [True if words[i-1].replace(".", "") in self.abbreviations else False for i in range(1, len(words))]
+        skip_word = [True if should_be_skipped[i] or is_abbreviation[i] else False for i in range(len(words))]
         # if there is a full stop and the word is not capitalize´
         error_missing_capitalization = [True if (full_stop[i] or first_word_in_sentence[i+1]) and not previous_capitalization[i+1] and not skip_word[i+1] else False for i in range(len(words)-1)]
         # Needs to take care of first word: correct if not capitalized
