@@ -2,7 +2,7 @@ from Utilities.utils import check_if_index_is_correct
 import numpy as np
 import time
 
-def test_deployment(correct_input, manual_check=False):
+def test_deployment(correct_input, manual_check=False, start_at=0):
 
     print("This script checks for errors when using the corrector. \n This will not check for frontend errors.")
 
@@ -50,10 +50,10 @@ def test_deployment(correct_input, manual_check=False):
 
     average_time_per_word = []
 
-    for i in range(len(messages)):
+    for i in range(start_at, len(messages)-1):
         start_time = time.time()
         message = messages[i]
-        print("Correcting this text: ", f"\"{message}\"")
+        print(f"Correcting this message nr. {i}: ", f"\"{message}\"")
         errors = correct_input(message)
         average_time_per_word.append((time.time() - start_time)/len(message.split()))
         if manual_check:

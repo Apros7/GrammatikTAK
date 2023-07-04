@@ -2,7 +2,7 @@ from collections import defaultdict
 
 approved_types = ["add_punc", "del_punc", "det", "add_cap", "del_cap", "nutids-r", 
                   "spellcheck", "foundation", "doublewords", "spaces"]
-error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap", "spaces"]
+error_types_to_concat = ["add_punc", "del_punc", "add_cap", "del_cap", "spaces", "doublewords"]
 
 def init_dict():
     def def_value(): return []
@@ -45,6 +45,10 @@ def spaces(error, error2):
     description = error.description + " " + error2.description
     return Error("".join(wrong_word), error.right_word, error.indexes, description, error.get_type())
 
+def double_words(error, error2):
+    description = error.description + " " + error2.description
+    return Error(error2.wrong_word, error.right_word, error2.indexes, description, error.get_type())
+
 def project_error(errors, error_to_project):
     project_type = error_to_project.get_type()
     if project_type not in error_types_to_concat:
@@ -55,7 +59,8 @@ def project_error(errors, error_to_project):
         "del_punc": del_punc,
         "add_cap": add_cap,
         "del_cap": del_cap,
-        "spaces": spaces
+        "spaces": spaces,
+        "doublewords": double_words
     }
 
     projected_errors = []
