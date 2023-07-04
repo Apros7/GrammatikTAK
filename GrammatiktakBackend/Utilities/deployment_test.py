@@ -7,6 +7,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0):
     print("This script checks for errors when using the corrector. \n This will not check for frontend errors.")
 
     messages = [
+        "hej jeg hedder feks lucas",
         "hej jeg hedder lucas. hej jeg hedder  lucas. hej jeg hedder      lucas.",
         "imorgen skal jeg i skole i morgen",
         "imorgen kan jeg aller bedst lide bananer al a carte",

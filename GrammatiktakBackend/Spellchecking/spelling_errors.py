@@ -26,6 +26,8 @@ class SpellChecker():
         print("Loading spellchecking dictionaries...")
         # Also needs forkortelser in dictionary
         self.dictionary = {k: None for k in pickle.load(open("Datasets/dictionary.pickle", "rb"))}
+        self.dictionary.update({k: None for k in pickle.load(open("Datasets/additional_dictionary.pickle", "rb"))})
+        self.abbreviations = pickle.load(open("Datasets/abbreviations_dict.pickle", "rb"))
         self.meter_errors = {k: v for k, v in zip([prefix + "met" for prefix in METERS_PREFIX], [prefix + "meter" for prefix in METERS_PREFIX])}
         self.verbs_ending_dict = pickle.load(open("Datasets/verb_ending_dict.pickle", "rb"))
         self.sb_ending_dict = pickle.load(open("Datasets/sb_ending_dict.pickle", "rb"))
@@ -36,11 +38,12 @@ class SpellChecker():
     def partly_clean_sentence(self, sent): return ''.join(char for char in sent if char not in PARTLY_CLEANING)
     def word_in_ner_tags(self, word_index, ner_tags): return any([word_index == ner_index for ner_index in ner_tags])
 
-    def create_spellchecking_error_message(self, wrong_word, correct_word, index_of_word_in_all_words) -> list:
+    def create_spellchecking_error_message(self, wrong_word, correct_word, index_of_word_in_all_words, abbreviation=False) -> list:
         error_type = "spellcheck"
         ## When frontend can take lists change this:
         correct_word = correct_word[0] if len(correct_word) == 1 else correct_word
-        error_description = f"{wrong_word} er ikke ordbogen. Mente du en af disse ord?" if isinstance(correct_word, list) else f"{wrong_word} er ikke ordbogen. Mente du '{correct_word}'?"
+        if abbreviation: error_description = f"Det ligner, at du har skrevet forkotelsen '{wrong_word}' forkert. Den rigtige måde er: '{correct_word}'."
+        else: error_description = f"{wrong_word} er ikke ordbogen. Mente du en af disse ord?" if isinstance(correct_word, list) else f"{wrong_word} er ikke ordbogen. Mente du '{correct_word}'?"
         previous_index = self.index_finder.find_index(index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
     
@@ -49,6 +52,7 @@ class SpellChecker():
         if self.is_word_in_dictionary(word): return None
         if self.word_in_ner_tags(index, ner_tags): return None
         if word in self.meter_errors: return self.create_spellchecking_error_message(word, self.meter_errors[word], index)
+        if word.replace(".", "") in self.abbreviations: return self.create_spellchecking_error_message(word, self.abbreviations[word], index, abbreviation=True)
         wizard_return = self.spelling_wizard.correct(word)
         if wizard_return: return self.create_spellchecking_error_message(word, wizard_return, index)
         return None
