@@ -62,10 +62,13 @@ class DoubleWordsChecker():
     
     def check_composite_words(self, words, ner_tags, pos_tags, number_of_words_at_a_time):
         errors = ErrorList()
-        for i in range(len(words) - number_of_words_at_a_time - 1):
+        for i in range(len(words) - number_of_words_at_a_time + 1):
+            print(" ".join(words[i:i+number_of_words_at_a_time]))
             if self.word_in_ner_tags(i, ner_tags): continue
+            print("yep")
             true_words = " ".join(words[i:i+number_of_words_at_a_time])
             if all([word in self.dictionary for word in true_words.split()]): continue
+            print("yep")
             word = true_words.replace(" ", "")
             if word in self.composite_dict:
                 if true_words == self.composite_dict[word][0]:

@@ -9,7 +9,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0):
     messages = [
         "hej jeg hedder lucas. hej jeg hedder  lucas. hej jeg hedder      lucas.",
         "imorgen skal jeg i skole i morgen",
-        "imorgen kan jeg aller bedst lide bananer ala carte",
+        "imorgen kan jeg aller bedst lide bananer al a carte",
         "jeg jeg har har et et sødt sødt hund hund",
         "Hvordan har du det? Det går godt her.",
         "Hey. Jeg håber, at du nyder weekenden :smile:. Jeg har endelig fået lavet et fix til edit detection til web-anno. Jeg har lavet en PR med det. Hvis du vil approve og restarte serveren, så skal jeg nok nå så mange reviews, som jeg kan i løbet af i dag og i morgen.",
@@ -60,8 +60,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0):
             print("MESSAGE: ", message)
             print("Errors: ", *errors, sep="\n")
             input_statement = input("Enter to continue, q to quit")
-            if input_statement == "q":
-                raise KeyboardInterrupt
+            if input_statement == "q": break
         if not check_if_index_is_correct(errors, message, info=False):
             print("MESSAGE: ", message)
             print("Errors: ", *errors, sep="\n")
