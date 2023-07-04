@@ -114,6 +114,15 @@ class ErrorList():
         self.convert_lists_to_errors()
         self.is_healthy()
 
+    def sort(self, errors): return sorted(errors, key=lambda x: x[2][1])
+    def append(self, error): self.errors.append(error); self.is_healthy(); self.clean()
+    def clean(self): self.errors = [error for error in self.errors if error is not None]
+    def __iter__(self): self.index = 0; return self
+
+    def __next__(self): 
+        if self.index < len(self.errors): self.index += 1; return self.errors[self.index - 1]
+        raise StopIteration
+
     def convert_lists_to_errors(self):
         self.errors = [error for error in self.errors if error is not None] 
         if len(self.errors) == 0: return None
@@ -127,9 +136,6 @@ class ErrorList():
         if len(healthy_errors) == 0: return True
         for error in self.errors: error.is_healthy()
         return True
-
-    def sort(self, errors): return sorted(errors, key=lambda x: x[2][1])
-    def append(self, error): self.errors.append(error); self.is_healthy()
 
     def init_dict(self):
         def def_value(): return []
@@ -174,7 +180,7 @@ class Error():
         """
         This function should be used on errors in concat_errors
         """
-        if isinstance(self.wrong_word, list) or isinstance(self.right_word, list):
+        if isinstance(self.wrong_word, list) or isinstance(self.right_word, list) or len(self.right_word) == 0:
             return self.description
         if self.right_word[-1] in ",.!?":
             return self.description.replace("$wrong", self.wrong_word).replace("$right", self.right_word[:-1])

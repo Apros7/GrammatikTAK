@@ -20,9 +20,8 @@ class ExcessiveSpacesCorrector():
         wrong_word, right_word  = " "*number_of_spaces, " "
         return Error(wrong_word, right_word, indexes, error_description, error_type)
 
-    def correct(self, sentence, pos_tags, ner_tags, index_finder):
+    def find_spaces_errors(self, sentence, pos_tags, ner_tags):
         errors = ErrorList()
-        self.index_finder = index_finder
         words = sentence.split(" ")
         for i in range(len(words)):
             if words[i-1] == "": continue
@@ -37,7 +36,27 @@ class ExcessiveSpacesCorrector():
                     number_of_spaces -= 1
                 if number_of_spaces < 2: continue
                 errors.append(self.create_full_stop_error_message(number_of_spaces, i, words))
+        errors = self.forget_beginning_errors(errors)
         return move_index_based_on_br(errors, sentence), (" ".join(words), pos_tags, ner_tags)
+
+    def forget_beginning_errors(self, errors): return ErrorList([error for error in errors if error.indexes[0] >= 0])
+    def adjust_ner_tags(self, adjust_with, ner_tags): return [tag + adjust_with for tag in ner_tags]
+
+    def beginning_spaces_errors(self, sentence, pos_tags, ner_tags):
+        i = 0
+        words = prepare_sentence(sentence)
+        if len(words) < 1: return None
+        while sentence[i] == " " and i < len(sentence):
+            i += 1
+        error = Error(i*" ", "", [0, i], f"Det ser ud til, at du har sat {i} mellemrum foran '{words[0]}'", "spaces")
+        ner_tags = self.adjust_ner_tags(-i, ner_tags)
+        return move_index_based_on_br(ErrorList([error]), sentence), (sentence[i:], pos_tags, ner_tags)
+
+    def correct(self, sentence, pos_tags, ner_tags, index_finder):
+        self.index_finder = index_finder
+        errors, (sentence, pos_tags, ner_tags) = self.find_spaces_errors(sentence, pos_tags, ner_tags)
+        begin_error, (sentence, pos_tags, ner_tags) = self.beginning_spaces_errors(sentence, pos_tags, ner_tags)
+        return errors + begin_error, (sentence, pos_tags, ner_tags)
 
 if __name__ == "__main__":
     sentence = "  hej jeg hedder lucas. hej jeg hedder  lucas. hej jeg hedder      lucas.  hej jeg hedder lucas.  "
