@@ -48,7 +48,8 @@ class ExcessiveSpacesCorrector():
         if len(words) < 1: return None
         while sentence[i] == " " and i < len(sentence):
             i += 1
-        error = Error(i*" ", "", [0, i], f"Det ser ud til, at du har sat {i} mellemrum foran '{words[0]}'", "spaces")
+        if i > 0: error = Error(i*" ", "", [0, i], f"Det ser ud til, at du har sat {i} mellemrum foran '{words[0]}'", "spaces")
+        else: error = None
         ner_tags = self.adjust_ner_tags(-i, ner_tags)
         return move_index_based_on_br(ErrorList([error]), sentence), (sentence[i:], pos_tags, ner_tags)
 

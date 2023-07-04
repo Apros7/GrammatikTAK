@@ -7,13 +7,13 @@ def test_deployment(correct_input, manual_check=False, start_at=0):
     print("This script checks for errors when using the corrector. \n This will not check for frontend errors.")
 
     messages = [
-        "hej jeg hedder feks lucas",
+        "   hej jeg hedder feks lucas",
         "hej jeg hedder lucas. hej jeg hedder  lucas. hej jeg hedder      lucas.",
         "imorgen skal jeg i skole i morgen",
-        "imorgen kan jeg aller bedst lide bananer al a carte",
+        "   imorgen kan jeg aller bedst lide bananer al a carte",
         "jeg jeg har har et et sødt sødt hund hund",
         "Hvordan har du det? Det går godt her.",
-        "Hey. Jeg håber, at du nyder weekenden :smile:. Jeg har endelig fået lavet et fix til edit detection til web-anno. Jeg har lavet en PR med det. Hvis du vil approve og restarte serveren, så skal jeg nok nå så mange reviews, som jeg kan i løbet af i dag og i morgen.",
+        "   Hey. Jeg håber, at du nyder weekenden :smile:. Jeg har endelig fået lavet et fix til edit detection til web-anno. Jeg har lavet en PR med det. Hvis du vil approve og restarte serveren, så skal jeg nok nå så mange reviews, som jeg kan i løbet af i dag og i morgen.",
         "den hus er rigtig stor. Rigtig mange glæde sig til at ser og inviterer familie og venner.",
         "Dertil er der også dobbeltblinding hvor hverken patienten eller personalet ved om den behandling de får/giver er den faktiske behandling eller blot placebo. Jeg ved godt at jeg burde vide det.",
         "Her bruges billedsprog til at sammenligne det lyriske jeg med træerne. Det lyriske jeg spejler sig altså i træerne, idet han forestiller sig sine hænder som grene. Forestillingen om, at træerne næsten ikke kan nå hinanden med deres grene, kan altså overføres på det lyriske jeg. Måske har det lyriske jeg selv svært ved at nå nogen. Måske føler det lyriske jeg, at han ikke kan nå kærligheden. Måske føler det lyriske jeg, at han glider væk fra en elsket. Netop denne ide, hvor naturen bruges som en analogi til mennesket selv, fremsættes i den danske litteraturhistoriker Erik Skyum-Nielsens artikel ”Nu er det tid til naturdigte”. Her forklarer han, at ”så snart en digter beskrev og besang naturen, kom digtet også altid til at handle om digteren selv. I den forstand fungerer naturen uundgåeligt som menneskets spejl.” Netop pga. Erik Skyum-Nielsens baggrund som lektor på institut for Nordiske Studier og Sprogvidenskab på Københavns Universitet kan denne betragtning ses som troværdig. Naturen i digte er altså en måde, hvorpå digteren indirekte kan reflektere og skrive om sig selv.",
@@ -81,7 +81,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0):
         print(f"{i+1}/{len(messages)} done.")
     print("Indexes correct.\n")
     print("Average time per word: ", round(np.mean(average_time_per_word), 5), " sec/word.")
-    print("Than means: ", round(1/round(np.mean(average_time_per_word), 5), 2), "word/min.")
+    print("Than means: ", round(1/round(np.mean(average_time_per_word), 5), 2), "word/sec.")
 
     print("\n\n## SUCCESS ##\n\n")
 
