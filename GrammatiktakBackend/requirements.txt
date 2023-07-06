@@ -16,3 +16,4 @@ conllu
 srsly
 tweepy
 google-cloud-datastore
+translators

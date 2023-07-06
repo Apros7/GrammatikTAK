@@ -3,6 +3,7 @@ sys.path.append("/Users/lucasvilsen/Desktop/GrammatikTAK/GrammatiktakBackend/")
 from Utilities.error_handling import Error, ErrorList
 from Utilities import utils
 
+import translators as ts
 import pickle
 import time
 import pandas as pd
@@ -32,27 +33,52 @@ class SpellChecker():
         self.verbs_ending_dict = pickle.load(open("Datasets/verb_ending_dict.pickle", "rb"))
         self.sb_ending_dict = pickle.load(open("Datasets/sb_ending_dict.pickle", "rb"))
         self.spelling_wizard = SpellingWizard()
+        self.translation = None
 
     def is_word_in_dictionary(self, word): return word in self.dictionary
     def punctuation_in_word(self, word): return any([x in word for x in NO_CORRECTION_IF_IN_WORD])
     def partly_clean_sentence(self, sent): return ''.join(char for char in sent if char not in PARTLY_CLEANING)
+    def partly_clean_words(self, words): return [word.translate(str.maketrans('', '', PARTLY_CLEANING)) for word in words]
     def word_in_ner_tags(self, word_index, ner_tags): return any([word_index == ner_index for ner_index in ner_tags])
 
-    def create_spellchecking_error_message(self, wrong_word, correct_word, index_of_word_in_all_words, abbreviation=False) -> list:
+    def get_translation(self, words): 
+        if not self.translation:
+            to_english = ts.translate_text(" ".join(words), translator="google", from_language='da', to_language='en')
+            translation = ts.translate_text(to_english, translator='google', from_language='en', to_language='da').split()
+            self.translation = self.partly_clean_words(translation)
+
+
+    def find_translation(self, words, index):
+        self.get_translation(words)
+        phrase = words[index-1:index+2]
+        is_upper = words[index][0].isupper()
+        print("CHECKER: ", phrase)
+        for i in range(-5, 5):
+            translation_phrase = self.translation[index-1+i:index+2+i]
+            if len(translation_phrase) != 3: continue
+            to_return = translation_phrase[1].capitalize() if is_upper else translation_phrase[1].lower()
+            if phrase[0] == translation_phrase[0] and phrase[2] == translation_phrase[2]: print("YAY"); print(translation_phrase); return to_return
+            print(translation_phrase)
+        return None
+
+    def create_spellchecking_error_message(self, wrong_word, correct_word, index_of_word_in_all_words, abbreviation=False, translation=False) -> list:
         error_type = "spellcheck"
         ## When frontend can take lists change this:
-        correct_word = correct_word[0] if len(correct_word) == 1 else correct_word
+        # correct_word = correct_word[0] if len(correct_word) > 1 else correct_word
         if abbreviation: error_description = f"Det ligner, at du har skrevet forkotelsen '{wrong_word}' forkert. Den rigtige måde er: '{correct_word}'."
+        elif translation: error_description = f"Det ligner, at du har skrevet et engelsk ord '{wrong_word}'. Du kunne overveje at oversætte dette til dansk: '{correct_word}'."
         else: error_description = f"{wrong_word} er ikke ordbogen. Mente du en af disse ord?" if isinstance(correct_word, list) else f"{wrong_word} er ikke ordbogen. Mente du '{correct_word}'?"
         previous_index = self.index_finder.find_index(index_of_word_in_all_words, wrong_word)
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
     
-    def correct_spelling_mistake(self, word, index, ner_tags):
+    def correct_spelling_mistake(self, word, index, ner_tags, words):
         if self.punctuation_in_word(word): return None
         if self.is_word_in_dictionary(word): return None
         if self.word_in_ner_tags(index, ner_tags): return None
         if word in self.meter_errors: return self.create_spellchecking_error_message(word, self.meter_errors[word], index)
         if word.replace(".", "") in self.abbreviations: return self.create_spellchecking_error_message(word, self.abbreviations[word], index, abbreviation=True)
+        translation_return = self.find_translation(words, index)
+        if translation_return: return self.create_spellchecking_error_message(word, translation_return, index, translation=True)
         wizard_return = self.spelling_wizard.correct(word)
         if wizard_return: return self.create_spellchecking_error_message(word, wizard_return, index)
         return None
@@ -63,9 +89,10 @@ class SpellChecker():
         return None
 
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
+        self.translation = None
         self.index_finder = index_finder
         cleaned_words = utils.prepare_sentence(self.partly_clean_sentence(sentence), lowercase=True)
-        spelling_errors = ErrorList([self.correct_spelling_mistake(word, index, ner_tags) for index, word in enumerate(cleaned_words)])
+        spelling_errors = ErrorList([self.correct_spelling_mistake(word, index, ner_tags, cleaned_words) for index, word in enumerate(cleaned_words)])
         ending_errors = ErrorList([self.correct_ending_mistake(word, index) for index, word in enumerate(cleaned_words)])
         return utils.move_index_based_on_br(spelling_errors + ending_errors, sentence)
 
