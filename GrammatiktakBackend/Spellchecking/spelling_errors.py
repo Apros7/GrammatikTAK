@@ -52,13 +52,11 @@ class SpellChecker():
         self.get_translation(words)
         phrase = words[index-1:index+2]
         is_upper = words[index][0].isupper()
-        print("CHECKER: ", phrase)
         for i in range(-5, 5):
             translation_phrase = self.translation[index-1+i:index+2+i]
             if len(translation_phrase) != 3: continue
             to_return = translation_phrase[1].capitalize() if is_upper else translation_phrase[1].lower()
-            if phrase[0] == translation_phrase[0] and phrase[2] == translation_phrase[2]: print("YAY"); print(translation_phrase); return to_return
-            print(translation_phrase)
+            if phrase[0] == translation_phrase[0] and phrase[2] == translation_phrase[2]: return to_return
         return None
 
     def create_spellchecking_error_message(self, wrong_word, correct_word, index_of_word_in_all_words, abbreviation=False, translation=False) -> list:
