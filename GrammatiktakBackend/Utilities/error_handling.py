@@ -162,11 +162,15 @@ class Error():
     def __init__(self, wrong_word: str = None, right_word: str = None, indexes: list = None, 
                        description: str = None, type: str = None) -> None:
         self.wrong_word = wrong_word
+        self.check_wrong_word()
         self.right_word = right_word
         self.indexes = indexes
         self.description = description
         self.set_type(type)
     
+    def check_wrong_word(self):
+        if type(self.wrong_word) is list: self.wrong_word = self.wrong_word[:3] if len(self.wrong_word) > 3 else self.wrong_word
+
     def from_list(self, lst): return Error(lst[0], lst[1], lst[2], lst[3], lst[4])
     def get_type(self): return self.__type
 

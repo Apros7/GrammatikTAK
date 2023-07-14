@@ -60,7 +60,6 @@ class ExcessiveSpacesCorrector():
         self.index_finder = index_finder
         begin_error, (sentence, pos_tags, ner_tags), number_of_spaces = self.beginning_spaces_errors(sentence, pos_tags, ner_tags)
         errors, (sentence, pos_tags, ner_tags) = self.find_spaces_errors(sentence, pos_tags, ner_tags, number_of_spaces)
-        print("Final ner_tags", ner_tags)
         return errors + begin_error, (sentence, pos_tags, ner_tags)
 
 if __name__ == "__main__":
