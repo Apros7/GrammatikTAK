@@ -28,6 +28,7 @@ tagger = Tagger()
 
 modules_to_manipulate_sentence = ModuleSequentialWhenSentenceManipulation([
     MissingFoundationChecker(),
+    NutidsRCorrector()
 ], timeTracker=time_tracker)
 
 modules_to_manipulate_and_project = ModuleSequentialWhenSentenceManipulation([
@@ -42,7 +43,6 @@ modules_to_project_onto_others = ModuleSequential([
 
 modules_be_projected_on = ModuleSequential([
     DeterminantCorrector(),
-    NutidsRCorrector(),
     SpellChecker()
 ], timeTracker=time_tracker)
 
@@ -64,7 +64,7 @@ def correct_input(input_sentence, save=False):
 
     errors_to_project_onto_others = modules_to_project_onto_others.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
 
-    utils.print_list_of_ErrorList(sentence_manipulation_project_errors, sentence_manipulation_errors, errors_be_projected_on, errors_to_project_onto_others)
+    #utils.print_list_of_ErrorList(sentence_manipulation_project_errors, sentence_manipulation_errors, errors_be_projected_on, errors_to_project_onto_others)
 
     if save:
         firestore_client.save_input(sentence)
@@ -92,11 +92,12 @@ def index():
 
 time_tracker.complete_reset()
 
-message = "imorgen skal jeg i skole i morgen"
+message = "den hus er rigtig stor. Rigtig mange glæde sig til at ser og inviterer familie og venner."
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 utils.check_if_index_is_correct(errors1, message)
-# test_deployment(correct_input, manual_check=True, start_at=0)
+
+# test_deployment(correct_input, manual_check=True, start_at=0, time_tracker=time_tracker)
 
 ## NOTES ##
 # Spellchecker virker ikke helt godt stadigvæk (burde testes ved rigtige ord, som ikke er i ordbogen) (2)

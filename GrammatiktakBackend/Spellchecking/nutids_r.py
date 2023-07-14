@@ -153,6 +153,7 @@ class NutidsRCorrector():
 
     def make_error_messages(self, words, should_be_nutids_r, is_nutids_r, verbs_to_check):
         errors = ErrorList()
+        new_words = words.copy()
         for i in range(len(words)):
             if len(words[i].strip(",.!?():;")) == 0:
                 continue
@@ -172,10 +173,11 @@ class NutidsRCorrector():
                 correct_word = self.get_tense_from_verb[stemmed_word][0]
                 to_nutids_r = False
             correct_word = words[i].replace(current_word, correct_word)
+            new_words[i] = correct_word
             error = self.make_nutids_r_error_message(words[i], words, i, correct_word, to_nutids_r)
             if error is not None:
                 errors.append(error)
-        return errors
+        return errors, new_words
 
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
         self.index_finder = index_finder
@@ -184,5 +186,5 @@ class NutidsRCorrector():
         verbs_to_check = self.verbs_to_check(words, pos_tags)
         is_nutids_r = self.is_verbs_nutids_r(words, verbs_to_check)
         should_be_nutidsr = self.should_verb_be_nutidsr(verbs_to_check, pos_tags, words)
-        errors = self.make_error_messages(words, should_be_nutidsr, is_nutids_r, verbs_to_check)
-        return move_index_based_on_br(errors, sentence)
+        errors, new_words = self.make_error_messages(words, should_be_nutidsr, is_nutids_r, verbs_to_check)
+        return move_index_based_on_br(errors, sentence), (" ".join(new_words), pos_tags, ner_tags)

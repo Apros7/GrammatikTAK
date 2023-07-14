@@ -107,6 +107,7 @@ class PunctuationCorrector():
     # instead of word based inputs
     # this is the function to call when error messages are needed
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
+        print(sentence)
         self.index_finder = index_finder
         self.ner_tags = ner_tags
         predictions = self.get_predictions(sentence)
