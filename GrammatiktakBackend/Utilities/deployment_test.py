@@ -2,7 +2,7 @@ from Utilities.utils import check_if_index_is_correct
 import numpy as np
 import time
 
-def test_deployment(correct_input, manual_check=False, start_at=0):
+def test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=None):
 
     print("This script checks for errors when using the corrector. \n This will not check for frontend errors.")
 
@@ -60,6 +60,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0):
         if manual_check:
             print("MESSAGE: ", message)
             print("Errors: ", *errors, sep="\n")
+            time_tracker()
             input_statement = input("Enter to continue, q to quit")
             if input_statement == "q": break
         if not check_if_index_is_correct(errors, message, info=False):

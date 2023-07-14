@@ -43,10 +43,10 @@ class SpellChecker():
 
     def get_translation(self, words): 
         if not self.translation:
+            print("Translating...")
             to_english = ts.translate_text(" ".join(words), translator="google", from_language='da', to_language='en')
             translation = ts.translate_text(to_english, translator='google', from_language='en', to_language='da').split()
             self.translation = self.partly_clean_words(translation)
-
 
     def find_translation(self, words, index):
         self.get_translation(words)
