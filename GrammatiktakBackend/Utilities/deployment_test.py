@@ -13,6 +13,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=
         "   imorgen kan jeg aller bedst lide bananer al a carte",
         "jeg jeg har har et et sødt sødt hund hund",
         "Hvordan har du det? Det går godt her.",
+        "Jeg kan godt lide bananer imorgen",
         "   Hey. Jeg håber, at du nyder weekenden :smile:. Jeg har endelig fået lavet et fix til edit detection til web-anno. Jeg har lavet en PR med det. Hvis du vil approve og restarte serveren, så skal jeg nok nå så mange reviews, som jeg kan i løbet af i dag og i morgen.",
         "den hus er rigtig stor. Rigtig mange glæde sig til at ser og inviterer familie og venner.",
         "Dertil er der også dobbeltblinding hvor hverken patienten eller personalet ved om den behandling de får/giver er den faktiske behandling eller blot placebo. Jeg ved godt at jeg burde vide det.",
@@ -55,6 +56,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=
         start_time = time.time()
         message = messages[i]
         print(f"Correcting this message nr. {i}: ", f"\"{message}\"")
+        time_tracker.complete_reset(re_init=True)
         errors = correct_input(message)
         average_time_per_word.append((time.time() - start_time)/len(message.split()))
         if manual_check:

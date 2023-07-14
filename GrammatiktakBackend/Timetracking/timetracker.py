@@ -49,9 +49,14 @@ class TimeTracker():
     
     # reset the time tracker without keeping count of missed time
     @check_inactive
-    def complete_reset(self):
+    def complete_reset(self, re_init=False):
         self.time = time.time()
         self.time2 = time.time()
+        if re_init: 
+            self.time_dict = {}
+            self.time_dict2 = {}
+            self.excess_time = {}
+            self.excess_index = 1
 
     # reset the time tracker and keep count of missed time. Reason can be specified
     @check_inactive
