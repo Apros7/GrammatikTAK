@@ -84,7 +84,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=
         print(f"{i+1}/{len(messages)} done.")
     print("Indexes correct.\n")
     print("Average time per word: ", round(np.mean(average_time_per_word), 5), " sec/word.")
-    print("Than means: ", round(1/round(np.mean(average_time_per_word), 5), 2), "word/sec.")
+    print("That means: ", round(1/round(np.mean(average_time_per_word), 5), 2), "word/sec.")
 
     print("\n\n## SUCCESS ##\n\n")
 

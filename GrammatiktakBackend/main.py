@@ -92,7 +92,7 @@ def index():
 
 time_tracker.complete_reset()
 
-message = "den hus er rigtig stor. Rigtig mange glæde sig til at ser og inviterer familie og venner."
+message = "Her bruges billedsprog til at sammenligne det lyriske jeg med træerne. Det lyriske jeg spejler sig altså i træerne, idet han forestiller sig sine hænder som grene. Forestillingen om, at træerne næsten ikke kan nå hinanden med deres grene, kan altså overføres på det lyriske jeg. Måske har det lyriske jeg selv svært ved at nå nogen. Måske føler det lyriske jeg, at han ikke kan nå kærligheden. Måske føler det lyriske jeg, at han glider væk fra en elsket. Netop denne ide, hvor naturen bruges som en analogi til mennesket selv, fremsættes i den danske litteraturhistoriker Erik Skyum-Nielsens artikel ”Nu er det tid til naturdigte”. Her forklarer han, at ”så snart en digter beskrev og besang naturen, kom digtet også altid til at handle om digteren selv. I den forstand fungerer naturen uundgåeligt som menneskets spejl.” Netop pga. Erik Skyum-Nielsens baggrund som lektor på institut for Nordiske Studier og Sprogvidenskab på Københavns Universitet kan denne betragtning ses som troværdig. Naturen i digte er altså en måde, hvorpå digteren indirekte kan reflektere og skrive om sig selv."
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 utils.check_if_index_is_correct(errors1, message)

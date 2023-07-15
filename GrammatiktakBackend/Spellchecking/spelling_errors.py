@@ -10,10 +10,11 @@ import pandas as pd
 import string
 import os
 from tqdm import tqdm
+import difflib
 
 # Currently below does not allow for any corrections. Maybe is hould in the composite words correction?
 NO_CORRECTION_IF_IN_WORD = "-_/"
-PARTLY_CLEANING = ",.:;?!()[]{}'\""
+PARTLY_CLEANING = ",:;?!()[]{}'\""
 METERS_PREFIX = ["nano", "micro", "milli", "", "deci", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"]
 
 class SpellChecker():
@@ -35,6 +36,7 @@ class SpellChecker():
         self.spelling_wizard = SpellingWizard()
         self.translation = None
 
+    def words_alike(self, word1, word2): return difflib.SequenceMatcher(None, word1, word2).ratio() * 100
     def is_word_in_dictionary(self, word): return word in self.dictionary
     def punctuation_in_word(self, word): return any([x in word for x in NO_CORRECTION_IF_IN_WORD])
     def partly_clean_sentence(self, sent): return ''.join(char for char in sent if char not in PARTLY_CLEANING)
@@ -56,7 +58,9 @@ class SpellChecker():
             translation_phrase = self.translation[index-1+i:index+2+i]
             if len(translation_phrase) != 3: continue
             to_return = translation_phrase[1].capitalize() if is_upper else translation_phrase[1].lower()
-            if phrase[0] == translation_phrase[0] and phrase[2] == translation_phrase[2]: return to_return
+            if phrase[0] != translation_phrase[0] or phrase[2] != translation_phrase[2]: continue
+            print(self.words_alike(phrase[1], to_return), phrase[1], to_return)
+            if self.words_alike(phrase[1], to_return) < 65: return to_return
         return None
 
     def create_spellchecking_error_message(self, wrong_word, correct_word, index_of_word_in_all_words, abbreviation=False, translation=False) -> list:

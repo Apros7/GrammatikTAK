@@ -74,7 +74,7 @@ class IndexFinder():
 # input sentence
 # output lowercased words with <br> removed
 # if split_sentence then always lowercase = Falses
-def prepare_sentence(sentence, lowercase=True, split_sentences=False, clean=False) -> str:
+def prepare_sentence(sentence, lowercase=False, split_sentences=False, clean=False) -> str:
     """
     Will always replace <br> with " " unless split_sentences = True, which will then give list of lists of words
     Clean: replace <br> with " " and remove all punctuation.
