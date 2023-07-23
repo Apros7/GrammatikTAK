@@ -2,10 +2,11 @@ from google.cloud import datastore
 import json
 import os
 
-os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/BackendAssistants/data_review_site")
+os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/BackendAssistants/")
 
 class FirestoreClient():
     def __init__(self):
+        os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/BackendAssistants/")
         key_path = "../Keys/serviceAccountKey.json"
         self.client = datastore.Client.from_service_account_json(key_path)
         self.kinds = ["Backend-alltext", "Feedback"]
@@ -58,12 +59,9 @@ class FirestoreClient():
     def tag_entities(self, entities, kind):
         for entity in entities:
             if kind == "Backend-alltext":
-                if "time" not in entity:
-                    entity["time"] = "unknown"
-                if "state" in entity:
-                    del entity['time']
-            elif kind == "Feedback":
-                entity["state"] = "new"
+                if "time" not in entity: entity["time"] = "unknown"
+                if "state" in entity: del entity['time']
+            elif kind == "Feedback": entity["state"] = "new"
         return entities
 
     def save_entities_to_csv(self, kind):
