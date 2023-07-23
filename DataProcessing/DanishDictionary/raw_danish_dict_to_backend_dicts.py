@@ -26,7 +26,7 @@ def load_dictionary():
     files = os.listdir(os.getcwd())
     dfs = [pd.read_csv(file, sep=";", header=None, names=["ord1", "ord2", "bøjning"]) for file in files]
     df = pd.concat(dfs)
-    os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/DanishDictionary//NewDicts")
+    os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/DanishDictionary/NewDicts")
     return df
 
 def clean_numbers_from_dictionary(df):
@@ -40,6 +40,8 @@ def get_one_row(df):
     one_row = sorted(list(set(words1 + words2)))
     with open("dictionary_onerow.txt", "w") as file:
         for string in one_row: file.write(string + "\n")
+    with open("dictionary.pickle", "wb") as f:
+        pickle.dump(one_row, f)
 
 def ending_pickles(df):
     verbs, sbs = get_verbs_and_sbs(df)
