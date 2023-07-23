@@ -11,6 +11,7 @@ import string
 import os
 from tqdm import tqdm
 import difflib
+import emoji
 
 # Currently below does not allow for any corrections. Maybe is hould in the composite words correction?
 NO_CORRECTION_IF_IN_WORD = "-_/"
@@ -36,12 +37,13 @@ class SpellChecker():
         self.spelling_wizard = SpellingWizard()
         self.translation = None
 
-    def words_alike(self, word1, word2): return difflib.SequenceMatcher(None, word1, word2).ratio() * 100
-    def is_word_in_dictionary(self, word): return word in self.dictionary
+    def relative_words_alike_score(self, word1, word2): return (difflib.SequenceMatcher(None, word1, word2).ratio() * 100) / len(word1)
+    def is_word_in_dictionary(self, word): return word.replace(".", "") in self.dictionary
     def punctuation_in_word(self, word): return any([x in word for x in NO_CORRECTION_IF_IN_WORD])
     def partly_clean_sentence(self, sent): return ''.join(char for char in sent if char not in PARTLY_CLEANING)
     def partly_clean_words(self, words): return [word.translate(str.maketrans('', '', PARTLY_CLEANING)) for word in words]
     def word_in_ner_tags(self, word_index, ner_tags): return any([word_index == ner_index for ner_index in ner_tags])
+    def emoji_in_word(self, word): return word != emoji.demojize(word)
 
     def get_translation(self, words): 
         if not self.translation:
@@ -52,15 +54,15 @@ class SpellChecker():
 
     def find_translation(self, words, index):
         self.get_translation(words)
-        phrase = words[index-1:index+2]
+        phrase = words[max(index-1, 0):index+2]
+        if len(phrase) != 3: return None
         is_upper = words[index][0].isupper()
         for i in range(-5, 5):
             translation_phrase = self.translation[index-1+i:index+2+i]
             if len(translation_phrase) != 3: continue
             to_return = translation_phrase[1].capitalize() if is_upper else translation_phrase[1].lower()
             if phrase[0] != translation_phrase[0] or phrase[2] != translation_phrase[2]: continue
-            print(self.words_alike(phrase[1], to_return), phrase[1], to_return)
-            if self.words_alike(phrase[1], to_return) < 65: return to_return
+            if self.relative_words_alike_score(phrase[1], to_return) < 20: return to_return
         return None
 
     def create_spellchecking_error_message(self, wrong_word, correct_word, index_of_word_in_all_words, abbreviation=False, translation=False) -> list:
@@ -74,13 +76,13 @@ class SpellChecker():
         return Error(wrong_word, correct_word, previous_index, error_description, error_type)
     
     def correct_spelling_mistake(self, word, index, ner_tags, words):
-        if self.punctuation_in_word(word): return None
-        if self.is_word_in_dictionary(word): return None
-        if self.word_in_ner_tags(index, ner_tags): return None
+        if self.punctuation_in_word(word) or self.emoji_in_word(word): return None
+        if self.is_word_in_dictionary(word) or self.word_in_ner_tags(index, ner_tags): return None
         if word in self.meter_errors: return self.create_spellchecking_error_message(word, self.meter_errors[word], index)
-        if word.replace(".", "") in self.abbreviations: return self.create_spellchecking_error_message(word, self.abbreviations[word], index, abbreviation=True)
+        if word.replace(".", "") in self.abbreviations: return self.create_spellchecking_error_message(word, self.abbreviations[word.replace(".", "")], index, abbreviation=True)
         translation_return = self.find_translation(words, index)
-        if translation_return: return self.create_spellchecking_error_message(word, translation_return, index, translation=True)
+        print(translation_return, translation_return in self.dictionary)
+        if translation_return and translation_return in self.dictionary: return self.create_spellchecking_error_message(word, translation_return, index, translation=True)
         wizard_return = self.spelling_wizard.correct(word)
         if wizard_return: return self.create_spellchecking_error_message(word, wizard_return, index)
         return None

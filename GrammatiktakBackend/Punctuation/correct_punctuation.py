@@ -40,14 +40,18 @@ class PunctuationCorrector():
     # prepares dataset and get predictions
     def get_predictions(self, sentence) -> list:
         words = self.add_padding(prepare_sentence(sentence))
-        if len(words) < self.left_padding:
-            return [0]*len(words)
+        if len(words) < self.left_padding: return [0]*len(words)
         test_data = self.make_test_data(words)
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)
         final_predictions = np.argmax(raw_predictions, axis=1)
         return final_predictions
+
+    def adjust_predictions(self, predictions):
+        # It has been noticed that there are bad predictions when VERB - PRON - VERB
+        # This will be adjusted here. Ideally the model should be retrained to take care of this issue.
+        pass
 
     # creates comma error message
     def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> Error():
@@ -107,7 +111,7 @@ class PunctuationCorrector():
     # instead of word based inputs
     # this is the function to call when error messages are needed
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
-        print(sentence)
+        print("sentence: ", sentence)
         self.index_finder = index_finder
         self.ner_tags = ner_tags
         predictions = self.get_predictions(sentence)

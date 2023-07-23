@@ -8,6 +8,7 @@ def test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=
 
     messages = [
         "   hej jeg hedder feks lucas",
+        "jeg hedder f.eks. ikke lucas. Jeg hedder f.eks. Heller ikke Kaj.",
         "hej jeg hedder lucas. hej jeg hedder  lucas. hej jeg hedder      lucas.",
         "imorgen skal I I skole i morgen",
         "   imorgen kan jeg aller bedst lide bananer al a carte",

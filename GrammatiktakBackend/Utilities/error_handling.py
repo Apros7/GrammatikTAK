@@ -17,26 +17,29 @@ def errors_to_index_dict(errors):
     return dict
 
 def add_punc(error, error2):
-    right_word = error.right_word + error2.right_word[-1]
+    print(error.right_word, error2.right_word[-1], error2.right_word)
+    right_word = error.right_word + error2.right_word[-1] if type(error.right_word) != list else [word + error2.right_word[-1] for word in error.right_word]
     description = error.description + " " + error2.description
     return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def del_punc(error, error2):
-    right_word = error.right_word[:-1]
+    right_word = error.right_word[:-1] if type(error.right_word) != list else [word[:-1] for word in error.right_word]
     description = error.description + " " + error2.description
     return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def add_cap(error, error2):
-    right_word = error.right_word.capitalize()
+    right_word = error.right_word.capitalize() if type(error.right_word) != list else [word.capitalize() for word in error.right_word]
     description = error.description + " " + error2.description
     return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def del_cap(error, error2):
-    right_word = error.right_word.lower()
+    right_word = error.right_word.lower() if type(error.right_word) != list else [word.lower() for word in error.right_word]
     description = error.description + " " + error2.description
     return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def spaces(error, error2):
+    print(error.to_list())
+    print(error2.to_list())
     error_one_first_index = error.indexes[0]
     error_two_first_index = error2.indexes[0]
     relative_index = error_two_first_index - error_one_first_index
@@ -88,7 +91,7 @@ def error_concatenator(errors, errors_to_project_onto_others, include_type=False
     for key in errors_to_project_dict.keys():
         applied = False
         for k in errors_dict.keys():
-            if key[0] == k[0] or key[1] == k[0] or (key[0] > k[0] and key[1] < k[1]):
+            if key[0] == k[0] or key[1] == k[1] or (key[0] > k[0] and key[1] < k[1]):
                 applied = True
                 for error_to_project in errors_to_project_dict[key]:
                     projected_errors = project_error(errors_dict[k], error_to_project)
