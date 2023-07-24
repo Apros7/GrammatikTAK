@@ -22,11 +22,11 @@ from tqdm import tqdm
 import pickle
 
 def load_dictionary():
-    os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/DanishDictionary//NewDictHere")
+    os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/DanishDictionary/NewOfficialDictionaryHere")
     files = os.listdir(os.getcwd())
     dfs = [pd.read_csv(file, sep=";", header=None, names=["ord1", "ord2", "bøjning"]) for file in files]
     df = pd.concat(dfs)
-    os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/DanishDictionary/NewDicts")
+    os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/DanishDictionary/NewProducedDicts")
     return df
 
 def clean_numbers_from_dictionary(df):
@@ -129,7 +129,6 @@ def get_gender_dict(df):
                     continue
             if bool_value is not None:
                 dictionary_is_fælleskøn[df.iloc[i+1]['ord1']] = bool_value
-
     double_words = list(set(double_words))
     for word in double_words: dictionary_is_fælleskøn.pop(word)
     with open("GenderDict.pickle", "wb") as f: pickle.dump(dictionary_is_fælleskøn, f)
@@ -271,6 +270,7 @@ def main():
     df = clean_numbers_from_dictionary(raw_df)
     get_one_row(df)
     ending_pickles(df)
+    df = pd.read_csv("/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/DanishDictionary/NewProducedDicts/dictionary_rettet.csv", sep=";")
     get_gender_dict(df)
     sbs_stem_dict(df)
     verb_stem_and_nutidsr(df)
