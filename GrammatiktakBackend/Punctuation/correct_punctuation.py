@@ -2,7 +2,7 @@ from transformers import BertTokenizer
 import numpy as np
 import string
 
-from Utilities.utils import prepare_sentence, move_index_based_on_br
+import Utilities.utils as utils
 from Utilities.error_handling import Error, ErrorList
 from Utilities.model_utils import Dataset, load_model
 
@@ -38,20 +38,24 @@ class PunctuationCorrector():
 
 
     # prepares dataset and get predictions
-    def get_predictions(self, sentence) -> list:
-        words = self.add_padding(prepare_sentence(sentence))
+    def get_predictions(self, sentence, pos_tags) -> list:
+        words = self.add_padding(utils.prepare_sentence(sentence))
         if len(words) < self.left_padding: return [0]*len(words)
         test_data = self.make_test_data(words)
         tokenized_data = self.tokenizer(test_data, padding=True, truncation=True)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.model.predict(final_dataset)
-        final_predictions = np.argmax(raw_predictions, axis=1)
+        true_predictions = np.argmax(raw_predictions, axis=1)
+        final_predictions = self.adjust_predictions(true_predictions, pos_tags)
         return final_predictions
 
-    def adjust_predictions(self, predictions):
+    def adjust_predictions(self, predictions, pos_tags):
         # It has been noticed that there are bad predictions when VERB - PRON - VERB
         # This will be adjusted here. Ideally the model should be retrained to take care of this issue.
-        pass
+        pos = utils.get_pos_without_information(pos_tags)
+        always_comma = [False] + [True if pos[i-1:i+3] == ["PRON", "VERB", "PRON", "VERB"] else False for i in range(1, len(pos)-2)] + [False, False]
+        adjusted_predictions = [1 if always_comma[i] else predictions[i] for i in range(len(predictions))]
+        return adjusted_predictions
 
     # creates comma error message
     def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> Error():
@@ -94,7 +98,7 @@ class PunctuationCorrector():
     # finds full stop mistakes and makes errors
     # errors are no full stop at end of sentence
     def find_full_stop_mistakes(self, sentence, prepared_words) -> ErrorList:
-        words_for_every_sentence = prepare_sentence(sentence, split_sentences=True)
+        words_for_every_sentence = utils.prepare_sentence(sentence, split_sentences=True)
         full_stop_error = [True if word[-1] not in PUNCTUATIONS_FULL_STOP and i == len(sent)-1 else False for sent in words_for_every_sentence for i, word in enumerate(sent)]
         error_messages_full_stop = ErrorList([self.create_full_stop_error_message(prepared_words[i], prepared_words, i) for i in range(len(prepared_words)) if full_stop_error[i]])
         return error_messages_full_stop
@@ -114,8 +118,8 @@ class PunctuationCorrector():
         print("sentence: ", sentence)
         self.index_finder = index_finder
         self.ner_tags = ner_tags
-        predictions = self.get_predictions(sentence)
-        words = prepare_sentence(sentence, lowercase=False)
+        predictions = self.get_predictions(sentence, pos_tags)
+        words = utils.prepare_sentence(sentence, lowercase=False)
         comma_mistakes = self.find_comma_mistakes(predictions, words)
         full_stop_mistakes = self.find_full_stop_mistakes(sentence, words)
-        return move_index_based_on_br(comma_mistakes + full_stop_mistakes, sentence)
+        return utils.move_index_based_on_br(comma_mistakes + full_stop_mistakes, sentence)
