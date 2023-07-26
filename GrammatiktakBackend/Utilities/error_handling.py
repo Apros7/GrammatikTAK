@@ -17,7 +17,6 @@ def errors_to_index_dict(errors):
     return dict
 
 def add_punc(error, error2):
-    print(error.right_word, error2.right_word[-1], error2.right_word)
     right_word = error.right_word + error2.right_word[-1] if type(error.right_word) != list else [word + error2.right_word[-1] for word in error.right_word]
     description = error.description + " " + error2.description
     return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
@@ -38,8 +37,6 @@ def del_cap(error, error2):
     return Error(error.wrong_word, right_word, error.indexes, description, error.get_type())
 
 def spaces(error, error2):
-    print(error.to_list())
-    print(error2.to_list())
     error_one_first_index = error.indexes[0]
     error_two_first_index = error2.indexes[0]
     relative_index = error_two_first_index - error_one_first_index

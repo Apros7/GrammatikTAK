@@ -141,8 +141,8 @@ def check_if_index_is_correct(errors, sentence, info=True):
     for i in range(len(should_be)):
         states.append(should_be[i].lower() == actual[i].lower())
         if info: print("Error says: ", should_be[i].lower(), ". Actual in sentence: ", actual[i].lower(), ". Equal?: ", states[-1], ". Lengths: ", len(should_be[i]), " ", len(actual[i]))
-
     if info:
+        print(" ------------------------------------\n | FINAL STATE IF ALL ADS UP: ", all(states), "|\n ------------------------------------")
         print("BE AWARE:")
         print("Make sure to test with <br> on the frontend side of things!")
     return all(states)

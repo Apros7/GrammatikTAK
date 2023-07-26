@@ -92,12 +92,12 @@ def index():
 
 time_tracker.complete_reset()
 
-message = " håber du har en god dag på silkeborg gymnasium. Har du en god dag? Har en god dag. Har du haft en god dag? Har du spist en banan? Håber du hygger."
+message = "idag har jeg set action film. Jeg har fødselsdag idag ala carte. Jeg ser action film"
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 utils.check_if_index_is_correct(errors1, message)
 
-# test_deployment(correct_input, manual_check=True, start_at=18, time_tracker=time_tracker)
+# test_deployment(correct_input, manual_check=True, start_at=0, time_tracker=time_tracker)
 
 ## NOTES ##
 # Spellchecker virker ikke helt godt stadigvæk (burde testes ved rigtige ord, som ikke er i ordbogen) (2)

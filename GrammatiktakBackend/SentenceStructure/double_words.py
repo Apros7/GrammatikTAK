@@ -4,6 +4,8 @@ from Utilities.error_handling import Error, ErrorList
 
 import pickle
 
+PUNCTUATION = ".,:;?!()[]{}'\""
+
 class DoubleWordsChecker():
     """
     Corrects double words in a sentence
@@ -11,8 +13,6 @@ class DoubleWordsChecker():
     def __init__(self): self.composite_dict = pickle.load(open("Datasets/composite_dict.pickle", "rb")); self.dictionary = {k: None for k in pickle.load(open("Datasets/dictionary.pickle", "rb"))}
     def cut_ouf_indexes(self, lst, indexes_to_cut_out): return [lst[i] for i in range(len(lst)) if i not in indexes_to_cut_out]
     def word_in_ner_tags(self, word_index, ner_tags): return any([word_index == ner_index for ner_index in ner_tags])
-
-    # other error_type??
 
     def create_double_word_error_message(self, wrong_word, all_words_from_sentence, index_of_word_in_all_words):
         error_type = "doublewords"
@@ -62,35 +62,41 @@ class DoubleWordsChecker():
     
     def check_composite_words(self, words, ner_tags, pos_tags, number_of_words_at_a_time):
         errors = ErrorList()
+        new_words = words.copy()
+        index_mover = 0
         for i in range(len(words) - number_of_words_at_a_time + 1):
             if self.word_in_ner_tags(i, ner_tags): continue
             true_words = " ".join(words[i:i+number_of_words_at_a_time])
-            if all([word in self.dictionary for word in true_words.split()]): continue
+            # if all([word in self.dictionary for word in true_words.split()]): continue
+            current_punctuation = None
+            if true_words[-1] in PUNCTUATION: current_punctuation = true_words[-1]; true_words = true_words[:-1]
             word = true_words.replace(" ", "")
             if word in self.composite_dict:
                 if true_words == self.composite_dict[word][0]:
                     continue
-                errors.append(self.create_composite_error_message(true_words, self.composite_dict[word][0], i))
+                errors.append(self.create_composite_error_message(true_words, self.composite_dict[word][0], i + index_mover))
                 correct_words = self.composite_dict[word][0].split()
+                if current_punctuation: correct_words[-1] = correct_words[-1] + current_punctuation
                 for j in range(len(correct_words)):
-                    index = i + j
-                    if index < i + number_of_words_at_a_time:
-                        words[index] = correct_words[j]
+                    index = i + j + index_mover
+                    if index - index_mover < i + number_of_words_at_a_time:
+                        new_words[index] = correct_words[j]
                         pos_tags[index] = self.composite_dict[word][1][j]
                     else:
-                        words.insert(index, correct_words[j])
+                        new_words.insert(index, correct_words[j])
                         pos_tags.insert(index, self.composite_dict[word][1][j])
                         ner_tags = self.push_ner_tags(index, ner_tags, 1)
                         self.index_finder.add_index(index, correct_words[j], add=True)
                 if number_of_words_at_a_time > len(correct_words):
                     for j in range(number_of_words_at_a_time - len(correct_words)):
-                        index = i + j + len(correct_words)
-                        words.pop(index)
+                        index = i + j + len(correct_words) + index_mover    
+                        new_words.pop(index)
                         pos_tags.pop(index)
                         ner_tags = self.push_ner_tags(index, ner_tags, -1)
                         self.index_finder.add_index(index, "")
+                index_mover += len(correct_words) - number_of_words_at_a_time
                 self.index_finder.freeze()
-        return errors, words, ner_tags, pos_tags
+        return errors, new_words, ner_tags, pos_tags
 
     def correct_composite_words(self, words, ner_tags, pos_tags):
         all_errors = ErrorList()
