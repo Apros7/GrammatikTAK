@@ -14,7 +14,7 @@ import difflib
 import emoji
 
 # Currently below does not allow for any corrections. Maybe is hould in the composite words correction?
-NO_CORRECTION_IF_IN_WORD = "-_/"
+NO_CORRECTION_IF_IN_WORD = "-_/'\"”"
 PARTLY_CLEANING = ",:;?!()[]{}'\""
 METERS_PREFIX = ["nano", "micro", "milli", "", "deci", "kilo", "mega", "giga", "tera", "peta", "exa", "zetta", "yotta"]
 
@@ -79,7 +79,7 @@ class SpellChecker():
         if self.punctuation_in_word(word) or self.emoji_in_word(word): return None
         if self.is_word_in_dictionary(word) or self.word_in_ner_tags(index, ner_tags): return None
         if word in self.meter_errors: return self.create_spellchecking_error_message(word, self.meter_errors[word], index)
-        if word.replace(".", "") in self.abbreviations: return self.create_spellchecking_error_message(word, self.abbreviations[word.replace(".", "")], index, abbreviation=True)
+        if word.replace(".", "") in self.abbreviations: return None if word == self.abbreviations[word.replace(".", "")] else self.create_spellchecking_error_message(word, self.abbreviations[word.replace(".", "")], index, abbreviation=True)
         print("Translating because of:", word)
         translation_return = self.find_translation(words, index)
         print(translation_return, translation_return in self.dictionary)

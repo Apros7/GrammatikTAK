@@ -35,7 +35,7 @@ class MissingFoundationChecker():
             errors.append(self.create_error_message(words[index], word_to_add + " " + words[index].lower(), words, index))
             new_words = new_words[:index+foundations_added] + [word_to_add] + [new_words[index+foundations_added].lower()] + new_words[index+1+foundations_added:]
             indexes = self.index_finder.find_index(index, words[index])
-            new_pos = new_pos[:index] + [["PRON", [indexes[0], indexes[0]], {}]] + new_pos[index:]
+            new_pos = new_pos[:index+foundations_added] + [["PRON", [indexes[0], indexes[0]], {}]] + new_pos[index+foundations_added:]
             foundations_added += 1
             ner_tags = self.push_ner_tags(index, ner_tags)
             self.index_finder.add_index(index, "Jeg", add=True)

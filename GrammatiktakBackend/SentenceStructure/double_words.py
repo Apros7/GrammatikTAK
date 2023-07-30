@@ -13,6 +13,7 @@ class DoubleWordsChecker():
     def __init__(self): self.composite_dict = pickle.load(open("Datasets/composite_dict.pickle", "rb")); self.dictionary = {k: None for k in pickle.load(open("Datasets/dictionary.pickle", "rb"))}
     def cut_ouf_indexes(self, lst, indexes_to_cut_out): return [lst[i] for i in range(len(lst)) if i not in indexes_to_cut_out]
     def word_in_ner_tags(self, word_index, ner_tags): return any([word_index == ner_index for ner_index in ner_tags])
+    def remove_punctuation(self, word): return word.translate(str.maketrans('', '', PUNCTUATION))
 
     def create_double_word_error_message(self, wrong_word, all_words_from_sentence, index_of_word_in_all_words):
         error_type = "doublewords"
@@ -67,7 +68,7 @@ class DoubleWordsChecker():
         for i in range(len(words) - number_of_words_at_a_time + 1):
             if self.word_in_ner_tags(i, ner_tags): continue
             true_words = " ".join(words[i:i+number_of_words_at_a_time])
-            # if all([word in self.dictionary for word in true_words.split()]): continue
+            if all([self.remove_punctuation(word) in self.dictionary for word in true_words.split()]): continue
             current_punctuation = None
             if true_words[-1] in PUNCTUATION: current_punctuation = true_words[-1]; true_words = true_words[:-1]
             word = true_words.replace(" ", "")

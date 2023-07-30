@@ -14,7 +14,7 @@ class ExcessiveSpacesCorrector():
         return [first_index - 1, first_index + number_of_spaces - 1]
 
     def create_full_stop_error_message(self, number_of_spaces, index_of_word_in_all_words, words) -> Error():
-        error_description = f"Det ser ud til, at du har sat {number_of_spaces} mellemrum i her."
+        error_description = f"Det ser ud til, at du har sat {number_of_spaces} mellemrum for meget her."
         error_type = "spaces"
         indexes = self.find_indexes(index_of_word_in_all_words, words, number_of_spaces)
         wrong_word, right_word  = " "*number_of_spaces, " "
@@ -39,10 +39,10 @@ class ExcessiveSpacesCorrector():
                 if i-number_of_spaces > 0:
                     ner_tags = self.adjust_ner_tags(-number_of_spaces + 1, ner_tags, i-number_of_spaces_corrected)
                     number_of_spaces_corrected += number_of_spaces - 1
-        errors = self.forget_beginning_errors(errors)
+        errors = self.forget_beginning_and_ending_errors(errors, sentence)
         return move_index_based_on_br(errors, sentence), (" ".join(words), pos_tags, ner_tags)
 
-    def forget_beginning_errors(self, errors): return ErrorList([error for error in errors if error.indexes[0] >= 0])
+    def forget_beginning_and_ending_errors(self, errors, sentence): return ErrorList([error for error in errors if error.indexes[0] >= 0 and error.indexes[1] < len(sentence)])
     def adjust_ner_tags(self, adjust_with, ner_tags, index): return [tag + adjust_with if tag >= index else tag for tag in ner_tags]
 
     def beginning_spaces_errors(self, sentence, pos_tags, ner_tags):
@@ -56,11 +56,23 @@ class ExcessiveSpacesCorrector():
         ner_tags = self.adjust_ner_tags(-i, ner_tags, 0)
         return move_index_based_on_br(ErrorList([error]), sentence), (sentence[i:], pos_tags, ner_tags), i
 
+    def ending_spaces_errors(self, sentence, pos_tags, ner_tags):
+        words = sentence.split(" ")
+        i = len(words) - 1
+        if len(words) < 1: return None
+        while words[i] == "" and i > 0: i -= 1
+        number_of_spaces = len(words) - i - 1
+        if number_of_spaces > 0: error = Error(number_of_spaces*" ", "", [len(sentence)-number_of_spaces, len(sentence)], f"Det ser ud til, at du har sat {number_of_spaces} mellemrum efter '{words[i]}'", "spaces")
+        else: error = None
+        return move_index_based_on_br(ErrorList([error]), sentence), (sentence[:len(sentence)-number_of_spaces], pos_tags, ner_tags)
+
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
         self.index_finder = index_finder
         begin_error, (sentence, pos_tags, ner_tags), number_of_spaces = self.beginning_spaces_errors(sentence, pos_tags, ner_tags)
+        end_error, (sentence, pos_tags, ner_tags) = self.ending_spaces_errors(sentence, pos_tags, ner_tags)
         errors, (sentence, pos_tags, ner_tags) = self.find_spaces_errors(sentence, pos_tags, ner_tags, number_of_spaces)
-        return errors + begin_error, (sentence, pos_tags, ner_tags)
+        print(f"\"{sentence}\"")
+        return errors + begin_error + end_error, (sentence, pos_tags, ner_tags)
 
 if __name__ == "__main__":
     sentence = "  hej jeg hedder lucas. hej jeg hedder  lucas. hej jeg hedder      lucas.  hej jeg hedder lucas.  "

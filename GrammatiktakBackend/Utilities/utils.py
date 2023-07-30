@@ -60,14 +60,14 @@ class IndexFinder():
         number_of_words_to_consider = len(word.split())
         true_word_length = -1
         non_added_lst = [el for el in self.frozen_lst if not el[1]]
-        while number_of_words_to_consider > 0:
+        while number_of_words_to_consider > 0 and true_index < len(non_added_lst):
             true_word_length += len(non_added_lst[true_index][0]) + 1
             if non_added_lst[true_index][0] != "":
                 number_of_words_to_consider -= 1
             true_index += 1
-
-        if word[-1] not in string.punctuation and non_added_lst[true_index-1][0][-1] in string.punctuation:
-            true_word_length -= 1
+        word_has_punctuation = word[-1] in string.punctuation
+        sentence_ends_with_punctuation = False if len(non_added_lst[true_index-1][0]) == 0 else non_added_lst[true_index-1][0][-1] in string.punctuation
+        if not word_has_punctuation and sentence_ends_with_punctuation: true_word_length -= 1
         end_index = start_index + true_word_length
         return [start_index, end_index]
 
