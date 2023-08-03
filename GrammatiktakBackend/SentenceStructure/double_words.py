@@ -43,18 +43,20 @@ class DoubleWordsChecker():
         indexes_to_cut_out = []
         words_allowed = ["så", "i"]
         errors = ErrorList()
+        already_corrected = 0
         for i in range(len(words)):
             if i > 0 and words[i] == words[i-1]:
                 continue
             j = i
             temp = []
-            while j < len(words) and words[i] == words[j]:
+            while j < len(words) and words[i] == words[j] and j-already_corrected not in ner_tags:
                 temp.append(words[j])
                 j += 1
             if len(temp) > 1 and words[i].lower() not in words_allowed:
                 errors.append(self.create_double_word_error_message(" ".join(temp), words, i))
                 indexes_to_cut_out.extend(range(i+1, j))
                 ner_tags = self.push_ner_tags(i, ner_tags, -len(temp) + 1)
+                already_corrected += len(temp) - 1
                 for k in range(i+1, j):
                     self.index_finder.add_index(k, "")
         new_words = self.cut_ouf_indexes(words, indexes_to_cut_out)     
@@ -62,6 +64,9 @@ class DoubleWordsChecker():
         return errors, new_words, ner_tags, pos_tags
     
     def check_composite_words(self, words, ner_tags, pos_tags, number_of_words_at_a_time):
+        """
+        Needs refactoring
+        """
         errors = ErrorList()
         new_words = words.copy()
         index_mover = 0

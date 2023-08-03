@@ -64,7 +64,7 @@ def correct_input(input_sentence, save=False):
 
     errors_to_project_onto_others = modules_to_project_onto_others.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
 
-    utils.print_list_of_ErrorList(sentence_manipulation_project_errors, sentence_manipulation_errors, errors_be_projected_on, errors_to_project_onto_others)
+    #utils.print_list_of_ErrorList(sentence_manipulation_project_errors, sentence_manipulation_errors, errors_be_projected_on, errors_to_project_onto_others)
 
     if save:
         firestore_client.save_input(sentence)
@@ -92,12 +92,13 @@ def index():
 
 time_tracker.complete_reset()
 
-message = "jeg heder lucas. jeg har fødseldag idag  "
+message = "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. Lars Lars har det godt. Jeg er fra fra fra silkeborg. Jeg har skole imorgen. Jeg er er er er er"
 errors1 = correct_input(message)
 print(*errors1, sep="\n")
 utils.check_if_index_is_correct(errors1, message)
 
 # test_deployment(correct_input, manual_check=True, start_at=22, time_tracker=time_tracker)
+# 22
 
 ## NOTES ##
 # Spellchecker virker ikke helt godt stadigvæk (burde testes ved rigtige ord, som ikke er i ordbogen) (2)

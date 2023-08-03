@@ -68,7 +68,7 @@ class SpellChecker():
     def create_spellchecking_error_message(self, wrong_word, correct_word, index_of_word_in_all_words, abbreviation=False, translation=False) -> list:
         error_type = "spellcheck"
         ## When frontend can take lists change this:
-        # correct_word = correct_word[0] if len(correct_word) > 1 else correct_word
+        correct_word = correct_word[0] if type(correct_word) == list else correct_word
         if abbreviation: error_description = f"Det ligner, at du har skrevet forkotelsen '{wrong_word}' forkert. Den rigtige måde er: '{correct_word}'."
         elif translation: error_description = f"Det ligner, at du har skrevet et engelsk ord '{wrong_word}'. Du kunne overveje at oversætte dette til dansk: '{correct_word}'."
         else: error_description = f"{wrong_word} er ikke ordbogen. Mente du en af disse ord?" if isinstance(correct_word, list) else f"{wrong_word} er ikke ordbogen. Mente du '{correct_word}'?"
