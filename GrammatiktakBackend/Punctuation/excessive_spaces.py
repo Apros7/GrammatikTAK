@@ -14,7 +14,7 @@ class ExcessiveSpacesCorrector():
         return [first_index - 1, first_index + number_of_spaces - 1]
 
     def create_full_stop_error_message(self, number_of_spaces, index_of_word_in_all_words, words) -> Error():
-        error_description = f"Det ser ud til, at du har sat {number_of_spaces} mellemrum for meget her."
+        error_description = f"Det ser ud til, at du har sat {number_of_spaces - 1} mellemrum for meget her."
         error_type = "spaces"
         indexes = self.find_indexes(index_of_word_in_all_words, words, number_of_spaces)
         wrong_word, right_word  = " "*number_of_spaces, " "
