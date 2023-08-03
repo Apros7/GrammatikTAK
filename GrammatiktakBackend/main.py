@@ -1,6 +1,6 @@
 from Timetracking.timetracker import TimeTracker
 time_tracker = TimeTracker()
-# time_tracker.inactive = True
+time_tracker.inactive = True
 
 from Punctuation.correct_punctuation import PunctuationCorrector
 from Helpers.tagger import Tagger
@@ -87,15 +87,15 @@ def index():
         firestore_client.save_feedback(feedback, input)
         return jsonify(output)
     input = data["sentence"]
-    output = correct_input(input)#, save=True)
+    output = correct_input(input, save=True)
     return jsonify(output)
 
 time_tracker.complete_reset()
 
-message = "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. Lars Lars har det godt. Jeg er fra fra fra silkeborg. Jeg har skole imorgen. Jeg er er er er er"
-errors1 = correct_input(message)
-print(*errors1, sep="\n")
-utils.check_if_index_is_correct(errors1, message)
+# message = "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. Lars Lars har det godt. Jeg er fra fra fra silkeborg. Jeg har skole imorgen. Jeg er er er er er"
+# errors1 = correct_input(message)
+# print(*errors1, sep="\n")
+# utils.check_if_index_is_correct(errors1, message)
 
 # test_deployment(correct_input, manual_check=True, start_at=22, time_tracker=time_tracker)
 # 22
