@@ -97,7 +97,7 @@ time_tracker.complete_reset()
 # print(*errors1, sep="\n")
 # utils.check_if_index_is_correct(errors1, message)
 
-test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
+# test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
 # 22
 
 ## NOTES ##
