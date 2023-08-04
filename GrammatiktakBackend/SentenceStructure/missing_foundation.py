@@ -2,6 +2,8 @@
 from Utilities.utils import prepare_sentence, move_index_based_on_br, get_pos_without_information
 from Utilities.error_handling import Error, ErrorList
 
+import pickle
+
 class MissingFoundationChecker():
     """
     Based on logic
@@ -11,6 +13,7 @@ class MissingFoundationChecker():
 
     def __init__(self):
         print("Loading Foundation checker...")
+        self.stem_dict = pickle.load(open("Datasets/VbStemDict.pickle", "rb"))
 
     def create_error_message(self, wrong_word, correct_word, all_words_from_sentence, index_of_word_in_all_words) -> list:
         error_type = "foundation"
@@ -31,6 +34,7 @@ class MissingFoundationChecker():
         for index in indexes_to_check:
             if index + 3 > len(words): break
             if pos[index:index+3] != ["VERB", "PRON", "VERB"]: continue
+            if words[index].lower() not in self.stem_dict: continue
             word_to_add = "Jeg"
             errors.append(self.create_error_message(words[index], word_to_add + " " + words[index].lower(), words, index))
             new_words = new_words[:index+foundations_added] + [word_to_add] + [new_words[index+foundations_added].lower()] + new_words[index+1+foundations_added:]

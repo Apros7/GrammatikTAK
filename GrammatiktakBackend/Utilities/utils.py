@@ -49,7 +49,7 @@ class IndexFinder():
         returning_index = index
         for i, word in enumerate(self.frozen_lst):
             if word[0] == "" and i <= index: index += 1; returning_index += 1
-            if word[1] and i <= index: returning_index -= 1
+            if word[1] and i < index: returning_index -= 1
         return returning_index
 
     def freeze(self): self.frozen_lst = self.changed_to.copy()

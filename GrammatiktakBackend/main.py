@@ -59,7 +59,7 @@ def correct_input(input_sentence, save=False):
     sentence_manipulation_project_errors, (sentence, pos_tags, ner_tags) = modules_to_manipulate_and_project.correct(input_sentence, pos_tags, ner_tags, index_finder=index_finder)
 
     sentence_manipulation_errors, (sentence, pos_tags, ner_tags) = modules_to_manipulate_sentence.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
-    
+
     errors_be_projected_on = modules_be_projected_on.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
 
     errors_to_project_onto_others = modules_to_project_onto_others.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
@@ -92,12 +92,12 @@ def index():
 
 time_tracker.complete_reset()
 
-# message = "jeg jeg ser en action film fra fra blockbuster. Så så jeg en film. Lars Lars har det godt. Jeg er fra fra fra silkeborg. Jeg har skole imorgen. Jeg er er er er er"
+# message = "hej jeg hedde lucas. Håber du har en god dag."
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # utils.check_if_index_is_correct(errors1, message)
 
-# test_deployment(correct_input, manual_check=True, start_at=22, time_tracker=time_tracker)
+test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
 # 22
 
 ## NOTES ##
