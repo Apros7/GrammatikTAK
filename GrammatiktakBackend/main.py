@@ -64,7 +64,7 @@ def correct_input(input_sentence, save=False):
 
     errors_to_project_onto_others = modules_to_project_onto_others.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
 
-    #utils.print_list_of_ErrorList(sentence_manipulation_project_errors, sentence_manipulation_errors, errors_be_projected_on, errors_to_project_onto_others)
+    # utils.print_list_of_ErrorList(sentence_manipulation_project_errors, sentence_manipulation_errors, errors_be_projected_on, errors_to_project_onto_others)
 
     if save:
         firestore_client.save_input(sentence)
@@ -92,10 +92,10 @@ def index():
 
 time_tracker.complete_reset()
 
-# message = "hej jeg hedde lucas. Håber du har en god dag."
-# errors1 = correct_input(message)
-# print(*errors1, sep="\n")
-# utils.check_if_index_is_correct(errors1, message)
+message = "håber du har en god dag. det har jeg virkelig meget. den har været rigtig god :)"
+errors1 = correct_input(message)
+print(*errors1, sep="\n")
+utils.check_if_index_is_correct(errors1, message)
 
 # test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
 # 22

@@ -36,7 +36,6 @@ class PunctuationCorrector():
         no_punctuation_test_data = [data.translate(str.maketrans("", "", PUNCTUATIONS)) for data in corrected_test_data]
         return no_punctuation_test_data
 
-
     # prepares dataset and get predictions
     def get_predictions(self, sentence, pos_tags) -> list:
         words = self.add_padding(utils.prepare_sentence(sentence))
@@ -55,6 +54,7 @@ class PunctuationCorrector():
         pos = utils.get_pos_without_information(pos_tags)
         always_comma = [False] + [True if pos[i-1:i+3] == ["PRON", "VERB", "PRON", "VERB"] else False for i in range(1, len(pos)-2)] + [False, False]
         adjusted_predictions = [1 if always_comma[i] else predictions[i] for i in range(len(predictions))]
+        adjusted_predictions[0] = 0 if pos[0:4] == ["PRON", "VERB", "PRON", "VERB"] else adjusted_predictions[0]
         return adjusted_predictions
 
     # creates comma error message
