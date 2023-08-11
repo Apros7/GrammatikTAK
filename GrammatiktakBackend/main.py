@@ -92,10 +92,10 @@ def index():
 
 time_tracker.complete_reset()
 
-message = "håber du har en god dag. det har jeg virkelig meget. den har været rigtig god :)"
-errors1 = correct_input(message)
-print(*errors1, sep="\n")
-utils.check_if_index_is_correct(errors1, message)
+# message = "håber du har en god dag. det har jeg virkelig meget. den har været rigtig god :)"
+# errors1 = correct_input(message)
+# print(*errors1, sep="\n")
+# utils.check_if_index_is_correct(errors1, message)
 
 # test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
 # 22
