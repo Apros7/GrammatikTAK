@@ -53,6 +53,9 @@ time_tracker.track("initialize correctors")
 def correct_input(input_sentence, save=False):
     index_finder = utils.IndexFinder(original_sentence=input_sentence) # Should reset every time, therefore here
 
+    # In case of backend error, the input sentence will show on Google Cloud Logs
+    print("Correcting this sentence: ", input_sentence)
+
     pos_tags, ner_tags = tagger.get_tags(input_sentence)
     time_tracker.track("get tags")
 
