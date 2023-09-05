@@ -15,18 +15,21 @@ filename = "europarl-v7.da-en.da"
 with open(filename, "r", encoding="UTF-8") as file:
     lines = file.readlines()
 
+result = [line.split() for line in lines]
+
 step_rate = 5
-result = []
+result2 = []
 for i in range(0, len(lines),step_rate):
-    result.append((' '.join(lines[i:i+step_rate])).split())
+    result2.append((' '.join(lines[i:i+step_rate])).split())
 
 # Changing to six words scope
 left_scope = 15
 right_scope = 10
 middle = left_scope
 
-print(len(result))
-old_big_words = result[:60000]
+print("Result 1: ", len(result))
+print("Result 2: ", len(result2))
+old_big_words = result[:500000]
 
 
 # add padding
@@ -60,7 +63,7 @@ df["comment_text"] = big_lst
 df["label"] = output1_lst
 
 print(len(df))
-df = df[:10000000]
+# df = df[:10000000]
 
 def distribution(df):
     print(df["label"].value_counts())
@@ -68,4 +71,4 @@ def distribution(df):
 distribution(df)
 print(len(df))
 header = ["comment_text", "label"]
-df.to_csv("Datasets/EuroparlWithPadding15-5.csv", encoding="UTF-8", index=False, sep=";")
+df.to_csv("Datasets/EuroparlPad15-5_NoFullStop.csv", encoding="UTF-8", index=False, sep=";")
