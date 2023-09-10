@@ -12,3 +12,5 @@ FineTuneModels/cache
 *.cpython-311.pyc
 NewOfficialDictionaryHere/
 NewProducedDicts/
+predictions.pickle
+*.pptx
