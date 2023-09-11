@@ -14,3 +14,4 @@ NewOfficialDictionaryHere/
 NewProducedDicts/
 predictions.pickle
 *.pptx
+*.pyc

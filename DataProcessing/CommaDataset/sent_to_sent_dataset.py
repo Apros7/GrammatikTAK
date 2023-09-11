@@ -10,7 +10,7 @@ filename = "europarl-v7.da-en.da"
 with open(filename, "r", encoding="UTF-8") as file:
     lines = file.readlines()
 
-cleaned_lines = [line.replace(" -", ",") for line in tqdm(lines)]
+cleaned_lines = [line.replace(" -", ",").lower() for line in tqdm(lines)]
 
 TRANSLATION_TABLE_WITH_COMMA = str.maketrans('', '', string.punctuation)
 TRANSLATION_TABLE_WITHOUT_COMMA = str.maketrans('', '', string.punctuation.replace(",", ""))
