@@ -8,6 +8,12 @@ import time
 import numpy as np
 from transformers import TrainingArguments, Trainer, BertForSequenceClassification
 
+# pip3 install accelerate -U
+# pip3 install datasets
+# pip3 install scikit-learn
+# pip3 install transformers
+# pip3 install pandas
+
 tokenizer = AutoTokenizer.from_pretrained("Geotrend/distilbert-base-da-cased")
 
 df = pd.read_csv("SentToLabel_15-5_Revisited.csv", sep=";")

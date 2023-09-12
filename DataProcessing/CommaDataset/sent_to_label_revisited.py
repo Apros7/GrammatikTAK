@@ -7,6 +7,8 @@ import pickle
 current_dir = os.getcwd()
 os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/")
 
+#/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/europarl-v7.da-en.da
+
 filename = "europarl-v7.da-en.da"
 with open(filename, "r", encoding="UTF-8") as file:
     lines = file.readlines()
