@@ -2,6 +2,7 @@ import string
 import pandas as pd
 from tqdm import tqdm
 import os
+import pickle
 
 current_dir = os.getcwd()
 os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/")
@@ -46,3 +47,6 @@ print(len(df))
 
 # df = df[:1000]
 df.to_csv("SentToLabel_15-5_Revisited.csv", encoding="UTF-8", index=False, sep=";")
+
+# with open("SentToLabel_15-5_Revisited.pickle") as file:
+#     pickle.dump(df, file)
