@@ -18,7 +18,7 @@ TRANSLATION_TABLE_WITHOUT_COMMA = str.maketrans('', '', string.punctuation.repla
 cleaned_lines = [line.replace(" -", ",").lower() for line in tqdm(lines) if len(line.translate(TRANSLATION_TABLE_WITHOUT_COMMA).strip()) > 0]
 lines_with_comma = [line.translate(TRANSLATION_TABLE_WITHOUT_COMMA).strip().replace("  ", " ") for line in tqdm(cleaned_lines)]
 
-PADDING_LEFT = 10
+PADDING_LEFT = 15
 PADDING_RIGHT = 5
 
 lines_with_padding = [PADDING_LEFT * ["<PAD>"] + line.split() + PADDING_RIGHT * ["<PAD>"] for line in lines_with_comma]
@@ -44,5 +44,5 @@ def distribution(df):
 distribution(df)
 print(len(df))
 
-df = df[:1000]
+# df = df[:1000]
 df.to_csv("SentToLabel_15-5_Revisited.csv", encoding="UTF-8", index=False, sep=";")
