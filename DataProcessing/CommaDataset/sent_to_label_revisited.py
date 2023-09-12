@@ -10,8 +10,10 @@ filename = "europarl-v7.da-en.da"
 with open(filename, "r", encoding="UTF-8") as file:
     lines = file.readlines()
 
+# lines = [lines[1]]
+
 TRANSLATION_TABLE_WITH_COMMA = str.maketrans('', '', string.punctuation)
-TRANSLATION_TABLE_WITHOUT_COMMA = str.maketrans('', '', string.punctuation.replace(",", "").replace(".", ","))
+TRANSLATION_TABLE_WITHOUT_COMMA = str.maketrans('', '', string.punctuation.replace(",", "").replace(".", ""))
 
 cleaned_lines = [line.replace(" -", ",").lower() for line in tqdm(lines) if len(line.translate(TRANSLATION_TABLE_WITHOUT_COMMA).strip()) > 0]
 lines_with_comma = [line.translate(TRANSLATION_TABLE_WITHOUT_COMMA).strip().replace("  ", " ") for line in tqdm(cleaned_lines)]
@@ -29,10 +31,9 @@ for i in tqdm(range(len(lines_with_padding))):
         if sample[PADDING_LEFT-1][-1] == ",": middle_word_punc = 1
         elif sample[PADDING_LEFT-1][-1] == ".": middle_word_punc = 2
         else: middle_word_punc = 0
-        cleaned_dataset.append((" ".join(sample)).replace(",", ""))
+        cleaned_dataset.append((" ".join(sample)).replace(",", "").replace(".", ""))
         labels.append(middle_word_punc)
         
-
 df = pd.DataFrame()
 df["data"] = cleaned_dataset
 df["label"] = labels
