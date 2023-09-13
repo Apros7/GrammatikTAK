@@ -8,6 +8,7 @@ import time
 import numpy as np
 from transformers import TrainingArguments, Trainer, BertForSequenceClassification
 
+# scp Desktop/europarl-v7.da-en.da fsuser@87.120.210.92:/home/fsuser/
 # pip3 install accelerate -U
 # pip3 install datasets
 # pip3 install scikit-learn
