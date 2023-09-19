@@ -22,7 +22,7 @@ tokenizer = AutoTokenizer.from_pretrained("Geotrend/distilbert-base-da-cased")
 df = pd.read_csv("SentToLabel_15-5_Revisited.csv", sep=";")
 print(len(df))
 
-# df = df[:1000] # should not be active
+df = df[:1000000] # should not be active
 print(len(df))
 
 data = df["data"].to_list()
