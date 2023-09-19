@@ -16,3 +16,4 @@ predictions.pickle
 *.pptx
 *.pyc
 output/
+log/
