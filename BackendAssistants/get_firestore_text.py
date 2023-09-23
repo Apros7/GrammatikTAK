@@ -89,8 +89,11 @@ class FirestoreClient():
         self.check_kind(kind)
         self.save_entities_to_csv(kind)
         self.delete_all_entries(kind)
+    
+    def update(self):
+        self.save_and_delete("Feedback")
+        self.save_and_delete("Backend-alltext")
 
 if __name__ == "__main__":
     firestoreClient = FirestoreClient()
-    firestoreClient.save_and_delete("Feedback")
-    firestoreClient.save_and_delete("Backend-alltext")
+    firestoreClient.update()

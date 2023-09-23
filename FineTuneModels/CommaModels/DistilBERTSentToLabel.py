@@ -9,7 +9,7 @@ import numpy as np
 from transformers import TrainingArguments, Trainer, BertForSequenceClassification
 import os
 
-# scp Desktop/europarl-v7.da-en.da fsuser@87.120.210.92:/home/fsuser/
+# scp -P 8128 Desktop/europarl-v7.da-en.da root@sshd.jarvislabs.ai:/root
 # pip3 install accelerate -U
 # pip3 install datasets scikit-learn transformers pandas
 # Desktop/GrammatikTAK/FineTuneModels/CommaModels/DistilBERTSentToLabel.py
@@ -22,7 +22,7 @@ tokenizer = AutoTokenizer.from_pretrained("Geotrend/distilbert-base-da-cased")
 df = pd.read_csv("SentToLabel_15-5_Revisited.csv", sep=";")
 print(len(df))
 
-df = df[:1000000] # should not be active
+df = df[:25000000] # should not be active
 print(len(df))
 
 data = df["data"].to_list()
@@ -54,10 +54,12 @@ labels = 0
 start_time = time.time()
 print("Tokenizing val:")
 X_val_tokenized = tokenizer(X_val, padding=True, truncation=True)
+X_val = 0
 print("Time taken for validation: ", time.time() - start_time)
 print("Expected total time ", ((time.time() - start_time) * 10) // 60, "min", ((time.time() - start_time) * 10) % 60, "sek")
 X_train_tokenized = tokenizer(X_train, padding=True, truncation=True)
 print("Done with tokenization")
+X_train = 0
 
 ## CHANGE THIS ##
 batch_size = 32
@@ -84,11 +86,11 @@ args = TrainingArguments(
     weight_decay=0,
     load_best_model_at_end=True,
     metric_for_best_model="accuracy",
-    eval_steps=5000,  
+    eval_steps=100000,  
     output_dir="output",
-    logging_steps=1000,
+    logging_steps=25000,
     logging_dir = "log", 
-    save_steps = 5000,
+    save_steps = 100000,
     save_total_limit = 3
 )
 
