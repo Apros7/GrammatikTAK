@@ -5,6 +5,7 @@ Performance logging of different models.
 ## Comma Models
 Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test accuracy | Test F1 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
+Distil | 24-09-2023 | EuroParl | 25.000.000 | 2 | 32 | 2e-5 | 0 | 15-5 | **%** | Unknown
 10 | 25-05-2023 | EuroParl | 6.900.000 | 2 | 32 | 2e-5 | 1e-2 | 15-10 | **98.99%** | Unknown
 9 | 05-04-2023 | EuroParl | 4.000.000 | 1 | 16 | 1e-5 | 1e-4 | 5-5 | 98.09% | **0.931**
 8 | 04-04-2023 | EuroParl | 2.000.000 | 2 | 32 | 1e-5 | 0 | 10-10 | 97.41% | 0.905
