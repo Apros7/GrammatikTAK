@@ -17,3 +17,4 @@ predictions.pickle
 *.pyc
 output/
 log/
+*.config
