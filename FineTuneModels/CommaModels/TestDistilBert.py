@@ -74,7 +74,7 @@ def evaluate_model(model, data, labels):
     return accuracy
 
 train_accuracy = evaluate_model(trainer, data_train, labels_train)
-print(f"Train Accuracy: {train_accuracy:.2f}")
+print(f"Train Accuracy: {train_accuracy:.6f}")
 
 test_accuracy = evaluate_model(trainer, data_test, labels_test)
-print(f"Test Accuracy: {test_accuracy:.2f}")
+print(f"Test Accuracy: {test_accuracy:.6f}")
