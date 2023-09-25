@@ -48,8 +48,8 @@ class CustomDataset(torch.utils.data.Dataset):
 
 print("Splitting data")
 ## CHANGE THIS ##
-# X_train, X_val, y_train, y_val = train_test_split(data, labels, test_size=0.01, random_state=1212)
-X_train, X_val, y_train, y_val = train_test_split(data, labels, test_size=0.05, random_state=1212)
+test_size = 0.05
+X_train, X_val, y_train, y_val = train_test_split(data, labels, test_size=test_size, random_state=1212)
 
 data = 0
 labels = 0
@@ -59,7 +59,7 @@ print("Tokenizing val:")
 X_val_tokenized = tokenizer(X_val, padding=True, truncation=True)
 X_val = 0
 print("Time taken for validation: ", time.time() - start_time)
-print("Expected total time ", ((time.time() - start_time) * 10) // 60, "min", ((time.time() - start_time) * 10) % 60, "sek")
+print("Expected total time ", ((time.time() - start_time) * 1/test_size) // 60, "min", ((time.time() - start_time) * 1/test_size) % 60, "sek")
 X_train_tokenized = tokenizer(X_train, padding=True, truncation=True)
 print("Done with tokenization")
 X_train = 0
