@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import time
 import numpy as np
-from transformers import TrainingArguments, Trainer, BertForSequenceClassification
+from transformers import TrainingArguments, Trainer, AutoModelForSequenceClassification, BertForSequenceClassification
 import os
 
 # scp -P 8128 Desktop/europarl-v7.da-en.da root@sshd.jarvislabs.ai:/root
@@ -17,12 +17,13 @@ import os
 tokenizer = AutoTokenizer.from_pretrained("Geotrend/distilbert-base-da-cased")
 
 ## CHANGE THIS ##
-# os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets")
-# df = pd.read_csv("SentToLabel_15-5_Revisited_small.csv", sep=";")
-df = pd.read_csv("SentToLabel_15-5_Revisited.csv", sep=";")
+os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets")
+df = pd.read_csv("SentToLabel_15-5_Revisited_small.csv", sep=";")
+# df = pd.read_csv("SentToLabel_15-5_Revisited.csv", sep=";")
 print(len(df))
 
-df = df[:25000000] # should not be active
+df = df[:2500]
+# df = df[:25000000] # should not be active
 print(len(df))
 
 data = df["data"].to_list()
@@ -70,10 +71,12 @@ train_dataset = CustomDataset(X_train_tokenized, y_train, batch_size=batch_size)
 val_dataset = CustomDataset(X_val_tokenized, y_val, batch_size=batch_size)
 ## CHANGE THESE ##
 # os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/FineTuneModels/CommaModels")
-# device = "mps"
-device = "cuda:0"
+device = "mps"
+# device = "cuda:0"
 torch.device(device)
-model = BertForSequenceClassification.from_pretrained('Geotrend/distilbert-base-da-cased', num_labels=3)
+# model = BertForSequenceClassification.from_pretrained('Geotrend/distilbert-base-da-cased', num_labels=3) # about 6:10
+model = AutoModelForSequenceClassification.from_pretrained('Geotrend/distilbert-base-da-cased', num_labels=3) # about 3:30
+print("Parameters: ", sum([p.numel() for p in model.parameters()]))
 model.to(device)
 
 args = TrainingArguments(
@@ -110,4 +113,7 @@ trainer = Trainer(
 
 trainer.train()
 
+os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/FineTuneModels/CommaModels")
+
 torch.save(model, './commaDistilBERT1')
+torch.save(model.state_dict(), "./commaDistilBERT1stateDict")

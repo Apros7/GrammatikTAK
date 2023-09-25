@@ -62,8 +62,6 @@ model.to(device)
 model.eval()
 trainer = Trainer(model)
 
-pipe = TextClassificationPipeline(model=model, tokenizer=tokenizer, return_all_scores=True)
-
 def evaluate_model(model, data, labels):
     with torch.no_grad():
         tokenized_data = tokenizer(data, padding=True, truncation=True)
