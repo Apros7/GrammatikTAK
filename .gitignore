@@ -18,3 +18,4 @@ predictions.pickle
 output/
 log/
 *.config
+*.py
