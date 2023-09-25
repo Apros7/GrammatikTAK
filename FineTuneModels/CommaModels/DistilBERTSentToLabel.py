@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import time
 import numpy as np
-from transformers import TrainingArguments, Trainer, AutoModelForSequenceClassification, BertForSequenceClassification
+from transformers import TrainingArguments, Trainer, AutoModelForSequenceClassification, BertForSequenceClassification, DistilBertForSequenceClassification
 import os
 
 # scp -P 8128 Desktop/europarl-v7.da-en.da root@sshd.jarvislabs.ai:/root
@@ -75,7 +75,8 @@ device = "mps"
 # device = "cuda:0"
 torch.device(device)
 # model = BertForSequenceClassification.from_pretrained('Geotrend/distilbert-base-da-cased', num_labels=3) # about 6:10
-model = AutoModelForSequenceClassification.from_pretrained('Geotrend/distilbert-base-da-cased', num_labels=3) # about 3:30
+model = AutoModelForSequenceClassification.from_pretrained('Geotrend/distilbert-base-da-cased', num_labels=3)
+model = DistilBertForSequenceClassification.from_pretrained('Geotrend/distilbert-base-da-cased', num_labels=3) # about 3:30
 print("Parameters: ", sum([p.numel() for p in model.parameters()]))
 model.to(device)
 
@@ -115,5 +116,5 @@ trainer.train()
 
 os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/FineTuneModels/CommaModels")
 
-torch.save(model, './commaDistilBERT1')
-torch.save(model.state_dict(), "./commaDistilBERT1stateDict")
+torch.save(model, './commaDistilBERT1.py')
+torch.save(model.state_dict(), "./commaDistilBERT1stateDict.py")
