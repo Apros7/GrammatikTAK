@@ -17,7 +17,7 @@ with open(filename, "r", encoding="UTF-8") as file:
 print(len(lines))
 
 # lines = [lines[1]]
-# lines = lines[:100000]
+lines = lines[:1100000]
 
 print(len(lines))
 
