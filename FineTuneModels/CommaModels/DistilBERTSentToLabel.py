@@ -23,7 +23,7 @@ df = pd.read_csv("SentToLabel_15-5_Revisited.csv", sep=";")
 print(len(df))
 
 # df = df[:2500]
-df = df[:28000000] # should not be active
+# df = df[:28000000] # should not be active
 print(len(df))
 
 data = df["data"].to_list()
@@ -90,11 +90,11 @@ args = TrainingArguments(
     weight_decay=0,
     load_best_model_at_end=True,
     metric_for_best_model="accuracy",
-    eval_steps=100000,  
+    eval_steps=150000,  
     output_dir="output",
     logging_steps=25000,
     logging_dir = "log", 
-    save_steps = 100000,
+    save_steps = 150000,
     save_total_limit = 3
 )
 
@@ -114,6 +114,6 @@ trainer = Trainer(
 
 trainer.train()
 
-os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/FineTuneModels/CommaModels")
+# os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/FineTuneModels/CommaModels")
 
 torch.save(model, './commaDistilBERT1.pt')

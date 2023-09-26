@@ -17,7 +17,8 @@ with open(filename, "r", encoding="UTF-8") as file:
 print(len(lines))
 
 # lines = [lines[1]]
-lines = lines[:1000000]
+# 250.000 * number of rtx 6000 gpus
+lines = lines[:1750000]
 
 print(len(lines))
 
