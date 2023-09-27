@@ -17,8 +17,10 @@ with open(filename, "r", encoding="UTF-8") as file:
 print(len(lines))
 
 # lines = [lines[1]]
-# 250.000 * number of rtx 6000 gpus
-lines = lines[:1750000]
+# Change this:
+number_of_rtx_6000_gpus = 7
+possible_per_rtx_6000_gpu = 240000
+lines = lines[:number_of_rtx_6000_gpus * possible_per_rtx_6000_gpu]
 
 print(len(lines))
 
