@@ -6,7 +6,7 @@ import pickle
 
 current_dir = os.getcwd()
 # Desktop/GrammatikTAK/DataProcessing/CommaDataset/sent_to_label_revisited.py
-# os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/")
+os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/")
 
 #/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/europarl-v7.da-en.da
 
@@ -18,9 +18,9 @@ print(len(lines))
 
 # lines = [lines[1]]
 # Change this:
-number_of_rtx_6000_gpus = 7
+number_of_rtx_6000_gpus = 8
 possible_per_rtx_6000_gpu = 240000
-lines = lines[:number_of_rtx_6000_gpus * possible_per_rtx_6000_gpu]
+lines = lines[number_of_rtx_6000_gpus * possible_per_rtx_6000_gpu:]
 
 print(len(lines))
 
@@ -57,7 +57,8 @@ distribution(df)
 print(len(df))
 
 # df = df[:1000]
-df.to_csv("SentToLabel_15-5_Revisited.csv", encoding="UTF-8", index=False, sep=";")
+df.to_csv("SentToLabel_15-5_Revisited_test.csv", encoding="UTF-8", index=False, sep=";")
+# df.to_csv("SentToLabel_15-10_Revisited_test.csv", encoding="UTF-8", index=False, sep=";")
 
 # with open("SentToLabel_15-5_Revisited.pickle") as file:
 #     pickle.dump(df, file)
