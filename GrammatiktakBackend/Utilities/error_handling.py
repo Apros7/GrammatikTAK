@@ -116,6 +116,7 @@ class ErrorList():
 
     def sort(self, errors): return sorted(errors, key=lambda x: x[2][1])
     def append(self, error): self.errors.append(error) if error is not None else None; self.is_healthy()
+    def __len__(self): return len(self.errors)
     def __iter__(self): self.index = 0; return self
 
     def __next__(self): 

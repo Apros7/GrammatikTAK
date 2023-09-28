@@ -14,7 +14,7 @@ from Punctuation.excessive_spaces import ExcessiveSpacesCorrector
 
 from Utilities import utils
 from Utilities.error_handling import error_concatenator
-from Utilities.module_utils import ModuleSequential, ModuleSequentialWhenSentenceManipulation
+from Utilities.module_utils import ModuleSequential, ModuleSequentialWhenSentenceManipulation, ModuleTracker
 from Utilities.deployment_test import test_deployment
 
 from Storage.Firestore import FirestoreClient
@@ -24,27 +24,28 @@ from flask_cors import CORS
 
 time_tracker.track("import modules")
 
+module_tracker = ModuleTracker()
 tagger = Tagger()
 
 modules_to_manipulate_sentence = ModuleSequentialWhenSentenceManipulation([
     MissingFoundationChecker(),
     NutidsRCorrector()
-], timeTracker=time_tracker)
+], timeTracker=time_tracker, moduleTracker = module_tracker)
 
 modules_to_manipulate_and_project = ModuleSequentialWhenSentenceManipulation([
     ExcessiveSpacesCorrector(),
     DoubleWordsChecker()
-], timeTracker=time_tracker)
+], timeTracker=time_tracker, moduleTracker = module_tracker)
 
 modules_to_project_onto_others = ModuleSequential([
     PunctuationCorrector(),
     CapitalizationCorrector()
-], timeTracker=time_tracker)
+], timeTracker=time_tracker, moduleTracker = module_tracker)
 
 modules_be_projected_on = ModuleSequential([
     DeterminantCorrector(),
     SpellChecker()
-], timeTracker=time_tracker)
+], timeTracker=time_tracker, moduleTracker = module_tracker)
 
 firestore_client = FirestoreClient()
 
@@ -95,13 +96,13 @@ def index():
 
 time_tracker.complete_reset()
 
-# message = "håber du har en god dag. det har jeg virkelig meget. den har været rigtig god :)"
-# errors1 = correct_input(message)
-# print(*errors1, sep="\n")
-# utils.check_if_index_is_correct(errors1, message)
+message = "jeg hedder magnus og min ven hedder lucas hvilket jeg er glad for"
+errors1 = correct_input(message)
+print(*errors1, sep="\n")
+utils.check_if_index_is_correct(errors1, message)
+module_tracker.print()
 
 # test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
-# 22
 
 ## NOTES ##
 # Spellchecker virker ikke helt godt stadigvæk (burde testes ved rigtige ord, som ikke er i ordbogen) (2)
