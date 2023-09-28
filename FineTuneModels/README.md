@@ -5,7 +5,8 @@ Performance logging of different models.
 ## Comma Models
 Model | Date | Data | Datasize | Epochs | Batch | Lr | WDecay | Scope | Test accuracy | Test F1 
 --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
-Distil | 24-09-2023 | EuroParl | 25.000.000 | 2 | 32 | 2e-5 | 0 | 15-5 | 98.51% | Unknown
+Distil2 | 28-09-2023 | EuroParl | 46.000.000 | 2 | 32 | 2e-5 | 0 | 15-5 | 98.82% | Unknown
+Distil1 | 24-09-2023 | EuroParl | 25.000.000 | 2 | 32 | 2e-5 | 0 | 15-5 | 98.51% | Unknown
 10 | 25-05-2023 | EuroParl | 6.900.000 | 2 | 32 | 2e-5 | 1e-2 | 15-10 | **98.99%** | Unknown
 9 | 05-04-2023 | EuroParl | 4.000.000 | 1 | 16 | 1e-5 | 1e-4 | 5-5 | 98.09% | **0.931**
 8 | 04-04-2023 | EuroParl | 2.000.000 | 2 | 32 | 1e-5 | 0 | 10-10 | 97.41% | 0.905
@@ -18,6 +19,7 @@ Distil | 24-09-2023 | EuroParl | 25.000.000 | 2 | 32 | 2e-5 | 0 | 15-5 | 98.51% 
 - After epoch 2 the validation loss typically goes up slighty suggestion that the model has already fitted the data pretty good and is already starting to overfit.
 - Max data avaliable is 6.9 mil. A potential data collection funnel could be created to gather more data and thereby increasing accuracy.
 - About 0.7% increase in accuracy with epoch 2, 0.05% increase with epoch 3, and decrease in accuracy with >3 epochs.
+- DistilBERT is 2.3 times as fast as BERT.
 
 ## Nutids-r Models
 Model | Date | Datasize | Epochs | Batch | Lr | Scope | Test correct | Test wrong | Test F1 | Cutoff
