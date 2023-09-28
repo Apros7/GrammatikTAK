@@ -1,6 +1,6 @@
 ## Testing my best bert vs best distil bert in time and accuracy
 
-from transformers import AutoTokenizer, Trainer, BertTokenizer
+from transformers import AutoTokenizer, Trainer, BertTokenizer, DistilBertForSequenceClassification
 import torch
 import pandas as pd
 import numpy as np
@@ -22,10 +22,13 @@ os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets")
 # df_bert = df15_10[-data_size:]
 # df_bert.to_csv("SentToLabel_15-10_Revisited_20000.csv", sep=";")
 
-df_distil = pd.read_csv("SentToLabel_15-5_Revisited_20000.csv", sep=";")
-df_bert = pd.read_csv("SentToLabel_15-10_Revisited_20000.csv", sep=";")
+df = pd.read_csv("SentToLabel_15-5_Revisited_test.csv", sep=";")
+print(len(df))
+df_distil = df[-110000:-100000:]
 
-print(df_distil.head(10))
+df = pd.read_csv("SentToLabel_15-10_Revisited_test.csv", sep=";")
+print(len(df))
+df_bert = df[-110000:-100000:]
 
 print("Loaded data")
 
@@ -70,7 +73,9 @@ bert_tokenizer = BertTokenizer(vocab_file="GrammatikTAK/GrammatiktakBackend/mode
 distil_tokenizer = AutoTokenizer.from_pretrained("Geotrend/distilbert-base-da-cased")
 
 bert = load_model(bert_path)
-distil_bert = load_model(distil_bert_path)
+model = DistilBertForSequenceClassification.from_pretrained("commaDistilBERTcorrect")
+model.eval()
+distil_bert = Trainer(model)
 
 print("Loaded models")
 

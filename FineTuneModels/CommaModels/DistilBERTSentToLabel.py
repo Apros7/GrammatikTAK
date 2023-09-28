@@ -128,11 +128,11 @@ args = TrainingArguments(
     weight_decay=0,
     load_best_model_at_end=True,
     metric_for_best_model="accuracy",
-    eval_steps=150000,  
+    eval_steps=100000,  
     output_dir="output",
     logging_steps=25000,
     logging_dir = "log", 
-    save_steps = 150000,
+    save_steps = 100000,
     save_total_limit = 3
 )
 

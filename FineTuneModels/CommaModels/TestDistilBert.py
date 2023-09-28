@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import time
 import numpy as np
-from transformers import TrainingArguments, Trainer, BertForSequenceClassification
+from transformers import TrainingArguments, Trainer, DistilBertForSequenceClassification
 import os
 from sklearn.metrics import accuracy_score
 from tqdm import tqdm
@@ -16,16 +16,17 @@ os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets")
 
 tokenizer = AutoTokenizer.from_pretrained("Geotrend/distilbert-base-da-cased")
 
-# df = pd.read_csv("SentToLabel_15-5_Revisited.csv", sep=";")
-# print(len(df))
+df = pd.read_csv("SentToLabel_15-5_Revisited_test.csv", sep=";")
+print(len(df))
 
 # df_train = df[:1000000] # should not be active
-# df_test = df[25000000:26000000]
+df_test = df[-100000:] # test accuracy of commaDistilBERTcorrect/ = 0.988190
+df_train = df[:100]
 
-df_train = pd.read_csv("SentToLabel_15-5_Revisited_train.csv", sep=";")
-df_test = pd.read_csv("SentToLabel_15-5_Revisited_test.csv", sep=";")
-df_train = df_train[:10]
-df_test = df_test[:100000]
+# df_train = pd.read_csv("SentToLabel_15-5_Revisited_train.csv", sep=";")
+# df_test = pd.read_csv("SentToLabel_15-5_Revisited_test.csv", sep=";")
+# df_train = df_train[:100000] # Training accuracy of commaDistilBERTcorrect/ = 0.991280
+# df_test = df_test[:100000]
 
 # df_train.to_csv("SentToLabel_15-5_Revisited_train.csv", sep=";")
 # df_test.to_csv("SentToLabel_15-5_Revisited_test.csv", sep=";")
@@ -56,8 +57,10 @@ class CustomDataset(torch.utils.data.Dataset):
 os.chdir("/Users/lucasvilsen/Desktop")
 
 device = "mps"
+# device = "cpu"
 torch.device(device)
-model = torch.load("commaDistilBERT1", map_location=torch.device('cpu'))
+model = DistilBertForSequenceClassification.from_pretrained("commaDistilBERTcorrect")
+# model = torch.load("commaDistilBERT1.pt", map_location=torch.device('cpu'))
 model.to(device)
 model.eval()
 trainer = Trainer(model)
