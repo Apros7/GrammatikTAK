@@ -1,5 +1,5 @@
 import torch
-from transformers import Trainer
+from transformers import Trainer, DistilBertForSequenceClassification
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels=None):
@@ -23,3 +23,15 @@ def load_model(model_path):
     punctuation_model.to(device)
     punctuation_trainer = Trainer(punctuation_model)
     return punctuation_trainer
+
+def load_distil_bert():
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    torch.device(device)
+    model = DistilBertForSequenceClassification.from_pretrained("commaDistilBERTcorrect")
+    model.eval()
+    model.to(device)
+    trainer = Trainer(model)
+    return trainer
+
+def distil_bert_datamaker():
+    pass
