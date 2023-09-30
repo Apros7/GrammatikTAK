@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import time
 import numpy as np
-from transformers import TrainingArguments, Trainer, DistilBertForSequenceClassification
+from transformers import TrainingArguments, Trainer, DistilBertForSequenceClassification, DistilBertTokenizerFast
 import os
 from sklearn.metrics import accuracy_score
 from tqdm import tqdm
@@ -14,7 +14,10 @@ from transformers import TextClassificationPipeline
 
 os.chdir("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets")
 
-tokenizer = AutoTokenizer.from_pretrained("Geotrend/distilbert-base-da-cased")
+# DistilBertTokenizer: Time for tokenizing 100.000 inputs: 26.7 sek
+# DistilBertTokenizerFast: Time for tokenizing 100.000 inputs: 3.9 sek # MUCH FASTER
+
+tokenizer = DistilBertTokenizerFast.from_pretrained("Geotrend/distilbert-base-da-cased")
 
 df = pd.read_csv("SentToLabel_15-5_Revisited_test.csv", sep=";")
 print(len(df))
@@ -67,7 +70,9 @@ trainer = Trainer(model)
 
 def evaluate_model(model, data, labels):
     with torch.no_grad():
+        start_time = time.time()
         tokenized_data = tokenizer(data, padding=True, truncation=True)
+        print("Tokenizing time: ", time.time() - start_time)
         final_dataset = CustomDataset(tokenized_data)
         raw_predictions, _, _ = model.predict(final_dataset)
         true_predictions = np.argmax(raw_predictions, axis=1)
