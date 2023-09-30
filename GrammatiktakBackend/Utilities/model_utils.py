@@ -1,6 +1,7 @@
 import torch
-from transformers import Trainer, DistilBertForSequenceClassification
+from transformers import Trainer, DistilBertForSequenceClassification, DistilBertTokenizerFast
 import string
+import numpy as np
 
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, encodings, labels=None):
@@ -25,37 +26,48 @@ def load_model(model_path):
     punctuation_trainer = Trainer(punctuation_model)
     return punctuation_trainer
 
-def load_distil_bert():
-    # Function not tested
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    torch.device(device)
-    model = DistilBertForSequenceClassification.from_pretrained("commaDistilBERTcorrect")
-    model.eval()
-    model.to(device)
-    trainer = Trainer(model)
-    return trainer
+class DistilBertForPunctuation():
+    """
+    Loads and gives functionality to easily go from data to predictions
+    """
+    def __init__(self) -> None:
+        self.trainer = self.load_trainer()
+        self.tokenizer = DistilBertTokenizerFast.from_pretrained("Geotrend/distilbert-base-da-cased")
+        self.padding_left, self.padding_right = 15, 5
 
-def distil_bert_datamaker(lines : list):
-    # Lines should be list of strings
-    # Function not tested
-    TRANSLATION_TABLE_WITH_COMMA = str.maketrans('', '', string.punctuation)
-    TRANSLATION_TABLE_WITHOUT_COMMA = str.maketrans('', '', string.punctuation.replace(",", "").replace(".", "")) 
+    def load_trainer(self):
+        # not tested. Maybe us os.chdir()
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        torch.device(device)
+        model = DistilBertForSequenceClassification.from_pretrained("commaDistilBERTcorrect")
+        model.eval()
+        model.to(device)
+        trainer = Trainer(model)
+        return trainer
 
-    cleaned_lines = [line.replace(" -", ",").lower() for line in lines if len(line.translate(TRANSLATION_TABLE_WITHOUT_COMMA).strip()) > 0]
-    lines_with_comma = [line.translate(TRANSLATION_TABLE_WITHOUT_COMMA).strip().replace("  ", " ") for line in cleaned_lines]
+    def clean(self, data):
+        TRANSLATION_TABLE_WITHOUT_COMMA_AND_PUNC = str.maketrans('', '', string.punctuation.replace(",", "").replace(".", "")) 
+        cleaned_lines = [line.replace(" -", ",").lower() for line in data if len(line.translate(TRANSLATION_TABLE_WITHOUT_COMMA_AND_PUNC).strip()) > 0]
+        lines_with_comma = [line.translate(TRANSLATION_TABLE_WITHOUT_COMMA_AND_PUNC).strip().replace("  ", " ") for line in cleaned_lines]
+        return lines_with_comma
 
-    PADDING_LEFT = 15
-    PADDING_RIGHT = 5
+    def get_dataset(self, data : list):
+        cleaned_lines = self.clean(data)
+        lines_with_padding = [self.padding_left * ["<PAD>"] + line.split() + self.padding_right * ["<PAD>"] for line in cleaned_lines]
+        cleaned_dataset = []
 
-    lines_with_padding = [PADDING_LEFT * ["<PAD>"] + line.split() + PADDING_RIGHT * ["<PAD>"] for line in lines_with_comma]
-    cleaned_dataset = []
+        for i in range(len(lines_with_padding)):
+            for j in range(len(lines_with_padding[i])-(self.padding_left+self.padding_right)+1):
+                sample = lines_with_padding[i][j:j+self.padding_left+self.padding_right]
+                cleaned_dataset.append((" ".join(sample)).replace(",", "").replace(".", ""))
 
-    for i in range(len(lines_with_padding)):
-        for j in range(len(lines_with_padding[i])-(PADDING_LEFT+PADDING_RIGHT)+1):
-            sample = lines_with_padding[i][j:j+PADDING_LEFT+PADDING_RIGHT]
-            if sample[PADDING_LEFT-1][-1] == ",": middle_word_punc = 1
-            elif sample[PADDING_LEFT-1][-1] == ".": middle_word_punc = 2
-            else: middle_word_punc = 0
-            cleaned_dataset.append((" ".join(sample)).replace(",", "").replace(".", ""))
+        return cleaned_dataset
 
-    return cleaned_dataset
+    def get_predictions(self, data : list):
+        dataset = self.get_dataset(data)
+        tokenized_data = self.tokenizer(data, padding=True, truncation=True)
+        final_dataset = Dataset(tokenized_data)
+        raw_predictions, _, _ = self.trainer.predict(final_dataset)
+        true_predictions = np.argmax(raw_predictions, axis=1)
+        return true_predictions
+    
