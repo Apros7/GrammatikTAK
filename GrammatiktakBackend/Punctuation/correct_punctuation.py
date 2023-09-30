@@ -4,7 +4,7 @@ import string
 
 import Utilities.utils as utils
 from Utilities.error_handling import Error, ErrorList
-from Utilities.model_utils import Dataset, load_model
+from Utilities.model_utils import Dataset, load_model, DistilBertForPunctuation
 
 PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
 PUNCTUATIONS_FULL_STOP = ".!?"
@@ -17,45 +17,46 @@ model_right_padding = 10
 # This class will predict punctuation and correct based on sentence
 class PunctuationCorrector():
     def __init__(self) -> None:
-        self.model = load_model(model_path)
-        self.left_padding, self.right_padding = model_left_padding, model_right_padding
-        self.tokenizer = BertTokenizer(vocab_file="models/vocab.txt", do_lower_case=False)
+        self.model = DistilBertForPunctuation()
+        # self.model = load_model(model_path)
+        # self.left_padding, self.right_padding = model_left_padding, model_right_padding
+        # self.tokenizer = BertTokenizer(vocab_file="models/vocab.txt", do_lower_case=False)
     
-    def add_padding(self, words):
-        return ["<pad>"]*self.left_padding + words + ["<pad>"]*self.right_padding
+    # def add_padding(self, words):
+    #     return ["<pad>"]*self.left_padding + words + ["<pad>"]*self.right_padding
 
-    def make_test_data(self, words):
-        test_data = [" ".join(words[i:i+self.left_padding+self.right_padding]) for i in range(len(words)-self.left_padding-self.right_padding)]
-        corrected_test_data = []
-        for i in range(len(test_data)):
-            words = test_data[i].split()
-            for j in range(len(words)):
-                if words[j] in string.punctuation:
-                    words[j] = "<PAD>"
-            corrected_test_data.append(" ".join(words))
-        no_punctuation_test_data = [data.translate(str.maketrans("", "", PUNCTUATIONS)) for data in corrected_test_data]
-        return no_punctuation_test_data
+    # def make_test_data(self, words):
+    #     test_data = [" ".join(words[i:i+self.left_padding+self.right_padding]) for i in range(len(words)-self.left_padding-self.right_padding)]
+    #     corrected_test_data = []
+    #     for i in range(len(test_data)):
+    #         words = test_data[i].split()
+    #         for j in range(len(words)):
+    #             if words[j] in string.punctuation:
+    #                 words[j] = "<PAD>"
+    #         corrected_test_data.append(" ".join(words))
+    #     no_punctuation_test_data = [data.translate(str.maketrans("", "", PUNCTUATIONS)) for data in corrected_test_data]
+    #     return no_punctuation_test_data
 
     # prepares dataset and get predictions
-    def get_predictions(self, sentence, pos_tags) -> list:
-        words = self.add_padding(utils.prepare_sentence(sentence))
-        if len(words) < self.left_padding: return [0]*len(words)
-        test_data = self.make_test_data(words)
-        tokenized_data = self.tokenizer(test_data, padding=True, truncation=True)
-        final_dataset = Dataset(tokenized_data)
-        raw_predictions, _, _ = self.model.predict(final_dataset)
-        true_predictions = np.argmax(raw_predictions, axis=1)
-        final_predictions = self.adjust_predictions(true_predictions, pos_tags)
-        return final_predictions
+    # def get_predictions(self, sentence, pos_tags) -> list:
+    #     words = self.add_padding(utils.prepare_sentence(sentence))
+    #     if len(words) < self.left_padding: return [0]*len(words)
+    #     test_data = self.make_test_data(words)
+    #     tokenized_data = self.tokenizer(test_data, padding=True, truncation=True)
+    #     final_dataset = Dataset(tokenized_data)
+    #     raw_predictions, _, _ = self.model.predict(final_dataset)
+    #     true_predictions = np.argmax(raw_predictions, axis=1)
+    #     final_predictions = self.adjust_predictions(true_predictions, pos_tags)
+    #     return final_predictions
 
-    def adjust_predictions(self, predictions, pos_tags):
-        # It has been noticed that there are bad predictions when VERB - PRON - VERB
-        # This will be adjusted here. Ideally the model should be retrained to take care of this issue.
-        pos = utils.get_pos_without_information(pos_tags)
-        always_comma = [False] + [True if pos[i-1:i+3] == ["PRON", "VERB", "PRON", "VERB"] else False for i in range(1, len(pos)-2)] + [False, False]
-        adjusted_predictions = [1 if always_comma[i] else predictions[i] for i in range(len(predictions))]
-        adjusted_predictions[0] = 0 if pos[0:4] == ["PRON", "VERB", "PRON", "VERB"] else adjusted_predictions[0]
-        return adjusted_predictions
+    # def adjust_predictions(self, predictions, pos_tags):
+    #     # It has been noticed that there are bad predictions when VERB - PRON - VERB
+    #     # This will be adjusted here. Ideally the model should be retrained to take care of this issue.
+    #     pos = utils.get_pos_without_information(pos_tags)
+    #     always_comma = [False] + [True if pos[i-1:i+3] == ["PRON", "VERB", "PRON", "VERB"] else False for i in range(1, len(pos)-2)] + [False, False]
+    #     adjusted_predictions = [1 if always_comma[i] else predictions[i] for i in range(len(predictions))]
+    #     adjusted_predictions[0] = 0 if pos[0:4] == ["PRON", "VERB", "PRON", "VERB"] else adjusted_predictions[0]
+    #     return adjusted_predictions
 
     # creates comma error message
     def create_comma_error_message(self, word_to_correct, all_words_from_sentence, index_of_word_in_all_words, remove) -> Error():
@@ -117,7 +118,7 @@ class PunctuationCorrector():
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
         self.index_finder = index_finder
         self.ner_tags = ner_tags
-        predictions = self.get_predictions(sentence, pos_tags)
+        predictions = self.model.get_predictions(sentence)
         words = utils.prepare_sentence(sentence, lowercase=False)
         comma_mistakes = self.find_comma_mistakes(predictions, words)
         full_stop_mistakes = self.find_full_stop_mistakes(sentence, words)

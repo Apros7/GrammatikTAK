@@ -39,7 +39,7 @@ class DistilBertForPunctuation():
         # not tested. Maybe us os.chdir()
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         torch.device(device)
-        model = DistilBertForSequenceClassification.from_pretrained("commaDistilBERTcorrect")
+        model = DistilBertForSequenceClassification.from_pretrained("models/commaDistilBERTcorrect")
         model.eval()
         model.to(device)
         trainer = Trainer(model)
@@ -53,6 +53,7 @@ class DistilBertForPunctuation():
 
     def get_dataset(self, data : list):
         cleaned_lines = self.clean(data)
+        print(f"{cleaned_lines = }")
         lines_with_padding = [self.padding_left * ["<PAD>"] + line.split() + self.padding_right * ["<PAD>"] for line in cleaned_lines]
         cleaned_dataset = []
 
@@ -63,11 +64,13 @@ class DistilBertForPunctuation():
 
         return cleaned_dataset
 
-    def get_predictions(self, data : list):
-        dataset = self.get_dataset(data)
-        tokenized_data = self.tokenizer(data, padding=True, truncation=True)
+    def get_predictions(self, data : string):
+        print("DATA: ", [data])
+        dataset = self.get_dataset([data])
+        tokenized_data = self.tokenizer(dataset, padding=True, truncation=True)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.trainer.predict(final_dataset)
-        true_predictions = np.argmax(raw_predictions, axis=1)
-        return true_predictions
+        print(*[(d, p) for d, p in zip(dataset, raw_predictions)], sep="\n")
+        final_predictions = np.argmax(raw_predictions, axis=1)
+        return final_predictions
     

@@ -20,7 +20,7 @@ print(len(lines))
 # Change this:
 number_of_rtx_6000_gpus = 8
 possible_per_rtx_6000_gpu = 240000
-lines = lines[number_of_rtx_6000_gpus * possible_per_rtx_6000_gpu:]
+# lines = lines[:10000]
 
 print(len(lines))
 
@@ -56,8 +56,10 @@ def distribution(df):
 distribution(df)
 print(len(df))
 
+# print(*[(d, p) for d, p in zip(cleaned_dataset[:100], labels[:100])], sep="\n")
+
 # df = df[:1000]
-df.to_csv("SentToLabel_15-5_Revisited_test.csv", encoding="UTF-8", index=False, sep=";")
+df.to_csv("SentToLabel_15-5_Revisited.csv", encoding="UTF-8", index=False, sep=";")
 # df.to_csv("SentToLabel_15-10_Revisited_test.csv", encoding="UTF-8", index=False, sep=";")
 
 # with open("SentToLabel_15-5_Revisited.pickle") as file:
