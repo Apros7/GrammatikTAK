@@ -12,6 +12,7 @@ class ModuleTracker():
     def get(self): return self.collection
     def print(self): print(*list(self.get().items()), sep="\n")
     def start_track(self): self.start_time = time.time()
+    def reset(self): self.collection = {}
         
     def end_track(self, module, errors): 
         key = module.__class__.__name__.split(".")[0].strip("'>")

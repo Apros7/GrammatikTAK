@@ -71,8 +71,11 @@ def correct_input(input_sentence, save=False):
     # utils.print_list_of_ErrorList(sentence_manipulation_project_errors, sentence_manipulation_errors, errors_be_projected_on, errors_to_project_onto_others)
 
     if save:
-        firestore_client.save_input(sentence)
+        firestore_client.save_input(sentence, module_tracker)
         time_tracker.track("saving to firestore")
+
+    module_tracker.print()
+    module_tracker.reset()
 
     final_errors = error_concatenator(errors_be_projected_on + sentence_manipulation_errors, 
                                       errors_to_project_onto_others=sentence_manipulation_project_errors + errors_to_project_onto_others)
@@ -97,10 +100,9 @@ def index():
 time_tracker.complete_reset()
 
 message = "jeg hedder magnus og min ven hedder lucas hvilket jeg er glad for"
-errors1 = correct_input(message)
+errors1 = correct_input(message, save=True)
 print(*errors1, sep="\n")
 utils.check_if_index_is_correct(errors1, message)
-module_tracker.print()
 
 # test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
 

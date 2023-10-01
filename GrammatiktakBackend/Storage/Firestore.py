@@ -1,4 +1,5 @@
 from google.cloud import datastore
+from Utilities.module_utils import ModuleTracker
 import time
 
 # used to save text, spellingerrors and feedback to Google Cloud Firestore
@@ -11,7 +12,7 @@ class FirestoreClient():
 
     # save input (text) when correcting the text
     # if the input is larger than 1500 bytes, it is split up into 1500 byte objects and saved due to Firestore Limits
-    def save_input(self, input):
+    def save_input(self, input, module_tracker: ModuleTracker):
         kind = 'Backend-alltext'
         input_bytes = input.encode('utf-8')
         max_bytes_per_entity = 1500
@@ -21,6 +22,7 @@ class FirestoreClient():
 
         time_string = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
         input_entity_dict["time"] = time_string
+        input_entity_dict["moduleTracking"] = module_tracker.get()
 
         for i in range(num_entities):
             start = i * max_bytes_per_entity
@@ -30,7 +32,7 @@ class FirestoreClient():
 
         input_entity.update(input_entity_dict)
         self.client.put(input_entity)
-        print("Text sent to firestore")
+        print("Text & module tracking sent to firestore")
 
     # save input (text) and feedback when feedback button is pressed
     # if the input/feedback is larger than 1500 bytes, it is split up into 1500 byte objects and saved due to Firestore Limits
