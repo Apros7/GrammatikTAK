@@ -29,17 +29,18 @@ def load_model(model_path):
 class DistilBertForPunctuation():
     """
     Loads and gives functionality to easily go from data to predictions
+    - path: use if running from anywhere else than main to redirect to correct folder
     """
-    def __init__(self) -> None:
+    def __init__(self, path = "models/commaDistilBERTcorrect") -> None:
+        self.path = path
         self.trainer = self.load_trainer()
         self.tokenizer = DistilBertTokenizerFast.from_pretrained("Geotrend/distilbert-base-da-cased")
         self.padding_left, self.padding_right = 15, 5
 
     def load_trainer(self):
-        # not tested. Maybe us os.chdir()
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
         torch.device(device)
-        model = DistilBertForSequenceClassification.from_pretrained("models/commaDistilBERTcorrect")
+        model = DistilBertForSequenceClassification.from_pretrained(self.path)
         model.eval()
         model.to(device)
         trainer = Trainer(model)
@@ -57,17 +58,30 @@ class DistilBertForPunctuation():
         cleaned_dataset = []
 
         for i in range(len(lines_with_padding)):
-            for j in range(len(lines_with_padding[i])-(self.padding_left+self.padding_right)+1):
+            for j in range(1, len(lines_with_padding[i])-(self.padding_left+self.padding_right)+1): # first predicts punc before first word, therefore skipped
                 sample = lines_with_padding[i][j:j+self.padding_left+self.padding_right]
                 cleaned_dataset.append((" ".join(sample)).replace(",", "").replace(".", ""))
 
         return cleaned_dataset
 
+    def get_final_predictions(self, raw_preditions):
+        confidens_level = 2
+        final_predictions = []
+        for row in raw_preditions:
+            index = np.argmax(row)
+            if row[index] < confidens_level: final_predictions.append(0)
+            else: final_predictions.append(index)
+        return np.array(final_predictions)
+
     def get_predictions(self, data : string):
-        dataset = self.get_dataset([data])
+        # Needs to split sentence based on "."
+        if type(data) != list: data = [data]
+        dataset = self.get_dataset(data)
         tokenized_data = self.tokenizer(dataset, padding=True, truncation=True)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.trainer.predict(final_dataset)
         final_predictions = np.argmax(raw_predictions, axis=1)
+        # final_predictions = self.get_final_predictions(raw_predictions)
+        # print(*[(d.split()[14], d, r, f) for d, r, f in zip(dataset, raw_predictions, final_predictions)], sep="\n")
         return final_predictions
     
