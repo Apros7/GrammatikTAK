@@ -19,3 +19,4 @@ output/
 log/
 *.config
 *.pt
+tmp_trainer
