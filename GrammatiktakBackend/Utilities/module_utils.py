@@ -10,15 +10,16 @@ class ModuleTracker():
 
     def __init__(self): self.collection = {}
     def get(self): return self.collection
-    def print(self): print(*list(self.get().items()), sep="\n")
+    def print(self): print(*list(self.get().items()), sep="\n"); print()
     def start_track(self): self.start_time = time.time()
+    def init_new_sentence(self, original_sentence): self.reset(); self.sentence_length = len(original_sentence.split()) if len(original_sentence.split()) > 0 else 1
     def reset(self): self.collection = {}
         
     def end_track(self, module, errors): 
         key = module.__class__.__name__.split(".")[0].strip("'>")
         if key not in self.collection: self.collection[key] = {}
-        self.collection[key]["time"] = time.time() - self.start_time
-        self.collection[key]["corrections"] = len(errors)
+        self.collection[key]["time"] = (time.time() - self.start_time) / self.sentence_length
+        self.collection[key]["corrections"] = len(errors) / self.sentence_length
 
 
 class ModuleSequential():

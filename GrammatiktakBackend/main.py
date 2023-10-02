@@ -52,7 +52,8 @@ firestore_client = FirestoreClient()
 time_tracker.track("initialize correctors")
 
 def correct_input(input_sentence, save=False):
-    index_finder = utils.IndexFinder(original_sentence=input_sentence) # Should reset every time, therefore here
+    index_finder = utils.IndexFinder(original_sentence = input_sentence) # reset every time, therefore here
+    module_tracker.init_new_sentence(original_sentence = input_sentence) # resets and initializes
 
     # In case of backend error, the input sentence will show on Google Cloud Logs
     print("Correcting this sentence: ", input_sentence)
@@ -75,7 +76,6 @@ def correct_input(input_sentence, save=False):
         time_tracker.track("saving to firestore")
 
     module_tracker.print()
-    module_tracker.reset()
 
     final_errors = error_concatenator(errors_be_projected_on + sentence_manipulation_errors, 
                                       errors_to_project_onto_others=sentence_manipulation_project_errors + errors_to_project_onto_others)
