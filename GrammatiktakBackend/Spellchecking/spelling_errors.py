@@ -81,9 +81,10 @@ class SpellChecker():
         if word in self.meter_errors: return self.create_spellchecking_error_message(word, self.meter_errors[word], index)
         if word.replace(".", "") in self.abbreviations: return None if word == self.abbreviations[word.replace(".", "")] else self.create_spellchecking_error_message(word, self.abbreviations[word.replace(".", "")], index, abbreviation=True)
         print("Translating because of:", word)
-        translation_return = self.find_translation(words, index)
-        print(translation_return, translation_return in self.dictionary)
-        if translation_return and translation_return in self.dictionary: return self.create_spellchecking_error_message(word, translation_return, index, translation=True)
+        # TRANSLATION DOES NOT WORK
+        # translation_return = self.find_translation(words, index)
+        # print(translation_return, translation_return in self.dictionary)
+        # if translation_return and translation_return in self.dictionary: return self.create_spellchecking_error_message(word, translation_return, index, translation=True)
         wizard_return = self.spelling_wizard.correct(word)
         if wizard_return: return self.create_spellchecking_error_message(word, wizard_return, index)
         return None

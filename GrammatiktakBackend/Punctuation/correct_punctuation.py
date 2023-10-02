@@ -10,10 +10,6 @@ PUNCTUATIONS_WITHOUT_COMMA = ".!?\";:"
 PUNCTUATIONS_FULL_STOP = ".!?"
 PUNCTUATIONS = "!\"#$%&'()*+,-./:;=?@[\]^_`{|}~"
 
-model_path = "models/commaModel10"
-model_left_padding = 15
-model_right_padding = 10
-
 # This class will predict punctuation and correct based on sentence
 class PunctuationCorrector():
     def __init__(self) -> None:
