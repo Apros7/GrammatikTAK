@@ -71,7 +71,6 @@ class ExcessiveSpacesCorrector():
         begin_error, (sentence, pos_tags, ner_tags), number_of_spaces = self.beginning_spaces_errors(sentence, pos_tags, ner_tags)
         end_error, (sentence, pos_tags, ner_tags) = self.ending_spaces_errors(sentence, pos_tags, ner_tags)
         errors, (sentence, pos_tags, ner_tags) = self.find_spaces_errors(sentence, pos_tags, ner_tags, number_of_spaces)
-        print(f"\"{sentence}\"")
         return errors + begin_error + end_error, (sentence, pos_tags, ner_tags)
 
 if __name__ == "__main__":

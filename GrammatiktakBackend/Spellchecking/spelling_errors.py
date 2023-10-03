@@ -80,7 +80,7 @@ class SpellChecker():
         if self.is_word_in_dictionary(word) or self.word_in_ner_tags(index, ner_tags): return None
         if word in self.meter_errors: return self.create_spellchecking_error_message(word, self.meter_errors[word], index)
         if word.replace(".", "") in self.abbreviations: return None if word == self.abbreviations[word.replace(".", "")] else self.create_spellchecking_error_message(word, self.abbreviations[word.replace(".", "")], index, abbreviation=True)
-        print("Translating because of:", word)
+        # print("Translating because of:", word)
         # TRANSLATION DOES NOT WORK
         # translation_return = self.find_translation(words, index)
         # print(translation_return, translation_return in self.dictionary)
