@@ -46,14 +46,28 @@ class DistilBertForPunctuation():
         trainer = Trainer(model)
         return trainer
 
+    def _clean(self, line, translation_table): return line.translate(translation_table)
+
     def clean(self, data):
-        TRANSLATION_TABLE_WITHOUT_COMMA_AND_PUNC = str.maketrans('', '', string.punctuation.replace(",", "").replace(".", "")) 
-        cleaned_lines = [line.replace(" -", ",").lower() for line in data if len(line.translate(TRANSLATION_TABLE_WITHOUT_COMMA_AND_PUNC).strip()) > 0]
-        lines_with_comma = [line.translate(TRANSLATION_TABLE_WITHOUT_COMMA_AND_PUNC).strip().replace("  ", " ") for line in cleaned_lines]
-        return lines_with_comma
+        TRANSLATION_TABLE_WITHOUT_COMMA_AND_PUNC = str.maketrans('', '', string.punctuation) 
+        cleaned_lines = []
+        split_indexes = []
+        for line in data:
+            last_split_index = 0
+            words = line.lower().split()
+            lines = []
+            for i, word in enumerate(words):
+                if any([word == punctuation for punctuation in string.punctuation.replace("&", "")]): 
+                    if last_split_index == i: continue
+                    lines.append(" ".join(words[last_split_index:i]))
+                    last_split_index = i + 1
+                    split_indexes.append(i)
+            lines.append(" ".join(words[last_split_index:]))
+            for subline in lines: cleaned_lines.append(self._clean(subline, TRANSLATION_TABLE_WITHOUT_COMMA_AND_PUNC))
+        return cleaned_lines, split_indexes
 
     def get_dataset(self, data : list):
-        cleaned_lines = self.clean(data)
+        cleaned_lines, split_indexes = self.clean(data)
         lines_with_padding = [self.padding_left * ["<PAD>"] + line.split() + self.padding_right * ["<PAD>"] for line in cleaned_lines]
         cleaned_dataset = []
 
@@ -62,7 +76,7 @@ class DistilBertForPunctuation():
                 sample = lines_with_padding[i][j:j+self.padding_left+self.padding_right]
                 cleaned_dataset.append((" ".join(sample)).replace(",", "").replace(".", ""))
 
-        return cleaned_dataset
+        return cleaned_dataset, split_indexes
 
     def get_final_predictions(self, raw_preditions):
         confidens_level = 2
@@ -73,14 +87,20 @@ class DistilBertForPunctuation():
             else: final_predictions.append(index)
         return np.array(final_predictions)
 
+    def introduce_split_indexes(self, predictions : list, indexes : list):
+        predictions = list(predictions)
+        for index in indexes: predictions.insert(index, -1)
+        return predictions
+
     def get_predictions(self, data : string):
         # Needs to split sentence based on "."
         if type(data) != list: data = [data]
-        dataset = self.get_dataset(data)
+        dataset, split_indexes = self.get_dataset(data)
         tokenized_data = self.tokenizer(dataset, padding=True, truncation=True)
         final_dataset = Dataset(tokenized_data)
         raw_predictions, _, _ = self.trainer.predict(final_dataset)
-        final_predictions = np.argmax(raw_predictions, axis=1)
+        maxed_predictions = np.argmax(raw_predictions, axis=1)
+        final_predictions = self.introduce_split_indexes(maxed_predictions, split_indexes)
         # final_predictions = self.get_final_predictions(raw_predictions)
         # print(*[(d.split()[14], d, r, f) for d, r, f in zip(dataset, raw_predictions, final_predictions)], sep="\n")
         return final_predictions
