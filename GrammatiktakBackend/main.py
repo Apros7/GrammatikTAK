@@ -99,13 +99,13 @@ def index():
 
 time_tracker.complete_reset()
 
-# message = "jeg hedder magnus og min ven hedder lucas hvilket jeg er glad for"
-message = "I skoven gik vi dybt ind i skoven og fandt en skjult sø hvor vi tog en svømmetur i det klare vand og nød den smukke natur omkring os indtil solnedgang"
-errors1 = correct_input(message)
-print(*errors1, sep="\n")
-utils.check_if_index_is_correct(errors1, message)
+# message = "hej jeg hedder magnus og min ven hedder lucas hvilket jeg er glad for"
+# message = "I skoven gik vi dybt ind i skoven og fandt en skjult sø hvor vi tog en svømmetur i det klare vand og nød den smukke natur omkring os indtil solnedgang"
+# errors1 = correct_input(message)
+# print(*errors1, sep="\n")
+# utils.check_if_index_is_correct(errors1, message)
 
-# test_deployment(correct_input, manual_check=True, start_at=0, time_tracker=time_tracker)
+test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
 
 ## NOTES ##
 # Spellchecker virker ikke helt godt stadigvæk (burde testes ved rigtige ord, som ikke er i ordbogen) (2)
