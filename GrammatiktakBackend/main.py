@@ -70,12 +70,12 @@ def correct_input(input_sentence, save=False):
     errors_to_project_onto_others = modules_to_project_onto_others.correct(sentence, pos_tags, ner_tags, index_finder=index_finder)
 
     # utils.print_list_of_ErrorList(sentence_manipulation_project_errors, sentence_manipulation_errors, errors_be_projected_on, errors_to_project_onto_others)
+    # module_tracker.print()
 
     if save:
         firestore_client.save_input(sentence, module_tracker)
         time_tracker.track("saving to firestore")
 
-    module_tracker.print()
 
     final_errors = error_concatenator(errors_be_projected_on + sentence_manipulation_errors, 
                                       errors_to_project_onto_others=sentence_manipulation_project_errors + errors_to_project_onto_others)
@@ -101,11 +101,12 @@ time_tracker.complete_reset()
 
 # message = "hej jeg hedder magnus og min ven hedder lucas hvilket jeg er glad for"
 # message = "I skoven gik vi dybt ind i skoven og fandt en skjult sø hvor vi tog en svømmetur i det klare vand og nød den smukke natur omkring os indtil solnedgang"
+# message = "Træner teamet Mathilde Pugholm Hvid, Nichlas Fonnesbech & Bastian Løve Høegh - Jeg tror ikke helt I ved, hvor KÆMPE en forskel I gør - TUSIND TAK🙏🙏."
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # utils.check_if_index_is_correct(errors1, message)
 
-test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker)
+# test_deployment(correct_input, manual_check=False, start_at=0, time_tracker=time_tracker) # Works: Last best score 28.78 words/sec
 
 ## NOTES ##
 # Spellchecker virker ikke helt godt stadigvæk (burde testes ved rigtige ord, som ikke er i ordbogen) (2)
