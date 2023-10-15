@@ -15,7 +15,7 @@ from Punctuation.excessive_spaces import ExcessiveSpacesCorrector
 from Utilities import utils
 from Utilities.error_handling import error_concatenator
 from Utilities.module_utils import ModuleSequential, ModuleSequentialWhenSentenceManipulation, ModuleTracker
-from Utilities.deployment_test import test_deployment
+# from Utilities.deployment_test import test_deployment
 
 from Storage.Firestore import FirestoreClient
 
