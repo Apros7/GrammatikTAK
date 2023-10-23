@@ -103,5 +103,6 @@ class DistilBertForPunctuation():
         final_predictions = self.introduce_split_indexes(maxed_predictions, split_indexes)
         # final_predictions = self.get_final_predictions(raw_predictions)
         # print(*[(d.split()[14], d, r, f) for d, r, f in zip(dataset, raw_predictions, final_predictions)], sep="\n")
+        print("Final pred: ", len(final_predictions), "| Maxed pred: ", len(maxed_predictions), "| Dataset: ", len(dataset), "| Words: ", len(data[0].split()))
         return final_predictions
     

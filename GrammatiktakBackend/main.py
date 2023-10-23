@@ -56,7 +56,7 @@ def correct_input(input_sentence, save=False):
     module_tracker.init_new_sentence(original_sentence = input_sentence) # resets and initializes
 
     # In case of backend error, the input sentence will show on Google Cloud Logs
-    print("Correcting this sentence: ", input_sentence)
+    print(f"Correcting this sentence: \"{input_sentence}\"")
 
     pos_tags, ner_tags = tagger.get_tags(input_sentence)
     time_tracker.track("get tags")
@@ -80,6 +80,8 @@ def correct_input(input_sentence, save=False):
     final_errors = error_concatenator(errors_be_projected_on + sentence_manipulation_errors, 
                                       errors_to_project_onto_others=sentence_manipulation_project_errors + errors_to_project_onto_others)
 
+    print(f"Correction successful: \"{input_sentence}\"")
+
     return final_errors
 
 # flask app:
@@ -99,9 +101,7 @@ def index():
 
 time_tracker.complete_reset()
 
-# message = "hej jeg hedder magnus og min ven hedder lucas hvilket jeg er glad for"
-# message = "I skoven gik vi dybt ind i skoven og fandt en skjult sø hvor vi tog en svømmetur i det klare vand og nød den smukke natur omkring os indtil solnedgang"
-# message = "Træner teamet Mathilde Pugholm Hvid, Nichlas Fonnesbech & Bastian Løve Høegh - Jeg tror ikke helt I ved, hvor KÆMPE en forskel I gør - TUSIND TAK🙏🙏."
+# message = "Jeg hedder Lucas, og jeg studerer kunstig intelligens på DTU. Jeg er i gang med at udvikle et hjælpeværktøj til gymnasieelever. Programmet er ikke direkte henvendt til ordblinde elever, men derimod den generelle elev."
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # utils.check_if_index_is_correct(errors1, message)

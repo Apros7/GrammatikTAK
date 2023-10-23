@@ -38,6 +38,12 @@ class PunctuationCorrector():
         # get relevant lists:
         # every words is checked but the last one
         checked_words = [words[i] for i in range(len(words)-1)]
+
+        ########
+        # unknown bug, should be fixed!! Has something to do with flask handling multiple requests
+        if len(predictions) < len(checked_words): print("dataset, final_prediction BUG!"); return ErrorList()
+        ########
+
         predicted_comma = [True if predictions[i] == 1 else False for i in range(len(checked_words))]
         already_punctuated = [True if checked_words[i][-1] in PUNCTUATIONS_WITHOUT_COMMA else False for i in range(len(checked_words))]
         already_comma = [True if checked_words[i][-1] == "," else False for i in range(len(checked_words))]
