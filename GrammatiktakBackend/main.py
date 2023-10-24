@@ -80,7 +80,7 @@ def correct_input(input_sentence, save=False):
     final_errors = error_concatenator(errors_be_projected_on + sentence_manipulation_errors, 
                                       errors_to_project_onto_others=sentence_manipulation_project_errors + errors_to_project_onto_others)
 
-    print(f"Correction successful: \"{input_sentence}\"")
+    print(f"Correction successful for: \"{input_sentence}\"")
 
     return final_errors
 
@@ -98,6 +98,8 @@ def index():
     input = data["sentence"]
     output = correct_input(input, save=True)
     return jsonify(output)
+
+print("Worker ready!")
 
 time_tracker.complete_reset()
 
