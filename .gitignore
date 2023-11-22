@@ -20,3 +20,5 @@ log/
 *.config
 *.pt
 tmp_trainer
+.env
+arrays/
