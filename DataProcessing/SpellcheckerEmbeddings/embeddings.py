@@ -59,18 +59,46 @@ def get_words_without_embeddings(words, embedded_words):
 
 print("Loaded")
 
-path = "/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/SpellcheckerEmbeddings/arrays"
-path_to_latest_embeddings = "/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/SpellcheckerEmbeddings/arrays/20231122_194259.npz"
+path = "/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/SpellcheckerEmbeddings/arraysEng"
+# path_to_latest_embeddings = "/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/SpellcheckerEmbeddings/arrays/20231122_194259.npz"
 
-words = sorted(pickle.load(open("/Users/lucasvilsen/Desktop/GrammatikTAK/Datasets/dictionary.pickle", "rb")))
-# embedded_words = np.array([])
-# embedded_vectors = embedded_words.reshape(0, OPENAI_VECTOR_SIZE)
-embedded_words, embedded_vectors = load_embeddings(path_to_latest_embeddings)
+words = [
+    "apple", "banana", "avocado", "ant", "aardvark",
+    "airplane", "astronomy", "ambiguous", "alchemy", "acoustic",
+    "ball", "book", "bicycle", "balloon", "blueberry",
+    "cat", "carrot", "candle", "cactus", "chocolate",
+    "dog", "dragon", "diamond", "dolphin", "daffodil",
+    "elephant", "eggplant", "electricity", "eagle", "enigma",
+    "frog", "firefly", "flamingo", "forest", "fortune",
+    "guitar", "giraffe", "galaxy", "gazelle", "grape",
+    "house", "hammer", "helicopter", "honey", "happiness",
+    "ice cream", "island", "igloo", "iron", "illusion",
+    "jellyfish", "jigsaw", "jungle", "jackal", "juice",
+    "kangaroo", "kiwi", "kite", "koala", "kingdom",
+    "lemon", "lion", "lighthouse", "laptop", "laughter",
+    "moon", "mountain", "mango", "mermaid", "magnet",
+    "notebook", "noodle", "narwhal", "nest", "nostalgia",
+    "octopus", "orange", "ocean", "owl", "orchid",
+    "penguin", "pineapple", "puzzle", "pancake", "paradise",
+    "quasar", "quill", "quokka", "queen", "question",
+    "rainbow", "robot", "rocket", "rose", "river",
+    "sunflower", "sailboat", "snail", "star", "sandcastle",
+    "tiger", "telephone", "turtle", "treasure", "trampoline",
+    "umbrella", "unicorn", "universe", "ukulele", "ultimate",
+    "violin", "volcano", "velvet", "vortex", "victory",
+    "watermelon", "whale", "wizard", "waffle", "wonder",
+    "xylophone", "x-ray", "xanadu", "xenon", "xerox",
+    "yellow", "yogurt", "yak", "yo-yo", "yonder",
+    "zebra", "zephyr", "zoo", "zenith", "zipper"
+]
+embedded_words = np.array([])
+embedded_vectors = embedded_words.reshape(0, OPENAI_VECTOR_SIZE)
+# embedded_words, embedded_vectors = load_embeddings(path_to_latest_embeddings)
 words_without_embedding = get_words_without_embeddings(words, embedded_words)
 
 batches_to_run = len(words_without_embedding) // MAX_BATCH_SIZE
 print("Estimated batches to run: ", batches_to_run)
 
 print("Ready to run")
-for _ in tqdm(range(10)):
+for _ in tqdm(range(1)):
     words_without_embedding, embedded_words, embedded_vectors = run_batch(words_without_embedding, embedded_words, embedded_vectors, path)

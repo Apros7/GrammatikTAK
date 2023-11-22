@@ -24,8 +24,8 @@ def load_embeddings(path):
 load_dotenv()
 openai_client = openai.OpenAI()
 
-path_to_embeddings = "/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/SpellcheckerEmbeddings/arrays"
-latest_embedding = "20231122_195118.npz"
+path_to_embeddings = "/Users/lucasvilsen/Desktop/GrammatikTAK/DataProcessing/SpellcheckerEmbeddings/arraysEng"
+latest_embedding = "20231122_230137.npz"
 path_to_latest_embedding = os.path.join(path_to_embeddings, latest_embedding)
 embedded_words, embedded_vectors = load_embeddings(path_to_latest_embedding)
 print("Size: ", len(embedded_words), "/400000")
@@ -41,7 +41,7 @@ collection.add(
 
 start_time = time.time()
 print("started_timer")
-word_to_test = "inmad"
+word_to_test = "nodeboog"
 word_to_test_embedding = get_embedding(word_to_test)[0]
 predictions = collection.query(
     query_embeddings=word_to_test_embedding,
