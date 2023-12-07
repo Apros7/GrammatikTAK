@@ -1,3 +1,5 @@
+use_models = True
+
 from Timetracking.timetracker import TimeTracker
 time_tracker = TimeTracker()
 time_tracker.inactive = True
@@ -59,6 +61,7 @@ def correct_input(input_sentence, save=False):
     print(f"Correcting this sentence: \"{input_sentence}\"")
 
     pos_tags, ner_tags = tagger.get_tags(input_sentence)
+    print("Ner tags: ", ner_tags)
     time_tracker.track("get tags")
 
     sentence_manipulation_project_errors, (sentence, pos_tags, ner_tags) = modules_to_manipulate_and_project.correct(input_sentence, pos_tags, ner_tags, index_finder=index_finder)
@@ -103,7 +106,7 @@ print("Worker ready!")
 
 time_tracker.complete_reset()
 
-# message = "Jeg hedder Lucas, og jeg studerer kunstig intelligens på DTU. Jeg er i gang med at udvikle et hjælpeværktøj til gymnasieelever. Programmet er ikke direkte henvendt til ordblinde elever, men derimod den generelle elev."
+# message = "hej lucas. Jeg hedder lucas."
 # errors1 = correct_input(message)
 # print(*errors1, sep="\n")
 # utils.check_if_index_is_correct(errors1, message)
