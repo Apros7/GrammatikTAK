@@ -23,10 +23,11 @@ class ModuleTracker():
 
 
 class ModuleSequential():
-    def __init__(self, modules, timeTracker, moduleTracker : ModuleTracker):
+    def __init__(self, modules, timeTracker, moduleTracker : ModuleTracker, use_models : bool ):
         self.modules = modules
         self.timeTracker = timeTracker
         self.moduleTracker = moduleTracker
+        self.use_models = use_models
 
     def correct_module(self, module, sentence, pos_tags, ner_tags, index_finder):
         self.moduleTracker.start_track()
@@ -41,10 +42,11 @@ class ModuleSequential():
 
 # Used if the module changes sentence, pos and ner
 class ModuleSequentialWhenSentenceManipulation():
-    def __init__(self, modules, timeTracker, moduleTracker : ModuleTracker) -> None:
+    def __init__(self, modules, timeTracker, moduleTracker : ModuleTracker, use_models : bool) -> None:
         self.modules = modules
         self.timeTracker = timeTracker
         self.moduleTracker = moduleTracker
+        self.use_models = use_models
 
     def correct(self, sentence, pos_tags, ner_tags, index_finder):
         all_errors = [] # list of ErrorLists

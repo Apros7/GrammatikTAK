@@ -1,5 +1,4 @@
 use_models = True
-# TODO: Make this work
 
 from Timetracking.timetracker import TimeTracker
 time_tracker = TimeTracker()
@@ -33,22 +32,22 @@ tagger = Tagger()
 modules_to_manipulate_sentence = ModuleSequentialWhenSentenceManipulation([
     MissingFoundationChecker(),
     NutidsRCorrector()
-], timeTracker=time_tracker, moduleTracker = module_tracker)
+], timeTracker=time_tracker, moduleTracker = module_tracker, use_models = use_models)
 
 modules_to_manipulate_and_project = ModuleSequentialWhenSentenceManipulation([
     ExcessiveSpacesCorrector(),
     DoubleWordsChecker()
-], timeTracker=time_tracker, moduleTracker = module_tracker)
+], timeTracker=time_tracker, moduleTracker = module_tracker, use_models = use_models)
 
 modules_to_project_onto_others = ModuleSequential([
     PunctuationCorrector(),
     CapitalizationCorrector()
-], timeTracker=time_tracker, moduleTracker = module_tracker)
+], timeTracker=time_tracker, moduleTracker = module_tracker, use_models = use_models)
 
 modules_be_projected_on = ModuleSequential([
     DeterminantCorrector(),
     SpellChecker()
-], timeTracker=time_tracker, moduleTracker = module_tracker)
+], timeTracker=time_tracker, moduleTracker = module_tracker, use_models = use_models)
 
 firestore_client = FirestoreClient()
 
