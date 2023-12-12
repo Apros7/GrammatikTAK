@@ -14,9 +14,9 @@ This currently only corrects danish text at [**GrammatikTAK.com.**](https://www.
 
 The backend is no longer hosted. You can run this locally and change the code of the [website](https://github.com/Apros7/Apros7.github.io) to point to your locally hosted backend.
 
-The backend uses trained models. To use the backend without the models change the first line in GrammatiktakBackend/main.py to ```use_models = False``` then ```cd GrammatiktakBackend``` and host with ```flask --app main run```
+The backend uses trained models. To use the backend without the models change the first line in GrammatiktakBackend/main.py to ```local_models_avaliable = False``` then ```cd GrammatiktakBackend``` and host with ```flask --app main run```
 
-This project could definitely be better documented. If you need any assistance, what to go through the project or want my datasets/models to further experiment, feel free to contact me.
+This project could definitely be better documented. If you need any assistance, want to go through the project or want my datasets/models to further experiment, feel free to contact me.
 
 ## Why?
 The rise in NLP and AI has greatly affected popular languages, their respective grammar assistants and NLP work. The nordic, especially danish, are sadly way behind. This repo is hopefully going to help cover some basic NLP needs and make a great danish, an potential nordic, grammar assistant.
