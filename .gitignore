@@ -1,6 +1,6 @@
 .ipynb_checkpoints
 .vscode
-Datasets
+AllDatasets
 pos_caching.pkl
 vocab.txt
 .DS_Store
