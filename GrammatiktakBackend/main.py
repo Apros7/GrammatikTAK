@@ -26,6 +26,10 @@ from flask_cors import CORS
 
 time_tracker.track("import modules")
 
+# Change the key and include if you want to save feedback and text from your users
+# Remember to uncomment in correct input() and index()
+# firestore_client = FirestoreClient()
+
 module_tracker = ModuleTracker()
 tagger = Tagger()
 
@@ -48,8 +52,6 @@ modules_be_projected_on = ModuleSequential([
     DeterminantCorrector(),
     SpellChecker()
 ], timeTracker=time_tracker, moduleTracker = module_tracker, use_models = use_models)
-
-firestore_client = FirestoreClient()
 
 time_tracker.track("initialize correctors")
 
@@ -76,7 +78,7 @@ def correct_input(input_sentence, save=False):
     # module_tracker.print()
 
     if save:
-        firestore_client.save_input(sentence, module_tracker)
+        # firestore_client.save_input(sentence, module_tracker)
         time_tracker.track("saving to firestore")
 
 
@@ -96,7 +98,7 @@ def index():
     data = request.get_json()
     empty_or_feedback, feedback, input, output = utils.check_empty_input_or_feedback(data)
     if empty_or_feedback:
-        firestore_client.save_feedback(feedback, input)
+        # firestore_client.save_feedback(feedback, input)
         return jsonify(output)
     input = data["sentence"]
     output = correct_input(input, save=True)
