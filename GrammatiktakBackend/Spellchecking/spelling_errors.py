@@ -26,6 +26,10 @@ class SpellChecker():
     """
     
     def __init__(self) -> None:
+        self.uses_local_models = True
+
+    # for the ModuleSequential to call 
+    def init(self):
         print("Loading spellchecking dictionaries...")
         # Also needs forkortelser in dictionary
         self.dictionary = {k: None for k in pickle.load(open("Datasets/dictionary.pickle", "rb"))}
