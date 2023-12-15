@@ -23,3 +23,6 @@ tmp_trainer
 .env
 arrays/
 arraysEng/
+misspellings_dict.pickle
+spelling_errors_keys.pickle
+spelling_errors_values.pickle
