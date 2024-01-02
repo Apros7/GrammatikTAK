@@ -8,7 +8,7 @@
 
 Project to use a combination of NLP, AI and Linguists to make danish grammar assistant.
 
-This currently only corrects danish text at [**GrammatikTAK.com.**](https://www.grammatiktak.com) (See the code for it [here](https://github.com/Apros7/Apros7.github.io))Models and datasets are not included in this repo.
+Corrected at [**GrammatikTAK.com.**](https://www.grammatiktak.com), no longer live (See the code for it [here](https://github.com/Apros7/Apros7.github.io)). Models and datasets are not included in this repo.
 
 ## How to see what this repo is capable of:
 
